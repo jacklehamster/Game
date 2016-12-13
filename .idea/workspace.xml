@@ -21,16 +21,32 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/spookychamber/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="365">
-              <caret line="731" column="140" lean-forward="false" selection-start-line="731" selection-start-column="140" selection-end-line="731" selection-end-column="140" />
+            <state relative-caret-position="375">
+              <caret line="51" column="24" lean-forward="false" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
               <folding>
-                <element signature="n#style#0;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#img#0;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#26;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#27;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#35;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#36;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#37;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#0;n#center#0;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#0;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#1;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#2;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#3;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#4;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#5;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#6;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#7;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#8;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#9;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#10;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#11;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#12;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#13;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#14;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#15;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#16;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#17;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#18;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#19;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#20;n#body#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#21;n#body#0;n#!!top" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -63,7 +79,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="68" />
-    <option name="y" value="58" />
+    <option name="y" value="56" />
     <option name="width" value="909" />
     <option name="height" value="651" />
   </component>
@@ -343,7 +359,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="68" y="58" width="909" height="651" extended-state="0" />
+    <frame x="68" y="56" width="909" height="651" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -393,16 +409,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/spookychamber/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="365">
-          <caret line="731" column="140" lean-forward="false" selection-start-line="731" selection-start-column="140" selection-end-line="731" selection-end-column="140" />
+        <state relative-caret-position="375">
+          <caret line="51" column="24" lean-forward="false" selection-start-line="51" selection-start-column="24" selection-end-line="51" selection-end-column="24" />
           <folding>
-            <element signature="n#style#0;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#26;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#27;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#35;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#36;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#37;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#center#0;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#1;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#2;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#3;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#4;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#5;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#6;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#7;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#8;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#9;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#10;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#11;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#12;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#13;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#14;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#15;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#16;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#17;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#18;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#19;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#20;n#body#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#21;n#body#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>

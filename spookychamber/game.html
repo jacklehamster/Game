@@ -1,0 +1,751 @@
+
+<!-- saved from url=(0031)http://vinh.16mb.com/room2.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <title>La chambre des horreurs</title>
+<script>
+   var spiders = [];
+   var keyboard = [];
+   var paused = 0;
+   var score = 0;
+   var level = 1;
+   var spidersKilled = 0;
+   var openDoor = 0;
+   var passedDoor=0;
+
+   function onKey(e) {
+      keyboard[e.keyCode] = e.type=="keydown";
+      e.preventDefault();
+   }
+
+   function clearAllSpiders() {
+      for(var i=1;document.getElementById("spider"+i);i++) {
+            document.getElementById("spider"+i).style.display = "none";
+            document.getElementById("spider"+i+"-shadow").style.display = "none";
+      }
+   }
+
+   function setLevel(value) {
+      level = value;
+      levelcontainer.textContent = "LEVEL " + level;
+   }
+
+   function setScore(value) {
+      score = value;
+      scorecontainer.textContent = score;
+   }
+
+   function updateSpidersKilled(value) {
+      spidersKilled = value;
+      countcontainer.textContent = Math.min(spidersKilled,spidersNeeded()) + " / " + spidersNeeded();
+   }
+
+   function spidersNeeded() {
+      return (1<<(level-1))*10-5;
+   }
+
+   function restartGame(restoreLife) {
+      if(restoreLife) {
+         clearAllSpiders();
+         setScore(0);
+         setLevel(1);
+         spidersKilled = 0;
+         updateSpidersKilled(0);
+         passedDoor = 0;
+         openDoor = 0;
+
+         for(var i=1;i<=3;i++) {
+            document.getElementById("heart"+i).style.display = "";
+         }
+      }
+
+
+      gameStart = 0;
+      lastMummyTime = 0;
+      enterSarko = 0;
+      sarkoOpened = false;
+      spiders = [];
+      keyboard = [];
+      resetBoy();
+      cycle(0,true);
+      gameover.style.display = "none";
+      paused = 0;
+   }
+
+   function init() {
+      setPosition(countdiv,350,ceiling,-950,null);
+      setPosition(scorediv,350,ceiling,-950,null);
+      setPosition(leveldiv,350,ceiling,-950,null);
+      setPosition(heart1,-450,ceiling,-950,null);
+      setPosition(heart2,-450,ceiling,-950,null);
+      setPosition(heart3,-450,ceiling,-950,null);
+      setPosition(spiderweb,450,ceiling,-950,null);
+      spiderweb2.style.webkitTransform = "translate3d(-750px,-650px,-950px) scale(2,2) rotateY(240deg)";
+      setPosition(sarko,-400,250,-950,null);
+      setPosition(crypt,230,230,-950,null);
+      restartGame(true);
+      document.body.focus();
+   }
+   var gameStart = 0;
+   var keepCycle = true;
+
+   var boyWalkLeft = "boy-walk-left.png";
+   var boyWalkRight = "boy-walk-right.png";
+   var boyStillLeft = "boy.png";
+   var boyStillRight = "boy-still-right.png";
+   var boyWalkUp = "boy-walk-up.png";
+   var boyWalkDown = "boy-walk-down.png";
+   var wallImage = "wall.png";
+   var shadowImg = "shadow.png";
+   var boyKo = "boy-ko.png";
+
+   function getBoyRollImage(updown,leftright) {
+      return "boy-roll-"+updown+"-"+leftright+".png";
+   }
+
+   function setPosition(boy,x,y,z,shadow) {
+
+     x = Math.round(x);
+     y = Math.round(y);
+     z = Math.round(z);
+
+     boy.style.webkitTransform = "translate3d("+x+"px,"+y+"px,"+z+"px)";
+     boy.style.zIndex = z+150+800;
+
+     if(shadow) {
+        var frame = boy.destroyed?4:y<=ceiling?0:y<ceiling+50?1:y<ceiling+100?2:y<ceiling+150?3:y<-200?4:y<-150?3:y<-100?2:y<-50?1:0;
+        shadow.style.display = frame==4?"none":"";
+        if(frame<4) {
+          setAnimation(shadow,shadowImg,frame);
+          setPosition(shadow,x,y>-500?10:ceiling-75,z-1,null);
+        }
+     }
+   }
+
+   function setImg(boy,dx,dz,look,time, boyInfo) {
+     var src = boyInfo.destroyed ? boyKo :
+             rolling(time) ? getBoyRollImage(dz<0?"up":"bottom",dx<0?"left":"right") :
+             dx==0 && dz==0? (look<=0?boyStillLeft:boyStillRight): 
+             dz>0 ? boyWalkDown : dz<0 ? boyWalkUp :
+             dx<0 ? boyWalkLeft: dx > 0?boyWalkRight :
+             boyStillLeft;
+
+     setAnimation(boy, src, Math.floor(time/100));
+     boy.style.display = enterSarko?"none":"";
+   }
+
+   function deductLife() {
+       for(var i=3;i>=1;i--) {
+           if(document.getElementById("heart"+i).style.display != "none") {
+                document.getElementById("heart"+i).style.display = "none";
+               break;
+           }
+       }
+   }
+
+   function countLife() {
+       var count = 0;
+       for(var i=3;i>=1;i--) {
+           if(document.getElementById("heart"+i).style.display == "") {
+               count++;
+           }
+       }
+       return count;
+   }
+
+   function handleHearts(time) {
+       var life = countLife();
+       setAnimation(heart1, "heart.png", Math.floor(time/(500*life)));
+       setAnimation(heart2, "heart.png", Math.floor(time/(500*life)));
+       setAnimation(heart3, "heart.png", Math.floor(time/(500*life)));
+   }
+
+
+   var lastMummyTime = 0, mummycycle = 10000, mummyInfo = {x:-250,y:250,z:-950};
+   var lastWolfTime = 0, wolfcycle = 7000, wolfInfo = {x:-250,y:250,z:-950};
+   var enterSarko = 0, sarkoOpened = false;;
+   function handleMummy(time) {
+     if(!enterSarko && false) {
+       var distsq = (getDistSq({x:-250,y:250,z:-900},boyPos));
+       if(distsq<2500 && sarkoOpened) {
+           enterSarko = time;
+       }
+     }
+
+     if(enterSarko && time - enterSarko<100 && sarkoOpened) {
+         setAnimation(sarko, "sarcophagus.png", 3);
+     } else if(enterSarko) {
+         if(time - enterSarko < 5000) {
+             setAnimation(sarko, "sarcophagus.png", 0);
+         } else if(gameover.style.display=="none") {
+             doGameOver(time);
+         }
+         
+     } else if(time - lastMummyTime < mummycycle) {
+         setAnimation(sarko, "sarcophagus.png", 0);
+         mummy.style.display = "none";
+         mummyshadow.style.display = "none";
+     } else if(time - lastMummyTime < mummycycle+150) {
+         if(level>=2 && !openDoor) {
+           setAnimation(sarko, "sarcophagus.png", 1);
+           mummy.style.display = "none";
+           mummyshadow.style.display = "none";
+         }
+     } else if(mummy.style.display=="none") {
+         if(level>=2 && !openDoor) {
+           mummy.style.display = "";
+           setAnimation(sarko, "sarcophagus.png", 2);
+           setPosition(mummy,-250,250,-950,mummyshadow);
+           setAnimation(mummy, "mummy.png", Math.floor(time/100));
+           sarkoOpened = true;
+           mummyInfo = {x:-250,y:250,z:-950};
+         }
+     } else if(time - lastMummyTime < mummycycle+2000 && mummy.style.display!="none") {
+         mummyInfo.z+=5;
+         setAnimation(mummy, "mummy.png", Math.floor(time/100));
+         setPosition(mummy,mummyInfo.x,mummyInfo.y,mummyInfo.z,mummyshadow);
+         setAnimation(sarko, "sarcophagus.png", 0);
+         var distsq = (getDistSq(mummyInfo,boyPos));
+         if(distsq < 5000) {
+                boyPos.destroyed = true;
+                boyPos.dx = boyPos.dz = 0;
+                boyPos.dy = -30;
+                shadow.style.display = "none";
+                shadow2.style.display = "none";
+         }
+
+     } else if(mummyInfo.z<500 && mummy.style.display!="none") {
+         mummyInfo.z+=10;
+         setAnimation(mummy, "mummy.png", Math.floor(time/100));
+         setPosition(mummy,mummyInfo.x,mummyInfo.y,mummyInfo.z,mummyshadow);
+
+         var distsq = (getDistSq(mummyInfo,boyPos));
+         if(distsq < 5000) {
+                boyPos.destroyed = true;
+                boyPos.dx = boyPos.dz = 0;
+                boyPos.dy = -30;
+                shadow.style.display = "none";
+                shadow2.style.display = "none";
+         }
+
+     } else {
+         lastMummyTime = time;
+     }
+
+     if(time - lastWolfTime < wolfcycle) {
+         setAnimation(crypt, "crypt-door.png", 0);
+         wolf.style.display = "none";
+         wolfshadow.style.display = "none";
+     } else if(time - lastWolfTime < wolfcycle+150) {
+         if(level>=3 && !openDoor) {
+           setAnimation(crypt, "crypt-door.png", 1);
+           wolf.style.display = "none";
+           wolfshadow.style.display = "none";
+         }
+     } else if(wolf.style.display=="none") {
+         if(level>=3 && !openDoor) {
+           wolf.style.display = "";
+           setAnimation(crypt, "crypt-door.png", 2);
+           setPosition(wolf,250,250,-950,wolfshadow);
+           setAnimation(wolf, "werewolf.png", Math.floor(time/100));
+           wolfInfo = {x:250,y:250,z:-950};
+         }
+     } else if(time - lastWolfTime < wolfcycle+2000 && wolf.style.display!="none") {
+         wolfInfo.z+=5;
+         setAnimation(wolf, "werewolf.png", Math.floor(time/300));
+         setPosition(wolf,wolfInfo.x,wolfInfo.y,wolfInfo.z,wolfshadow);
+         setAnimation(crypt, "crypt-door.png", 0);
+         var distsq = (getDistSq(wolfInfo,boyPos));
+         if(distsq < 5000) {
+                boyPos.destroyed = true;
+                boyPos.dx = boyPos.dz = 0;
+                boyPos.dy = -30;
+                shadow.style.display = "none";
+                shadow2.style.display = "none";
+         }
+
+     } else if(wolfInfo.z<500 && wolf.style.display!="none") {
+         wolfInfo.z+=8;
+         setAnimation(wolf, "werewolf.png", Math.floor(time/300));
+         setPosition(wolf,wolfInfo.x,wolfInfo.y,wolfInfo.z,wolfshadow);
+
+         var distsq = (getDistSq(wolfInfo,boyPos));
+         if(distsq < 5000) {
+                boyPos.destroyed = true;
+                boyPos.dx = boyPos.dz = 0;
+                boyPos.dy = -30;
+                shadow.style.display = "none";
+                shadow2.style.display = "none";
+         }
+
+     } else {
+         lastWolfTime = time;
+     }
+
+
+   }
+
+   var midSpiderX = 0, midSpiderZ = -500, ceiling=-850, spiderRange=800, spiderSpeed=3;
+   function handleSpiders(time) {
+     var numSpiders = 3 + level*3;
+     if(spiders.length<numSpiders && !openDoor) {
+        spiders.push({
+           x:midSpiderX+(Math.random()-.5)*spiderRange, 
+           y:ceiling, 
+           z:midSpiderZ+(0*Math.random()+1-.5)*spiderRange,
+           moveTime: time,
+           fall:0,
+           goal:null,
+        });
+
+        var index = spiders.length;
+        if(!document.getElementById("spider"+index)) {
+           var div = document.createElement("div");
+           div.id = "spider"+index;
+           div.style.position = "absolute";
+           div.style.top = "350px";
+           div.style.left = "0px";
+           div.style.width = "128px";
+           div.style.height = "128px";
+           div.style.overflow = "hidden";
+           container.appendChild(div);
+
+           var div = document.createElement("div");
+           div.id = "spider"+index + "-shadow";
+           div.style.position = "absolute";
+           div.style.top = "350px";
+           div.style.left = "0px";
+           div.style.width = "128px";
+           div.style.height = "128px";
+           div.style.overflow = "hidden";
+           container.appendChild(div);
+        }
+
+        if(document.getElementById("spider"+index).style.display=="none") {
+           document.getElementById("spider"+index).style.display = "";
+        }
+
+//       <div id="spider8" style="position:absolute; top:350px; left:0px; width:128px; height:128px; overflow:hidden"></div>
+//       <div id="spider8-shadow" style="position:absolute; top:338px; left:0px; width:128px; height:128px; overflow:hidden"></div>
+
+
+     }
+
+     for(var i=0;i<spiders.length;i++) {
+        var spiderInfo = spiders[i];
+        var index = (i+1);
+        var spider = document.getElementById("spider"+index);
+        if(spiderInfo.goal) {
+           var dx = spiderInfo.goal.x-spiderInfo.x;
+           var dy = spiderInfo.goal.y-spiderInfo.y;
+           var dz = spiderInfo.goal.z-spiderInfo.z;
+           if(dx || dy || dz) {
+             var dist = Math.sqrt(dx*dx+dz*dz);
+             if(dist) {
+               var speed = spiderInfo.y==ceiling? spiderSpeed:spiderSpeed*3;
+               speed += (level-1)*3;
+               spiderInfo.x += dx/dist*Math.min(speed,dist);
+               spiderInfo.z += dz/dist*Math.min(speed,dist);
+             }
+             if(dy) {
+               spiderInfo.fall+= 7;
+             }
+             spiderInfo.y += (dy<0?-1:dy>0?1:0) * Math.min(Math.abs(dy),spiderInfo.fall);
+           } else {
+             spiderInfo.goal = null;
+             spiderInfo.moveTime = time + (spiderInfo.y==ceiling?Math.random()*10000:Math.random()*1000);
+           }
+        }
+
+        if(spiderInfo.destroyed) {
+           spiderInfo.x += spiderInfo.dx;
+           spiderInfo.y += spiderInfo.dy;
+           spiderInfo.z += spiderInfo.dz;
+           spiderInfo.dy += 7;
+           if(spiderInfo.y>1000) {
+               spiderInfo.gone = true;
+           }
+        }
+
+        setPosition(spider,spiderInfo.x,spiderInfo.y,spiderInfo.z,
+           spiderInfo.destroyed ? null : document.getElementById("spider"+index+"-shadow")
+        );
+        if(!spiderInfo.destroyed) {
+          var distsq = (getDistSq(spiderInfo,boyPos));
+          var collideBoy = distsq<(rolling(time) ? 5000 : 2500);
+          if(spiderInfo.doomed || collideBoy && spiderInfo.y==0 && boyPos.y==0 && !spiderInfo.destroyed) { // collide with boy
+//           spider.style.border = rolling(time) ? "1px solid green" : "1px solid red";
+             if (spiderInfo.doomed || rolling(time)) {
+                updateSpidersKilled(spidersKilled+1);
+                setScore(score+50*level);
+                spiderInfo.destroyed = true;
+                spiderInfo.goal = null;
+                spiderInfo.dx = (Math.random()-.5)*10;
+                spiderInfo.dy = -20;
+                spiderInfo.dz = (Math.random()-.5)*10;
+                document.getElementById("spider"+index+"-shadow").style.display = "none";
+                if(spidersKilled==spidersNeeded()) {
+                    spiders.forEach(function(spiderInfo) { 
+                         spiderInfo.doomed = true; 
+                    });
+                    openDoor = time;
+                }
+             } else {
+                boyPos.destroyed = true;
+                boyPos.dx = boyPos.dz = 0;
+                boyPos.dy = -30;
+                shadow.style.display = "none";
+                shadow2.style.display = "none";
+             }
+
+          } else if(time>spiderInfo.moveTime && !spiderInfo.goal || spiderInfo.y==ceiling && collideBoy) {
+             var rand = (spiderInfo.y==ceiling?!collideBoy && Math.random()<.3:Math.random() <.9);
+
+             spiderInfo.goal = rand ? {
+                 x:spiderInfo.y==ceiling?midSpiderX+(Math.random()-.5)*spiderRange:boyPos.x+(Math.random()-.5)*100, 
+                 y:spiderInfo.y,
+                 z:spiderInfo.y==ceiling?midSpiderZ+(Math.random()-.5)*spiderRange:boyPos.z+(Math.random()-.5)*100,
+             } : {
+                 x:0, 
+                 y:spiderInfo.y==ceiling?0:ceiling,
+                 z:0,
+             };
+          }
+        }
+
+        var src = spiderInfo.y>=0 && !spiderInfo.destroyed?"spider.png" :"spider-reverse.png";
+        setAnimation(spider, src, 
+             spiderInfo.destroyed
+             ?0
+             :spiderInfo.goal==null
+             ?(Math.floor(time/400)+i)%2
+             :Math.floor(time/100) + i);
+
+     }
+
+     spiders = spiders.filter(function(spiderInfo) { return !spiderInfo.gone; });
+
+     var theWeb = Math.random()<.2?spiderweb:Math.random()<.5?spiderweb2:null;
+     if(theWeb) {
+        setAnimation(theWeb, "spider-web.png", Math.floor(time/100));
+     }
+   }
+
+   function getDist(obj1, obj2) {
+      var dx = obj1.x-obj2.x;
+      var dz = obj1.z-obj2.z;
+      return Math.sqrt(dx*dx+dz*dz);
+   }
+
+   function getDistSq(obj1, obj2) {
+      var dx = obj1.x-obj2.x;
+      var dz = obj1.z-obj2.z;
+      return dx*dx+dz*dz;
+   }
+
+   function setAnimation(div, src, frame) {
+      var img = "url("+src+")";
+      if(div.style.backgroundImage != img) {
+         div.style.backgroundImage = img;
+      }
+      frame %= 4;
+      var row = Math.floor(frame/2);
+      var col = frame%2;
+      var pos = (col*div.scrollWidth)+" "+(row*div.scrollHeight);
+      if(div.style.backgroundPosition != pos) {
+         div.style.backgroundPosition = pos;
+      }      
+   }
+
+   function doorOpened() {
+      return openDoor;
+//     return keyboard[79];
+   }
+
+   function inDoor(boyPos) {
+     if(boyPos.y!=0 || !doorOpened()) {
+        return null;
+     }
+     return (boyPos.x>=-100 && boyPos.x<=0)?-50:
+//            (boyPos.x>=-390 && boyPos.x<=-290)?-340:
+  //          (boyPos.x>=190 && boyPos.x<=290)?240:
+            null;
+     
+   }
+
+   document.addEventListener("keydown",onKey);
+   document.addEventListener("keyup",onKey);
+
+   function rolling(time) {
+      return boyPos.rollingTime > time;
+   }
+
+   function resetBoy() {
+      boyPos = {x:-50, y:0, z:-520, lastDx:0, lastDz:0, dy:0, look:-1, rollingTime: 0 };
+   }
+
+   function doGameOver(time) {
+      paused = time;
+      gameover.style.display = "";
+   }
+
+   var lastDraw = 0;
+   var boyPos;
+   var limitLeft = -200, limitZ = -950;
+   var leftWall = -520, rightWall = 380, farWall = -900, closeWall = -120;
+   var zCycle = 1000;
+   var steps = 25;
+   function cycle(absolutetime, forceRedraw) {
+       if(gameStart==0) {
+          gameStart = absolutetime;
+       }
+       var time = absolutetime - gameStart;
+
+       if (time - lastDraw > 30 && !paused || forceRedraw) {
+          if(passedDoor && time>passedDoor+1000) {
+             lastMummyTime = lastWolfTime = time;
+             openDoor = 0;
+             passedDoor = 0; 
+             setLevel(level+1);
+             updateSpidersKilled(0);
+          }
+
+          var isRolling = rolling(time);
+          var speed = isRolling ? steps*2 : steps;
+          var dx = 0, dz = 0, dy = 0;
+          if(keyboard[37] || keyboard[65]) { // left / A
+             dx--;
+          }
+          if(keyboard[39] || keyboard[68]) { // right / D
+             dx++;
+          }
+          if(keyboard[38] || keyboard[87]) { // up / W
+             dz-=1.5;
+          }
+          if(keyboard[40] || keyboard[83]) { // down / S
+             dz+=1.5;
+          }
+          if(keyboard[32] && boyPos.y==0 && !isRolling && !boyPos.destroyed) {
+             boyPos.dy=-50;
+          }
+
+          if(boyPos.destroyed) {
+             dx = dz = 0;
+             boyPos.dy+= 7;
+          }
+
+          var dxIntent = dx;
+          var dzIntent = dz;
+           
+          if(dx && dx != boyPos.look) {
+             boyPos.look = dx;
+          }
+
+          boyPos.y += boyPos.dy;
+          if(boyPos.y >0 && !boyPos.destroyed) boyPos.y = 0;
+          
+          if(boyPos.destroyed) {
+          } else if(boyPos.y>=0 && boyPos.dy>0) {
+             var roll = boyPos.dy - 50;
+             boyPos.rollingTime = time + roll*10;
+             boyPos.y = 0; boyPos.dy = 0;
+             isRolling = true;
+             forceRedraw = true;
+          } else if(boyPos.y<0) {
+             boyPos.dy+= keyboard[32]&&boyPos.dy<0?7:15;
+          }
+
+          if(isRolling) {
+             dxIntent = dx = boyPos.lastDx;
+             dzIntent = dz = boyPos.lastDz;
+             boyPos.dy = 0;
+          } else if(boyPos.y<0) {
+             dx = boyPos.lastDx;
+             dz = boyPos.lastDz;
+          } else {
+             boyPos.lastDx = dx;
+             boyPos.lastDz = dz;
+          }
+
+          if(boyPos.x>=leftWall && boyPos.x+dx*speed<leftWall) {
+             boyPos.x = leftWall;
+             dx = 0;
+          } else if(boyPos.x<=rightWall && boyPos.x+dx*speed>rightWall) {
+             boyPos.x = rightWall;
+             dx = 0;
+          }
+          var wentThroughDoor = false;
+          if(boyPos.z+dz*speed<farWall || boyPos.z+dz*speed>closeWall) {
+             var doory = inDoor(boyPos);
+             if(doory===null) {
+               if(boyPos.z<=farWall) {
+                  boyPos.z = farWall;
+               } else if(boyPos.z>=closeWall) {
+                  boyPos.z = closeWall;
+               }
+               dz = 0;
+             } else {
+               boyPos.x = doory;
+               boyPos.y = 0;
+             }
+          } else if(boyPos.z<farWall || boyPos.z>closeWall) {
+             if(openDoor)              passedDoor = time;
+          }
+           
+
+
+
+          var dist = Math.sqrt(dx*dx+dz*dz);
+          if(dist==0) dist=1;
+          boyPos.x += dx*speed/dist;
+          boyPos.z += dz*speed/dist;
+
+          if(boyPos.z<limitZ) {
+             boyPos.z+=zCycle;
+             forceRedraw = true;
+          } else if(boyPos.z>limitZ+zCycle) {
+             boyPos.z-=zCycle;
+             forceRedraw = true;
+          }
+
+          if(dx!=0 || boyPos.dy!=0 || dz!=0 || forceRedraw) {
+             setPosition(boy, boyPos.x, boyPos.y, boyPos.z, boyPos.destroyed?null: shadow);
+             setPosition(boy2, boyPos.x, boyPos.y, boyPos.z-zCycle,boyPos.destroyed?null: shadow2);
+          }
+          setImg(boy, dxIntent, dzIntent, boyPos.look, time, boyPos);
+          setImg(boy2, dxIntent, dzIntent, boyPos.look,time, boyPos);
+          lastDraw = time;
+          setAnimation(wallimg,wallImage,doorOpened()?(time-openDoor<500?1:2):0);
+
+          handleSpiders(time);
+          handleMummy(time);
+          handleHearts(time);
+
+          if(boyPos.y > 1000) {
+             deductLife();
+             if(countLife()==0) {
+                doGameOver(time);
+             } else {
+                restartGame();
+             }
+          }
+       } else if(paused) {
+          var keyPressed = false;
+          for(var k in keyboard) {
+              if(keyboard[k]) {
+                 keyPressed = true;
+              }
+              break;
+          }
+          if(keyPressed && time-paused>500) {
+             restartGame(true);
+          }
+       }
+       if(keepCycle) {
+          requestAnimationFrame(cycle);
+       }
+   }
+
+   document.addEventListener("DOMContentLoaded", init);
+
+</script><style>
+body, html {height:100%;overflow:hidden; }
+
+.body { width: 400px; height: 400px; opacity: 0.9;
+        background-color: #cccccc; border-top: 1px solid brown; border-bottom: 1px solid brown;
+        font-size: 150%;
+        -webkit-transform: rotateY(90deg);
+        
+
+}
+</style></head>
+
+
+
+
+<body style="background-color:#666666">
+<div id="container" style="position:absolute; width:100%; height:100%; left:50%; top:50%;-webkit-perspective: 10cm;-webkit-perspective-origin: 0px 0px;">
+
+<!--LEFT AND RIGHT WALL-->
+    <!--div class="body" style="position:absolute; left:-400px; top: 0px; width:400px; height:400px; opacity:1;
+                -webkit-transform: rotateY(90deg) translate3d(0px,0px,-300px);z-index:0; ">
+        <div style="-webkit-transform:translate3d(300px,-500px,0px);background-color:#666666; width:1000px; height:1000px">
+                </div>
+    </div>
+
+    <div class="body" style="position:absolute; left:600px; top: 0px; width:400px; height:400px; opacity:1;
+                -webkit-transform: rotateY(90deg) translate3d(0px,0px,-300px);z-index:0; ">
+        <div style="-webkit-transform:translate3d(300px,-500px,0px);background-color:#666666; width:1000px; height:1000px">
+                </div>
+    </div-->
+
+    <div class="body" style="opacity:.3; position:absolute; left:-200px; top: -400px; width:400px; height:400px; -webkit-transform: rotateX(-90deg) translate3d(0px,0px,-1px);">
+    </div>
+
+
+
+<!--GROUND-->
+    <div class="body" style="position:absolute; left:0px; top: 0px; width:950px; height:950px; z-index:0; border:0px; 
+         -webkit-transform: rotateX(90deg) translate3d(0px,-500px,0px);opacity:1; background:transparent">
+        <div style="background-color:silver;-webkit-transform:translate3d(-475px,0px,0px); width:950px; height:950px">
+            </div>
+    </div>
+
+
+    <div class="body" style="position:absolute; left:-475px; top: -475px; width:950px; height:950px; background:transparent;
+         opacity:1; z-index:0; border:0px;  -webkit-transform: rotateY(0deg) translate3d(0px,0px,-950px);">
+        <img id="wallimg" width="950" height="950" style="background-image: url(&quot;wall.png&quot;); background-position: 0px 0px;">
+    </div>
+
+
+
+       <div id="boy" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(-50px, 0px, -520px); z-index: 430; background-image: url(&quot;boy.png&quot;); background-position: 0px 0px;"></div>
+       <div id="boy2" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(-50px, 0px, -1520px); z-index: -570; background-image: url(&quot;boy.png&quot;); background-position: 0px 0px;"></div>
+       <div id="shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(-50px, 10px, -521px); z-index: 429;"></div>
+       <div id="shadow2" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(-50px, 10px, -1521px); z-index: -571;"></div>
+       <!--div id="boy3" style="position:absolute; top:338px; left:0px;display:none">
+          <img id="boyimg3" style="width:128px; height:128px">
+       </div>
+       <div id="boy4" style="position:absolute; top:338px; left:0px;display:none">
+          <img id="boyimg4" style="width:128px; height:128px">
+       </div-->
+
+       <div id="spider1" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(83px, -850px, -171px); z-index: 779; background-image: url(&quot;spider-reverse.png&quot;); background-position: 0px 0px;"></div>
+       <div id="spider1-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(83px, -925px, -172px); z-index: 778;"></div>
+       <div id="spider2" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(133px, -850px, -171px); z-index: 779; background-image: url(&quot;spider-reverse.png&quot;); background-position: 128px 0px;"></div>
+       <div id="spider2-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(133px, -925px, -172px); z-index: 778;"></div>
+       <div id="spider3" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(23px, 0px, -11px); z-index: 939; background-image: url(&quot;spider.png&quot;); background-position: 0px 128px;"></div>
+       <div id="spider3-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(23px, 10px, -12px); z-index: 938;"></div>
+       <div id="spider4" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(-54px, -850px, -162px); z-index: 788; background-image: url(&quot;spider-reverse.png&quot;); background-position: 128px 128px;"></div>
+       <div id="spider4-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(-54px, -925px, -163px); z-index: 787;"></div>
+       <div id="spider5" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(253px, -850px, -115px); z-index: 835; background-image: url(&quot;spider-reverse.png&quot;); background-position: 0px 0px;"></div>
+       <div id="spider5-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(253px, -925px, -116px); z-index: 834;"></div>
+       <div id="spider6" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; transform: translate3d(165px, 0px, -50px); z-index: 900; background-image: url(&quot;spider.png&quot;); background-position: 128px 0px;"></div>
+       <div id="spider6-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; background-image: url(&quot;shadow.png&quot;); background-position: 0px 0px; transform: translate3d(165px, 10px, -51px); z-index: 899;"></div>
+       <div id="spider7" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; display: none;"></div>
+       <div id="spider7-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; display: none;"></div>
+       <div id="spider8" style="position: absolute; top: 350px; left: 0px; width: 128px; height: 128px; overflow: hidden; display: none;"></div>
+       <div id="spider8-shadow" style="position: absolute; top: 338px; left: 0px; width: 128px; height: 128px; overflow: hidden; display: none;"></div>
+       <div id="spiderweb" style="position: absolute; top: 0px; left: 0px; width: 256px; height: 256px; overflow: hidden; transform: translate3d(450px, -850px, -950px); z-index: 0; background-image: url(&quot;spider-web.png&quot;); background-position: 256px 256px;"></div>
+       <div id="spiderweb2" style="position: absolute; top: 0px; left: 0px; width: 256px; height: 256px; overflow: hidden; transform: translate3d(-750px, -650px, -950px) scale(2, 2) rotateY(240deg); background-image: url(&quot;spider-web.png&quot;); background-position: 0px 0px;"></div>
+       <div id="gameover" style="z-index:1000; display:none; background-size: 100%; background-image: url(game-over.png); position:absolute; top:-250px; left:-250px; width:512; height:512; overflow:hidden"></div>
+       <div id="heart1" style="z-index: 0; background-size: 100%; background-image: url(&quot;heart.png&quot;); position: absolute; top: -200px; left: -450px; width: 64px; height: 64px; overflow: hidden; transform: translate3d(-450px, -850px, -950px); background-position: 0px 64px;"></div>
+       <div id="heart2" style="z-index: 0; background-size: 100%; background-image: url(&quot;heart.png&quot;); position: absolute; top: -200px; left: -350px; width: 64px; height: 64px; overflow: hidden; transform: translate3d(-450px, -850px, -950px); background-position: 0px 0px; display: none;"></div>
+       <div id="heart3" style="z-index: 0; background-size: 100%; background-image: url(&quot;heart.png&quot;); position: absolute; top: -200px; left: -250px; width: 64px; height: 64px; overflow: hidden; transform: translate3d(-450px, -850px, -950px); background-position: 0px 0px; display: none;"></div>
+       <div id="sarko" style="position: absolute; top: 0px; left: 0px; width: 256px; height: 256px; overflow: hidden; transform: translate3d(-400px, 250px, -950px); z-index: 0; background-image: url(&quot;sarcophagus.png&quot;); background-position: 0px 0px;"></div>
+       <div id="mummy" style="position: absolute; top: -20px; left: -50px; width: 256px; height: 256px; overflow: hidden; display: none;"></div>
+       <div id="mummyshadow" style="position: absolute; top: 238px; left: -50px; width: 256px; height: 256px; background-size: 200%; overflow: hidden; display: none;"></div>
+       <div id="crypt" style="position: absolute; top: 0px; left: 0px; width: 256px; height: 256px; overflow: hidden; transform: translate3d(230px, 230px, -950px); z-index: 0; background-image: url(&quot;crypt-door.png&quot;); background-position: 0px 0px;"></div>
+       <div id="wolf" style="position: absolute; top: -20px; left: -50px; width: 256px; height: 256px; overflow: hidden; display: none;"></div>
+       <div id="wolfshadow" style="position: absolute; top: 238px; left: -50px; width: 256px; height: 256px; background-size: 200%; overflow: hidden; display: none;"></div>
+       <div id="scorediv" style="transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: 250px; width: 500px; height: 64px; overflow: hidden;">
+          <font id="scorecontainer" size="+20">0</font>
+       </div>
+       <div id="leveldiv" style="transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: 0px; width: 500px; height: 64px; overflow: hidden;">
+          <font id="levelcontainer" size="+20">LEVEL 1</font>
+       </div>
+       <div id="countdiv" style="transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: -400px; width: 500px; height: 64px; overflow: hidden;">
+          <font id="countcontainer" size="+20">0 / 5</font><img height="64" width="64" src="spider.gif">
+       </div>
+</div>
+
+</body></html>
