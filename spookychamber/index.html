@@ -511,16 +511,16 @@
           var isRolling = rolling(time);
           var speed = isRolling ? steps*2 : steps;
           var dx = 0, dz = 0, dy = 0;
-          if(keyboard[37]) {
+          if(keyboard[37] && keyboard[65]) { // left / A
              dx--;
           }
-          if(keyboard[39]) {
+          if(keyboard[39] && keyboard[68]) { // right / D
              dx++;
           }
-          if(keyboard[38]) {
+          if(keyboard[38] && keyboard[87]) { // up / W
              dz-=1.5;
           }
-          if(keyboard[40]) {
+          if(keyboard[40] && keyboard[83]) { // down / S
              dz+=1.5;
           }
           if(keyboard[32] && boyPos.y==0 && !isRolling && !boyPos.destroyed) {
