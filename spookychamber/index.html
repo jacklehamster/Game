@@ -83,6 +83,7 @@
       setPosition(sarko,-400,250,-950,null);
       setPosition(crypt,230,230,-950,null);
       restartGame(true);
+      document.body.focus();
    }
    var gameStart = 0;
    var keepCycle = true;
@@ -160,7 +161,7 @@
 
 
    var lastMummyTime = 0, mummycycle = 10000, mummyInfo = {x:-250,y:250,z:-950};
-   var lastWolfTime = 0, wolfcycle = 15000, wolfInfo = {x:-250,y:250,z:-950};
+   var lastWolfTime = 0, wolfcycle = 7000, wolfInfo = {x:-250,y:250,z:-950};
    var enterSarko = 0, sarkoOpened = false;;
    function handleMummy(time) {
      if(!enterSarko && false) {
@@ -245,7 +246,7 @@
            wolf.style.display = "";
            setAnimation(crypt, "crypt-door.png", 2);
            setPosition(wolf,250,250,-950,wolfshadow);
-           setAnimation(wolf, "werwolf.png", Math.floor(time/100));
+           setAnimation(wolf, "werewolf.png", Math.floor(time/100));
            wolfInfo = {x:250,y:250,z:-950};
          }
      } else if(time - lastWolfTime < wolfcycle+2000 && wolf.style.display!="none") {
@@ -511,16 +512,16 @@
           var isRolling = rolling(time);
           var speed = isRolling ? steps*2 : steps;
           var dx = 0, dz = 0, dy = 0;
-          if(keyboard[37]) {
+          if(keyboard[37] || keyboard[65]) { // left / A
              dx--;
           }
-          if(keyboard[39]) {
+          if(keyboard[39] || keyboard[68]) { // right / D
              dx++;
           }
-          if(keyboard[38]) {
+          if(keyboard[38] || keyboard[87]) { // up / W
              dz-=1.5;
           }
-          if(keyboard[40]) {
+          if(keyboard[40] || keyboard[83]) { // down / S
              dz+=1.5;
           }
           if(keyboard[32] && boyPos.y==0 && !isRolling && !boyPos.destroyed) {
