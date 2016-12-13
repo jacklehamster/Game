@@ -7,7 +7,7 @@
    <meta charset="UTF-8"/>
    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
    <meta name="theme-color" content="#000000" />
-    <title>La chambre des horreurs</title>
+    <title>One Spooky Chamber of Horrors</title>
 <script>
    var spiders = [];
    var keyboard = [];
@@ -51,6 +51,7 @@
 
    function restartGame(restoreLife) {
       if(restoreLife) {
+         tweetBox.style.display = "none";
          clearAllSpiders();
          setScore(0);
          setLevel(1);
@@ -382,7 +383,7 @@
 //           spider.style.border = rolling(time) ? "1px solid green" : "1px solid red";
              if (spiderInfo.doomed || rolling(time)) {
                 updateSpidersKilled(spidersKilled+1);
-                setScore(score+50*level);
+                setScore(score+1);
                 spiderInfo.destroyed = true;
                 spiderInfo.goal = null;
                 spiderInfo.dx = (Math.random()-.5)*10;
@@ -492,6 +493,21 @@
    function doGameOver(time) {
       paused = time;
       gameover.style.display = "";
+      tweetScore.textContent = "SCORE: " + score;
+      tweetButton.innerHTML = "";
+      if (score>0) {
+        var link = document.createElement('a');
+        link.setAttribute('href', 'https://twitter.com/share');
+        link.setAttribute('class', 'twitter-share-button');
+        link.setAttribute('style', 'margin-top:5px;');
+        link.setAttribute("data-text" , "I smashed "+score+" spiders in the Spooky Chamber of Horrors. Aren't I the greatest?");
+        link.setAttribute("data-size" ,"large") ;
+        link.setAttribute('data-url', 'http://ludumdare.com/compo/ludum-dare-37/?action=preview&uid=20841');
+        link.setAttribute('data-hashtags', "ldjam #spookychamber" );
+        tweetButton.appendChild(link) ;
+        twttr.widgets.load();
+      }
+      tweetBox.style.display = "";
    }
 
    var lastDraw = 0;
@@ -743,15 +759,27 @@ body, html {height:100%;overflow:hidden; }
        <div id="crypt" style="position: absolute; top: 0px; left: 0px; width: 256px; height: 256px; overflow: hidden; transform: translate3d(230px, 230px, -950px); z-index: 0; background-image: url(&quot;crypt-door.png&quot;); background-position: 0px 0px;"></div>
        <div id="wolf" style="position: absolute; top: -20px; left: -50px; width: 256px; height: 256px; overflow: hidden; display: none;"></div>
        <div id="wolfshadow" style="position: absolute; top: 238px; left: -50px; width: 256px; height: 256px; background-size: 200%; overflow: hidden; display: none;"></div>
-       <div id="scorediv" style="transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: 250px; width: 500px; height: 64px; overflow: hidden;">
-          <font id="scorecontainer" size="+20">0</font>
+       <div id="scorediv" style="font-weight: 900; transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: 250px; width: 500px; height: 64px; overflow: hidden;">
+          <font id="scorecontainer" size="+20" >0</font>
        </div>
-       <div id="leveldiv" style="transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: 0px; width: 500px; height: 64px; overflow: hidden;">
+       <div id="leveldiv" style="font-weight: 900; transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: 0px; width: 500px; height: 64px; overflow: hidden;">
           <font id="levelcontainer" size="+20">LEVEL 1</font>
        </div>
-       <div id="countdiv" style="transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: -400px; width: 500px; height: 64px; overflow: hidden;">
+       <div id="countdiv" style="font-weight: 900; transform: translate3d(350px, -850px, -950px); z-index: 0; position: absolute; top: -200px; left: -400px; width: 500px; height: 64px; overflow: hidden;">
           <font id="countcontainer" size="+20">0 / 5</font><img height="64" width="64" src="spider.gif">
        </div>
 </div>
+<div id="tweetBox" style="display:none; position:absolute; left:50%; top:50%; z-index:2000" >
+    <br>
+    <br>
+    <br>
+    <center>
+        <b><span style="color:silver" id="tweetScore">SCORE: 1000</span></b>
+        <br>
+        <span id="tweetButton"></span>
+        <!--a id="tweetButton" href="https://twitter.com/share" class="twitter-share-button" data-size="large" data-text="I smashed 1000 spiders in the Spooky Chamber of Horrors" data-url="http://ludumdare.com/compo/ludum-dare-37/?action=preview&amp;uid=20841" data-hashtags="ldjam #spookychamber" data-show-count="false">Tweet My Score</a-->
 
+    </center>
+    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
 </body></html>
