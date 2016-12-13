@@ -2,10 +2,8 @@
 <meta name="google" value="notranslate"/>
 <meta charset="UTF-8"/>
 <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
-<meta name="theme-color" content="#d5f97a" />
+<meta name="theme-color" content="#000000" />
 <style>
 html, body {
   overflow-x: hidden; overflow-y: auto;
@@ -43,19 +41,20 @@ left: 0;pa
    function resize() {
       var w = window.innerWidth;
       var h = window.innerHeight;
-      var size = Math.min(w,h);
+      var size = Math.min(w,h) - 50;
       spooky.style.width = size+'px';
       spooky.style.height = size+'px';
    }
    function nextPage() {
-        console.log("here");
         location.href = ("game.html");
    }
 </script>
 </head>
-<body>
+<body bgcolor="black">
 <center>
     <img id="spooky" src="spooky.jpeg" style="height:100%">
+    <br>
+    <div style="color:silver">Arrow keys or ASWD: Move, Space: Jump + rolling</div>
 </center>
 <img style="width:0px;height:0px" src="boy.png">
 <img style="width:0px;height:0px" src="boy-ko.png">
