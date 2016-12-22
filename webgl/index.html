@@ -7,6 +7,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
     <meta name="theme-color" content="#d5f97a" />
+	<script>
+   if(location.pathname.charAt(location.pathname.length-1)!="/") {
+//        location.replace(location.pathname+"/"+location.search+location.hash);
+		window.history.pushState(null,"", location.pathname+"/"+location.search+location.hash);
+   }
+	</script>
+
+	
+	
     <script language="JavaScript" src="../lib/threejs/three.js"></script>
     <!--script language="JavaScript" src="/lib/dobuki/setup.js"></script-->
     <style>
@@ -69,9 +78,6 @@ void main() {
 <body>
 
     <script>
-   if(location.pathname.charAt(location.pathname.length-1)!="/") {
-        location.replace(location.pathname+"/"+location.search+location.hash);
-   }
 
        document.addEventListener("DOMContentLoaded", initialize);
        function initialize() {
