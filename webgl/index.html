@@ -44,40 +44,62 @@ left: 0;pa
 
     <script id="vs" type="x-shader/x-vertex">
         varying vec2 vUv;
-        attribute float frame;
-        varying float vFrame;
+        attribute vec4 cut;
+        varying vec4 vCut;
         void main()
         {
-            vFrame = frame;
+            vCut = cut;
             vUv = uv;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
             gl_Position = projectionMatrix * mvPosition;
         }
     </script>
     <script id="fs" type="x-shader/x-fragment">
-uniform float iGlobalTime;
-uniform sampler2D iChannel0;
-uniform sampler2D iTest[ 2 ];
+        uniform float iGlobalTime;
+        uniform sampler2D iChannel0;
+        uniform sampler2D iTest[ 2 ];
 
-varying vec2 vUv;
-varying float vFrame;
+        varying vec2 vUv;
+        varying vec4 vCut;
 
 
-void main() {
-    vec2 uv = vUv;
-    uv.x += iGlobalTime;
-    uv.y = uv.y +vFrame;// iGlobalTime + vFrame;
-    //uv.y/=2;
-    if (uv.y > 2.)
-        uv.y = uv.y - 2.;
-    gl_FragColor = texture2D( iTest[0],  vec2(uv.x/2.0, uv.y/2.0));
-}
-</script>
+        void main() {
+//        iGlobalTime += .1;
+            vec2 uv = vUv;
+            uv.x = vCut.x + uv.x * vCut.z + iGlobalTime;
+            uv.y = vCut.y + uv.y * vCut.w;
+
+            for(int i=0;i<2;i++) {
+                if(i == int(mod(uv.x*10.0,2.0))) {
+                    gl_FragColor = texture2D( iTest[i],  vec2(uv.x, uv.y));
+                }
+            }
+
+//            highp int n = int(mod(uv.x*2.0,2.0));
+//            uv.x += iGlobalTime;
+//            uv.y = uv.y +vFrame;// iGlobalTime + vFrame;
+  //          uv.y = vCut.y + uv.y * vCut.w;
+            //uv.y/=2;
+//            if (uv.y > 2.)
+//                uv.y = uv.y - 2.;
+//            gl_FragColor = texture2D( iTest[int(iGlobalTime)],  vec2(uv.x, uv.y));
+//            if (uv.x == .5) {
+  //              gl_FragColor = texture2D( iTest[0],  vec2(uv.x, uv.y));
+    //        } else
+      //      {
+        //        gl_FragColor = texture2D( iTest[1],  vec2(uv.x, uv.y));
+          //  }
+        }
+    </script>
 </head>
 
 <body>
 
     <script>
+
+
+            var particles = 8;//4;//4;
+
 
        document.addEventListener("DOMContentLoaded", initialize);
        function initialize() {
@@ -112,6 +134,8 @@ _uniforms = {
          ]},
 };
 
+var tex1 = THREE.ImageUtils.loadTexture( 'boy-walk-up.png');
+var tex2 = THREE.ImageUtils.loadTexture( 'boy-walk-down.png');
 
 
 
@@ -146,11 +170,10 @@ var newMaterial = new THREE.ShaderMaterial( {
             }
 */
 
-            var particles = 100000;
-            var colors = new Float32Array( particles * 3 );
-            var color = new THREE.Color();
+//            var colors = new Float32Array( particles * 3 );
+//            var color = new THREE.Color();
 
-			for ( var i = 0, i3 = 0; i < particles; i ++, i3 += 3 ) {
+/*			for ( var i = 0, i3 = 0; i < particles; i ++, i3 += 3 ) {
 
 //				positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * radius;
 //				positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * radius;
@@ -164,13 +187,13 @@ var newMaterial = new THREE.ShaderMaterial( {
 
 //				sizes[ i ] = 20;
 
-			}
+			}*/
 
-			var frames = new THREE.BufferAttribute(
-                new Float32Array( 1 * particles ), 1);
-                frames[0] = 0;
-
-            geometry3.addAttribute( 'frame', frames);
+			var cuts = new THREE.BufferAttribute(new Float32Array( 4 * particles ), 4);
+            geometry3.addAttribute( 'cut', cuts);
+			var cuts2 = new THREE.BufferAttribute(new Float32Array( 4 * particles ), 4);
+            var geo4 = geometry3.clone();
+            geo4.addAttribute( 'cut', cuts2);
 
             var material3 = new THREE.MeshBasicMaterial({map: texture, transparent:true});
             material3 = newMaterial;
@@ -180,8 +203,18 @@ var newMaterial = new THREE.ShaderMaterial( {
 
             scene.add( plane );
 
+            geometry3.translate(-4,0,0);
+
+//            geo4 = geometry3;
+var planegeo2 = geometry3;
+            var plane2 = new THREE.Mesh( planegeo2, material3 );
+            scene.add( plane2 );
+            plane2.position.z = -5;
+            plane2.position.x = 3;
+
 //            camera.position.z = 5;
             window.plane = plane;
+            window.plane2 = plane2;
             plane.position.z = -5;
             window.camera = camera;
 
@@ -189,7 +222,8 @@ changed = false;
            function render(time) {
                 var count = Math.floor(time/100);
 
-                _uniforms.iGlobalTime.value = time/1000 % 1;
+//                _uniforms.iGlobalTime.value = time/1000 % 1;
+                _uniforms.iGlobalTime.value = _uniforms.iGlobalTime.value % 1;
                 if (time > 5000 && !changed) {
                     changed = true;
                     _uniforms.iTest.value[0] = new THREE.TextureLoader().load( "boy-walk-down.png",
@@ -206,13 +240,33 @@ changed = false;
 //               console.log(texture.offset);
 
 
-		var frames = geometry3.attributes.frame.array;
+		var cuts = geometry3.attributes.cut.array;
+		var cuts2 = geo4.attributes.cut.array;
+//		window.a = 0;
 //		if(count%10==0) {
-            for(var i=0;i<100000; i++) {
-                frames[i] = time/10000 % 2;
+//            var chunk = [0.0, 0.0, 0.5, 0.5];
+            window.c = cuts;
+            for(var i=0;i<particles; i++) {
+//                cuts[i] = time/10000 % 2;
                 //frames[i] = Math.random();
+                cuts[i*4] = window.a && i==0?window.a:0;
+                cuts[i*4+1] = 0;
+                cuts[i*4+2] = 0.5;
+                cuts[i*4+3] = 0.5;
+
+                cuts2[i*4] = 0;
+                cuts2[i*4+1] = 0;
+                cuts2[i*4+2] = 0.5;
+                cuts2[i*4+3] = 0.5;
+
+//                cuts[i] = chunk;
+/*                cuts[i][0] = 0;
+                cuts[i][1] = 0;
+                cuts[i][2] = .5;
+                cuts[i][4] = .5;//= [0.0, 0.0, 0.5, 0.5];*/
             }
-			geometry3.attributes.frame.needsUpdate = true;
+			geometry3.attributes.cut.needsUpdate = true;
+			geo4.attributes.cut.needsUpdate = true;
 //		}
 
 
