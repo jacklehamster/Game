@@ -30,6 +30,11 @@
            user-select: none;
         }
     </style>
+    <script>
+        if(window.nw) {
+            window.win = nw.Window.get();
+        }
+    </script>
 
     <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
     <script language="JavaScript" src="../lib/threejs/three.js"></script>
@@ -39,7 +44,30 @@
     <script language="JavaScript" src="../lib/dobuki/graphicmodel.js"></script>
     <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
     <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
-
+    <script>
+        DOBUKI.makeProcess("add-squid-floor", function() {
+            DOBUKI.getModel().objects[0] = {
+                x: 0, 
+                y:-10, 
+                z:-20,
+                rotation: {
+                    x: -Math.PI*1/2,
+                    y: 0,
+                    z: 0,
+                },
+                scale: 50,
+                frame: {
+                    src: 'squid.png',
+                    cut: [
+                        0,
+                        0,
+                        32,
+                        32,
+                    ]
+                }
+            };        
+        }).startAfter("initialize");
+    </script>
 </head>
 <body>
 

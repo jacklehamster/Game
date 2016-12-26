@@ -1,0 +1,164 @@
+<head>
+    <title>maze</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <style>
+        html, body {
+          overflow-x: hidden; overflow-y: auto;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+        left: 0;pa
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+    </style>
+    <script>
+        if(window.nw) {
+            window.win = nw.Window.get();
+        }
+    </script>
+
+    <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
+    <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/graphicmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
+    <script>
+        var keyboard = {};
+        document.addEventListener("keydown",
+            function(e) {
+                keyboard[e.keyCode] = true;
+                console.log(e.keyCode);
+                e.preventDefault();
+            });
+        document.addEventListener("keyup",
+            function(e) {
+                keyboard[e.keyCode] = false;
+                console.log(e.keyCode);
+                e.preventDefault();
+            });
+            
+        var player = {
+            position: {
+                x:0, y:0, z:-50,
+            },
+            rotation: {
+                x:0, y:0, z:0,
+            },
+        };
+        
+        DOBUKI.addLoop(0,
+            function() {
+                var dx=0, dz=0, drot=0;
+                if(keyboard[87]) {  //w
+                    dz --;
+                }
+                if(keyboard[83]) {  //s
+                    dz ++;
+                }
+                if(keyboard[65]) {  //a
+                    dx --;
+                }
+                if(keyboard[68]) {  //d
+                    dx ++;
+                }
+                if(keyboard[81]) {  //q
+                    drot --;
+                }
+                if(keyboard[69]) {  //e
+                    drot ++;
+                }
+                player.rotation.y -= drot * Math.PI/128;
+                
+                var realDZ = Math.cos(player.rotation.y) * dz - Math.sin(player.rotation.y) * dx;
+                var realDX = Math.cos(player.rotation.y) * dx + Math.sin(player.rotation.y) * dz;
+                
+                player.position.z += realDZ;
+                player.position.x += realDX;
+            });
+    
+        DOBUKI.makeProcess("add-squid-floor", function() {
+            DOBUKI.setModel(
+                {
+                    background: '#66cccc',
+                    camera: {
+                        rotation: player.rotation,
+                        position: player.position,
+                    },
+                    objects: [
+                        {   //  ground
+                            x: 0, y:-20, z:-50,
+                            rotation: { x: -Math.PI*1/2 },
+                            size: [100,1,100],
+                            frame: {
+                                src: 'ground.jpeg',
+                                cut: [ 0, 0, 900, 900 ]
+                            }
+                        },
+                        {   //  front
+                            x: 0, y:10, z:-100,
+                            size: [100,60,1],
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 900, 600 ]
+                            }
+                        },
+                        {   //  left
+                            x: -50, y:10, z:-50,
+                            size: [1,60,100],
+                            rotation: {y: Math.PI*1/2 },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 900, 600 ]
+                            }
+                        },
+                        {   // right
+                            x: 50, y:10, z:-50,
+                            size: [1,60,100],
+                            rotation: {y: -Math.PI*1/2 },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 900, 600 ]
+                            }
+                        },
+                        {   //  back
+                            x: 0, y:10, z:0,
+                            size: [100,60,1],
+                            rotation: {y: -Math.PI },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 900, 600 ]
+                            }
+                        },
+                    ]
+                }
+            );
+        }).startAfter("initialize");
+    </script>
+</head>
+<body>
+
+
+
+</body>
