@@ -304,6 +304,8 @@ console.log(camera.aspect);
             ["You are dead."],
        ];
        
+       var gonext = false;
+       
        function followNarrative() {
             var count = Math.floor((Date.now() - startTime) / 100) + 0;
             for(var i=0;i<narrative.length;i++) {
@@ -317,10 +319,20 @@ console.log(camera.aspect);
                     window.pressy = 100;
                     if(!gaga) {
                         gaga = true;
+                        setTimeout(
+                            function() {
+                                if(!gonext) {
+                                    gonext = true;
+                                    window.location = '../walls/index.html';
+
+                                }
+                            },8000
+                        );
                                document.addEventListener('keydown',
             function(e) {
                 pressy++;
                 if(pressy>=10) {
+                gonext = true;
                     window.location = '../walls/index.html';
                 }
                 e.preventDefault();
