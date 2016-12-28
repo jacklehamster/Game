@@ -8,10 +8,10 @@
     <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
     <meta name="theme-color" content="#d5f97a" />
 	<script>
-   if(location.pathname.charAt(location.pathname.length-1)!="/") {
-//        location.replace(location.pathname+"/"+location.search+location.hash);
-		window.history.pushState(null,"", location.pathname+"/"+location.search+location.hash);
-   }
+       var regex = /\/$|index\.html$/g;
+       if (!regex.exec(location.pathname)) {
+           window.history.pushState(null,"", location.pathname+"/"+location.search+location.hash);
+       }
 	</script>
 
 	
@@ -110,6 +110,8 @@ left: 0;pa
             renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( renderer.domElement );
 
+            console.log("Here");
+            makeText();
             var texture = new THREE.TextureLoader().load( "squid.png" );
 //            var texture = new THREE.ImageUtils.loadTexture( "boy-walk-down.png" );
             texture.wrapS = THREE.RepeatWrapping;
@@ -297,6 +299,97 @@ console.log(camera.aspect);
 
 
        }
+       
+       var narrative = [
+            ["jacklehamster presents"],
+            ["the worst game ever"],
+            ["this is my scratch code for learning WebGL"],
+            ["when I found out about #crappygamejam"],
+            ["I decided to turn all this code"],
+            ["into\nA CRAPPY GAME."],
+            ["press any key to continue"],
+       ];
+       
+       function followNarrative() {
+            var count = Math.floor((Date.now() - startTime) / 25) + 0;
+            for(var i=0;i<narrative.length;i++) {
+                var text = narrative[i][0];
+                var speed = 7;
+                if(count/speed<text.length) {
+                    text2.innerHTML = text.substr(0,Math.floor(count/speed));
+                    break;
+                } else {
+                    count -= speed*text.length;
+                }
+                
+                if(count<100) {
+                    text2.innerHTML = text;
+                    break;
+                } else {
+                    count -= 100;
+                }
+                
+                if(i<narrative.length-1) {
+                    if(count<text.length) {
+                        text2.innerHTML = text.substr(0,text.length -count);
+                        break;
+                    } else {
+                        count -= text.length;
+                    }
+                } else {
+                    text2.innerHTML = Math.floor(count/10) % 4 ==0 ? "":text;
+                    text2.style.fontSize = count/10;
+                    window.pressy = 100;
+                }
+            }
+            
+            
+//            text2.innerHTML = ""+count;
+       }
+       
+       pressy = 0;
+       document.addEventListener('keydown',
+            function(e) {
+                pressy++;
+                if(pressy>=10) {
+                    window.location = '../squids/index.html';
+                }
+                e.preventDefault();
+            }
+        );
+
+       
+       var startTime = Date.now();
+       var text2;
+       function makeText() {
+            text2 = document.createElement('div');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+            text2.style.color = "yellow";
+            text2.style.fontSize = 30;
+            text2.innerHTML = "";
+            text2.style.top = (window.innerHeight/2+50-100) + 'px';
+            text2.style.left = 0 + 'px';
+            text2.style.height = 100;
+            text2.style.width = window.innerWidth;
+            text2.style.textAlign="center";
+            text2.style.padding = 20;
+            document.body.appendChild(text2);
+            
+            function onResizeWindow() {
+                text2.style.top = (window.innerHeight/2+50-100) + 'px';
+                text2.style.left = 0 + 'px';
+                text2.style.height = 100;
+                text2.style.width = window.innerWidth;
+            }
+            window.addEventListener("resize",onResizeWindow);
+            setInterval(followNarrative,20);
+        }
+        
+        
+        var audio = new Audio('superman.ogg');
+        audio.play();
     </script>
 
 

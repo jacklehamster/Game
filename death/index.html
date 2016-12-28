@@ -1,0 +1,398 @@
+<head>
+    <title>Three.js</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+	<script>
+       var regex = /\/$|index\.html$/g;
+       if (!regex.exec(location.pathname)) {
+           window.history.pushState(null,"", location.pathname+"/"+location.search+location.hash);
+       }
+	</script>
+
+	
+	
+    <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <!--script language="JavaScript" src="/lib/dobuki/setup.js"></script-->
+    <style>
+html, body {
+  overflow-x: hidden; overflow-y: auto;
+  margin: 0px;
+  padding: 0px;
+  background-color: black;
+}
+body {
+  position: fixed;
+left: 0;pa
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+*.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+</style>
+
+    <script id="vs" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        attribute vec4 cut;
+        varying vec4 vCut;
+        void main()
+        {
+            vCut = cut;
+            vUv = uv;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+    <script id="fs" type="x-shader/x-fragment">
+        uniform float iGlobalTime;
+        uniform sampler2D iChannel0;
+        uniform sampler2D iTest[ 2 ];
+
+        varying vec2 vUv;
+        varying vec4 vCut;
+
+
+        void main() {
+//        iGlobalTime += .1;
+            vec2 uv = vUv;
+            uv.x = vCut.x + uv.x * vCut.z + iGlobalTime;
+            uv.y = vCut.y + uv.y * vCut.w;
+
+            for(int i=0;i<2;i++) {
+                if(i == int(mod(uv.x*10.0,2.0))) {
+                    gl_FragColor = texture2D( iTest[i],  vec2(uv.x, uv.y));
+                }
+            }
+
+//            highp int n = int(mod(uv.x*2.0,2.0));
+//            uv.x += iGlobalTime;
+//            uv.y = uv.y +vFrame;// iGlobalTime + vFrame;
+  //          uv.y = vCut.y + uv.y * vCut.w;
+            //uv.y/=2;
+//            if (uv.y > 2.)
+//                uv.y = uv.y - 2.;
+//            gl_FragColor = texture2D( iTest[int(iGlobalTime)],  vec2(uv.x, uv.y));
+//            if (uv.x == .5) {
+  //              gl_FragColor = texture2D( iTest[0],  vec2(uv.x, uv.y));
+    //        } else
+      //      {
+        //        gl_FragColor = texture2D( iTest[1],  vec2(uv.x, uv.y));
+          //  }
+        }
+    </script>
+</head>
+
+<body>
+
+    <script>
+
+
+            var particles = 8;//4;//4;
+
+
+       document.addEventListener("DOMContentLoaded", initialize);
+       function initialize() {
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+            console.log("Here");
+            makeText();
+            var texture = new THREE.TextureLoader().load( "squid.png" );
+//            var texture = new THREE.ImageUtils.loadTexture( "boy-walk-down.png" );
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(.5,.5);// 4, 4 );
+//            texture.repeat.set(1,1);// 4, 4 );
+
+texture.magFilter = THREE.NearestFilter;
+texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+//               texture.offset.x = 10;
+//               texture.offset.y = 10;
+window.texture = texture;
+
+
+_uniforms = {
+    iGlobalTime:    { type: 'f', value: 0.1 },
+    iChannel0:  { type: 't', value: THREE.ImageUtils.loadTexture( 'boy-walk-down.png') },
+    iTest:  { type: 'tv', value:
+        [THREE.ImageUtils.loadTexture( 'boy-walk-up.png'),
+        texture
+         ]},
+};
+
+var tex1 = THREE.ImageUtils.loadTexture( 'boy-walk-up.png');
+var tex2 = THREE.ImageUtils.loadTexture( 'boy-walk-down.png');
+
+
+
+var newMaterial = new THREE.ShaderMaterial( {
+        uniforms: _uniforms,
+        vertexShader: document.getElementById( 'vs' ).textContent,
+        fragmentShader: document.getElementById( 'fs' ).textContent,
+        transparent:true,
+} );
+
+
+            var material = new THREE.MeshBasicMaterial({map: texture, transparent:true});
+
+            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+//            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            var cube = new THREE.Mesh( geometry, material );
+            scene.add( cube );
+
+
+
+
+            var cube2 = new THREE.Mesh( geometry, material );
+//            scene.add( cube2 );
+            cube.position.z = -7;
+
+            var geometry3 = new THREE.PlaneBufferGeometry( 5, 5 );
+            var number = 1;
+/*            geometry3.attributes['hello'] = {
+                itemSize: 3,
+                array: new Float32Array( number * 3 ),
+                numItems: number * 3
+            }
+*/
+
+//            var colors = new Float32Array( particles * 3 );
+//            var color = new THREE.Color();
+
+/*			for ( var i = 0, i3 = 0; i < particles; i ++, i3 += 3 ) {
+
+//				positions[ i3 + 0 ] = ( Math.random() * 2 - 1 ) * radius;
+//				positions[ i3 + 1 ] = ( Math.random() * 2 - 1 ) * radius;
+//				positions[ i3 + 2 ] = ( Math.random() * 2 - 1 ) * radius;
+
+				color.setHSL( i / particles, 1.0, 0.5 );
+
+				colors[ i3 + 0 ] = color.r;
+				colors[ i3 + 1 ] = color.g;
+				colors[ i3 + 2 ] = color.b;
+
+//				sizes[ i ] = 20;
+
+			}*/
+
+			var cuts = new THREE.BufferAttribute(new Float32Array( 4 * particles ), 4);
+            geometry3.addAttribute( 'cut', cuts);
+			var cuts2 = new THREE.BufferAttribute(new Float32Array( 4 * particles ), 4);
+            var geo4 = geometry3.clone();
+            geo4.addAttribute( 'cut', cuts2);
+
+            var material3 = new THREE.MeshBasicMaterial({map: texture, transparent:true});
+            material3 = newMaterial;
+            var plane = new THREE.Mesh( geometry3, material3 );
+//            plane.attributes['hello'] = { type: 'c', value: null };
+            window.material3 = material3;
+
+            scene.add( plane );
+
+            geometry3.translate(-4,0,0);
+
+//            geo4 = geometry3;
+var planegeo2 = geometry3;
+            var plane2 = new THREE.Mesh( planegeo2, material3 );
+            scene.add( plane2 );
+            plane2.position.z = -5;
+            plane2.position.x = 3;
+
+//            camera.position.z = 5;
+            window.plane = plane;
+            window.plane2 = plane2;
+            plane.position.z = -5;
+            window.camera = camera;
+
+changed = false;
+           function render(time) {
+                var count = Math.floor(time/100);
+
+//                _uniforms.iGlobalTime.value = time/1000 % 1;
+                _uniforms.iGlobalTime.value = _uniforms.iGlobalTime.value % 1;
+                if (time > 5000 && !changed) {
+                    changed = true;
+                    _uniforms.iTest.value[0] = new THREE.TextureLoader().load( "boy-walk-down.png",
+                        function() {
+                            _uniforms.iTest.needsUpdate = true;
+                        }
+                     );
+//                        THREE.ImageUtils.loadTexture( 'boy-walk-down.png');
+                }
+//                console.log(_uniforms.iTest.value[0]);
+
+               texture.offset.x = .5 * (count%2);
+               texture.offset.y = .5 * Math.floor(count/2%2);
+//               console.log(texture.offset);
+
+
+		var cuts = geometry3.attributes.cut.array;
+		var cuts2 = geo4.attributes.cut.array;
+//		window.a = 0;
+//		if(count%10==0) {
+//            var chunk = [0.0, 0.0, 0.5, 0.5];
+            window.c = cuts;
+            for(var i=0;i<particles; i++) {
+//                cuts[i] = time/10000 % 2;
+                //frames[i] = Math.random();
+                cuts[i*4] = window.a && i==0?window.a:0;
+                cuts[i*4+1] = 0;
+                cuts[i*4+2] = 0.5;
+                cuts[i*4+3] = 0.5;
+
+                cuts2[i*4] = 0;
+                cuts2[i*4+1] = 0;
+                cuts2[i*4+2] = 0.5;
+                cuts2[i*4+3] = 0.5;
+
+//                cuts[i] = chunk;
+/*                cuts[i][0] = 0;
+                cuts[i][1] = 0;
+                cuts[i][2] = .5;
+                cuts[i][4] = .5;//= [0.0, 0.0, 0.5, 0.5];*/
+            }
+			geometry3.attributes.cut.needsUpdate = true;
+			geo4.attributes.cut.needsUpdate = true;
+//		}
+
+
+                cube.rotation.x = time/1000;
+                cube.rotation.y = time/1000;
+                cube.position.z = -5+Math.sin(time/300);
+                requestAnimationFrame( render );
+                renderer.render( scene, camera );
+            }
+            render();
+
+            window.addEventListener("resize", resize);
+            resize();
+
+           function resize() {
+              var scale = window.devicePixelRatio;
+    //          var w = window.innerWidth;
+    //          var h = window.innerHeight;
+              renderer.setSize( window.innerWidth, window.innerHeight );
+              camera.aspect = window.innerWidth / window.innerHeight;
+              camera.updateProjectionMatrix();
+console.log(camera.aspect);
+    //          canvas.width = w*scale;
+    //          canvas.height = h*scale;
+    //          canvas.style.width = w+'px';
+    //          canvas.style.height = h+'px';
+           }
+
+
+       }
+       
+       var narrative = [
+            ["You are dead."],
+       ];
+       
+       function followNarrative() {
+            var count = Math.floor((Date.now() - startTime) / 100) + 0;
+            for(var i=0;i<narrative.length;i++) {
+                var text = narrative[i][0];
+                var speed = 7;
+                if(count/speed<text.length) {
+                    text2.innerHTML = text.substr(0,Math.floor(count/speed));
+                    break;
+                } else {
+                    count -= speed*text.length;
+                    window.pressy = 100;
+                    if(!gaga) {
+                        gaga = true;
+                               document.addEventListener('keydown',
+            function(e) {
+                pressy++;
+                if(pressy>=10) {
+                    window.location = '../walls/index.html';
+                }
+                e.preventDefault();
+            }
+        );
+
+                    }
+                }
+                
+                if(count<100) {
+                    text2.innerHTML = text;
+                    break;
+                } else {
+                    window.pressy = 100;
+                    return;
+                    count -= 100;
+                }
+                
+                if(i<narrative.length-1) {
+                    if(count<text.length) {
+                        text2.innerHTML = text.substr(0,text.length -count);
+                        break;
+                    } else {
+                        count -= text.length;
+                    }
+                } else {
+                    text2.innerHTML = Math.floor(count/10) % 4 ==0 ? "":text;
+                    text2.style.fontSize = count/10;
+                    window.pressy = 100;
+                }
+            }
+            
+            
+//            text2.innerHTML = ""+count;
+       }
+       
+       pressy = 0;
+       var gaga = 0;
+
+       
+       var startTime = Date.now();
+       var text2;
+       function makeText() {
+            text2 = document.createElement('div');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+            text2.style.color = "yellow";
+            text2.style.fontSize = 30;
+            text2.innerHTML = "";
+            text2.style.top = (window.innerHeight/2+50-100) + 'px';
+            text2.style.left = 0 + 'px';
+            text2.style.height = 100;
+            text2.style.width = window.innerWidth;
+            text2.style.textAlign="center";
+            text2.style.padding = 20;
+            document.body.appendChild(text2);
+            
+            function onResizeWindow() {
+                text2.style.top = (window.innerHeight/2+50-100) + 'px';
+                text2.style.left = 0 + 'px';
+                text2.style.height = 100;
+                text2.style.width = window.innerWidth;
+            }
+            window.addEventListener("resize",onResizeWindow);
+            setInterval(followNarrative,20);
+        }
+        
+        
+        var audio = new Audio('superman.ogg');
+        audio.play();
+    </script>
+
+
+</body>

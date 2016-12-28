@@ -37,7 +37,9 @@
     </script>
 
     <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
+    <script language="JavaScript" src="../lib/blueimp/md5.js"></script>
     <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
     <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
     <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
     <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
@@ -46,6 +48,7 @@
     <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
     <script>
         DOBUKI.makeProcess("add-squid-floor", function() {
+            DOBUKI.playMusic('deepforest.ogg');
             DOBUKI.getModel().objects[0] = {
                 x: 0, 
                 y:-10, 
@@ -65,7 +68,352 @@
                         32,
                     ]
                 }
-            };        
+            };      
+            DOBUKI.getModel().objects[5] = {
+                x: 0, 
+                y: 0, 
+                z:-30,
+                rotation: {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                },
+                scale: 50,
+                frame: {
+                    src: 'squid.png',
+                    cut: [
+                        0,
+                        0,
+                        32,
+                        32,
+                    ]
+                }
+            };
+            
+            
+            
+            var text2 = document.createElement('div');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+            text2.style.color = "pink";
+            text2.style.fontSize = 28;
+            text2.innerHTML = "hi there!";
+            text2.style.top = (window.innerHeight-150) + 'px';
+            text2.style.left = 0 + 'px';
+            text2.style.height = 150;
+            text2.style.width = window.innerWidth;
+            text2.style.padding = 20;
+            document.body.appendChild(text2);
+            
+            
+            var text3 = document.createElement('div');
+            text3.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            //text3.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+            text3.style.color = "yellow";
+            text3.style.fontSize = 20;
+            text3.innerHTML = "";
+            text3.style.top = (window.innerHeight-50) + 'px';
+            text3.style.left = -50 + 'px';
+            text3.style.height = 150;
+            text3.style.width = window.innerWidth;
+            text3.style.padding = 20;
+            text3.style.textAlign = "right";
+            document.body.appendChild(text3);
+            
+            function onResizeWindow() {
+                text2.style.top = (window.innerHeight-150) + 'px';
+                text2.style.left = 0 + 'px';
+                text2.style.height = 150;
+                text2.style.width = window.innerWidth;
+            text3.style.top = (window.innerHeight-50) + 'px';
+            text3.style.left = -50 + 'px';
+                text3.style.height = 150;
+                text3.style.width = window.innerWidth;
+            }
+            window.addEventListener("resize",onResizeWindow);
+            
+            
+                
+                
+            var step = 1;
+            var narrative = [
+                [""],
+                ["Look what we have here. Hi there!"],
+                ["Oh, what a brave human! So you have decided to come here."],
+                ["Let me tell you an ancient story"],
+                ["Of a brave human, who came into this world."],
+                ["Long before any other humans, he patiently listened to my story"],
+                ["Over and over, until the very end."],
+                ["Looking for the treasures and other wonders"],
+                ["Of this world."],
+                ["Long time ago, there was a human who came into this world."],
+                ["Over millenials, it was the first time we ever encountered a human."],
+                ["Lurking in every corner of this world, there was mysterious creature"],
+                ["Older than the oldest tree. That creature name was"],
+                ["LURKSSABAA"],
+                ["On top of the mountain,"],
+                ["Lived a very very"],
+                ["OLD creature"],
+                ["Looking down on the valley"],
+                ["Only very courageous men could get close to the creature, but"],
+                ["Lesser humans would never do it."],
+                ["Oh, where was I. Right"],
+                ["LURKSAABAA was a creatured known as an ancient troll"],
+                ["One day, the brave human who came into this world"],
+                ["Left his home town, to come in to this world"],
+                ["Oh hold on. I'm getting confused..."],
+                ["Let me go to the restroom, I'll be right back"],
+                ["Only need to wash my face."],
+                ["Later, I will tell you the wonderfully great story"],
+                ["Of a brave human, who came into this world."],
+                ["Long before any other humans."],
+                ["Oh... now you don't want to listen to the story anymore?"],
+                ["Look, if you're not patient enough to listen to the story"],
+                ["Or just wait until I come back from the restroom,"],
+                ["Looks like we're gonna have an problem."],
+                ["Okay, so do you, or do you not..."],
+                ["Look forward to hear my whole story, from the beginning to the end"],
+                ["Or will you keep interrupting me"],
+                ["Looks like I'm going to have to bring"],
+                ["Out the big guns"],
+                ["Lol, just kidding. I would never do that."],
+                ["Oh, what a sensitive human."],
+                ["Lothsome as ever..."],
+                ["Okay, I'll keep telling the story"],
+                ["Lovely human, so impatient."],
+                ["OZazoziazaoza"],
+                ["Luraob aowiew aowierberllllseo oerirere"],
+                ["Oh, I'm sorry. For a second, I forgot to speak with a"],
+                ["Language understandable by human"],
+                ["OZBirosti. That's the"],
+                ["Language that we use in this world"],
+                ["Over thousands of years, this"],
+                ["Language known as"],
+                ["OZBIRsosi, has developed by"],
+                ["Loyal creatures of the"],
+                ["Order of the Great Zubrana"],
+                ["Lives were lost in the war of"],
+                ["Otliur, where several"],
+                ["Legions battled to the death"],
+                ["Offering their lives for the god Tacyturd"],
+                ["Legendary for creating the creatures of the"],
+                ["Old world."],
+                ["Living in the deepest parts of the kingdom,"],
+                ["Only creatures of this world can understand the language."],
+                ["Like... you know. Creatures of this world"],
+                ["Of course, I will teach you someday"],
+                ["Later though. First, let me tell you a very ancient story"],
+                ["Only special humans like you, get to hear this"],
+                ["Legendary story that I am about to tell you"],
+                ["Otherwise known as the fable of GEsuraaa"],
+           ];
+           
+           var tilt = 0;
+           var pre2 = "";
+           var pre = "", actual = "";;
+           var startTime = Date.now();
+           function followNarrative() {
+                var count = Math.floor((Date.now() - startTime) / 16) + 0;
+                var text = narrative[step%narrative.length][0];
+                var speed = 7;
+                if(count/speed<text.length + 8) {
+                    actual = text.substr(0,Math.floor(count/speed));
+                    text2.innerHTML = pre2 + pre + actual;
+                    text3.innerHTML = "";
+                } else {
+                    text2.innerHTML = pre2 + pre + actual;
+                    if(tilt<=10) {
+                        text3.innerHTML = Math.floor(count/10.95) % 4 ==0 ? "":"press any key to continue";
+                     } else {
+                        if(count > 100) {
+//                            step = Math.min(narrative.length-1,step+1);
+//                            startTime = Date.now();
+                        }
+                     }
+                     
+                     if(actual=="Oh, I see, you do not have the patience to hear my story<br>\nLooks like I will have to anihilate you. Human, you shall die!!!") {
+                        if(!gaga) {
+                            gaga = true;
+                            setTimeout(
+                                function() {
+                                    location = "../death/index.html";
+                                },3000
+                            );
+                        }
+                     }
+                }
+            }
+            var gaga = false;
+            
+
+            setInterval(followNarrative,20);
+            
+            window.addEventListener("keydown", function(e) {
+                    if(tilt>10) {
+                e.preventDefault();
+                        return;
+                    }
+            
+                if(Date.now()-startTime < 400) {
+                    tilt++;
+                    if(tilt>10) {
+                        doTilt();
+                e.preventDefault();
+                        return;
+                    }
+                    
+                    var stopTilt = DOBUKI.time + 100;
+                    DOBUKI.getModel().camera = {
+                        position: {
+                            get x() {
+                                return Math.max(stopTilt - DOBUKI.time,0)*(Math.random()-.5)/200;
+                            },
+                            get y() {
+                                return Math.max(stopTilt - DOBUKI.time,0)*(Math.random()-.5)/200;
+                            }
+                        }
+                    };
+                    
+                    
+                } else {
+                    tilt = 0;
+                }
+                actual = narrative[step%narrative.length][0];
+                pre2 = pre;
+                pre = actual + "<br>\n";
+                if((Date.now()-startTime) < 400 && step%2==1) {
+                    step--;
+                } else {
+                    startTime = Date.now();
+                    step++;
+                    if(step>narrative.length) {
+                        step = 4;
+                    }
+                }
+                e.preventDefault();
+            });
+            
+            
+            function doTilt() {
+            
+                var stopTilt = DOBUKI.time + 2000;
+                DOBUKI.getModel().camera = {
+                    position: {
+                        get x() {
+                            return Math.max(stopTilt - DOBUKI.time,0)*Math.random()/100;
+                        },
+                        get y() {
+                            return Math.max(stopTilt - DOBUKI.time,0)*Math.random()/100;
+                        }
+                    }
+                };
+            
+            
+                setTimeout(
+                    function() {
+                console.log("TILT");
+                step = 0;
+                pre = ""; pre2 = "";
+                narrative = [
+                    ["Oh, I see, you do not have the patience to hear my story<br>\nLooks like I will have to anihilate you. Human, you shall die!!!"],
+                ];
+                    },2000);
+                
+                setTimeout(function() {
+                    DOBUKI.getModel().objects[1] = {
+                        x:DOBUKI.getModel().objects[1].x, y:DOBUKI.getModel().objects[1].y,
+                        get z() {
+                            var l = DOBUKI.time/50 % 10;
+                            return -3+l;
+                        },
+                        rotation:DOBUKI.getModel().objects[1].rotation,
+                        frame:{
+                            src:'squid.png',
+                            cut:[0,0,32,32],
+                        },
+                    };
+                    DOBUKI.getModel().objects[2] = {
+                        x:DOBUKI.getModel().objects[2].x, y:DOBUKI.getModel().objects[2].y,
+                        get z() {
+                            var l = (DOBUKI.time+150)/50 % 10;
+                            return -3+l;
+                        },
+                        rotation:DOBUKI.getModel().objects[2].rotation,
+                        frame:{
+                            src:'squid.png',
+                            cut:[0,0,32,32],
+                        },
+                    };
+                    DOBUKI.getModel().objects[3] = {
+                        x:DOBUKI.getModel().objects[3].x, y:DOBUKI.getModel().objects[3].y,
+                        get z() {
+                            var l = (DOBUKI.time+350)/50 % 10;
+                            return -3+l;
+                        },
+                        rotation:DOBUKI.getModel().objects[3].rotation,
+                        frame:{
+                            src:'squid.png',
+                            cut:[0,0,32,32],
+                        },
+                    };
+                    DOBUKI.addLoop(100,
+                        function() {
+                            var hit = DOBUKI.getModel().objects[1].z > 6
+                                || DOBUKI.getModel().objects[2].z > 6
+                                || DOBUKI.getModel().objects[3].z > 6;
+                            DOBUKI.getModel().background =  hit ? "#7a0000" : "#000000";
+                        });
+                        
+                    DOBUKI.getModel().camera = {
+                        position: {
+                            get x() {
+                            var hit = DOBUKI.getModel().objects[1].z > 6
+                                || DOBUKI.getModel().objects[2].z > 6
+                                || DOBUKI.getModel().objects[3].z > 6;
+                                return Math.max(50,0)*(Math.random()-.5)/200;
+                            },
+                            get y() {
+                            var hit = DOBUKI.getModel().objects[1].z > 6
+                                || DOBUKI.getModel().objects[2].z > 6
+                                || DOBUKI.getModel().objects[3].z > 6;
+                                return Math.max(50,0)*(Math.random()-.5)/200;
+                            }
+                        }
+                    };
+                        
+                        
+                        
+                                    },8000);
+                                    
+                                    
+
+/*
+        o: {
+            x:0, z:-3,
+            rotation:{},
+            frame:{
+                src:'squid.png',
+                cut:[0,0,32,32],
+            },
+        },
+         objects: core.createModelObjects(1, 4,
+            function(i) {
+                defaultModel.o.x = Math.sin(i + core.time/1000);
+                defaultModel.o.rotation.z = i*Math.PI/4+core.time/1000;
+                defaultModel.o.frame.cut[0] = (Math.floor(i+core.time/100)%2)*32;
+                defaultModel.o.frame.cut[1] = (Math.floor((i+core.time/100)/2)%2)*32;
+                return defaultModel.o;
+            }),
+
+
+*/
+
+
+            }
+            
+
         }).startAfter("initialize");
     </script>
 </head>

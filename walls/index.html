@@ -37,7 +37,9 @@
     </script>
 
     <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
     <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <script language="JavaScript" src="../lib/blueimp/md5.js"></script>
     <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
     <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
     <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
@@ -49,32 +51,40 @@
         document.addEventListener("keydown",
             function(e) {
                 keyboard[e.keyCode] = true;
-                console.log(e.keyCode);
                 e.preventDefault();
             });
         document.addEventListener("keyup",
             function(e) {
                 keyboard[e.keyCode] = false;
-                console.log(e.keyCode);
                 e.preventDefault();
             });
             
         var player = {
             position: {
-                x:0, y:0, z:-50,
+                actual: {
+                    x:0, y:0, z:880,
+                },
+                goal: {
+                    x:0, y:0, z:600,
+                },
             },
             rotation: {
-                x:0, y:0, z:0,
+                actual: {
+                    x:0, y:0, z:0,
+                },
+                goal: {
+                    x:0, y:0, z:0,
+                },
             },
         };
         
         DOBUKI.addLoop(0,
             function() {
                 var dx=0, dz=0, drot=0;
-                if(keyboard[87]) {  //w
+                if(keyboard[87] || keyboard[38] || keyboard[32]) {  //w
                     dz --;
                 }
-                if(keyboard[83]) {  //s
+                if(keyboard[83] || keyboard[40]) {  //s
                     dz ++;
                 }
                 if(keyboard[65]) {  //a
@@ -83,32 +93,95 @@
                 if(keyboard[68]) {  //d
                     dx ++;
                 }
-                if(keyboard[81]) {  //q
+                if(keyboard[81] || keyboard[37]) {  //q
                     drot --;
                 }
-                if(keyboard[69]) {  //e
+                if(keyboard[69] || keyboard[39]) {  //e
                     drot ++;
                 }
-                player.rotation.y -= drot * Math.PI/128;
+                var rotationChunk = Math.PI/4;
+                if(drot) {
+                    player.rotation.goal.y = Math.round(player.rotation.actual.y/rotationChunk - drot*1.2)*rotationChunk;
+                }
+                player.rotation.actual.y += (player.rotation.goal.y - player.rotation.actual.y)/20;
+                player.rotation.actual.y = DOBUKI.closeEnough(player.rotation.actual.y, player.rotation.goal.y);
                 
-                var realDZ = Math.cos(player.rotation.y) * dz - Math.sin(player.rotation.y) * dx;
-                var realDX = Math.cos(player.rotation.y) * dx + Math.sin(player.rotation.y) * dz;
+                var realDZ = Math.cos(player.rotation.actual.y) * dz - Math.sin(player.rotation.actual.y) * dx;
+                var realDX = Math.cos(player.rotation.actual.y) * dx + Math.sin(player.rotation.actual.y) * dz;
                 
-                player.position.z += realDZ;
-                player.position.x += realDX;
+                if(realDZ) {
+                    player.position.goal.z = (player.position.actual.z/10 + realDZ*1.5)*10;
+                }
+                if(realDX) {
+                    player.position.goal.x = (player.position.actual.x/10 + realDX*1.5)*10;
+                }
+                var wasInbound = inBound(player.position.actual.x,player.position.actual.z);
+                player.position.actual.z += (player.position.goal.z - player.position.actual.z)/20;
+                player.position.actual.x += (player.position.goal.x - player.position.actual.x)/20;
+                player.position.actual.z = DOBUKI.closeEnough(player.position.actual.z, player.position.goal.z);
+                player.position.actual.x = DOBUKI.closeEnough(player.position.actual.x, player.position.goal.x);
+                if(!freeFall && wasInbound && !inBound(player.position.actual.x,player.position.actual.z)) {
+                    player.position.goal.x = player.position.actual.x = Math.max(wasInbound[0],Math.min(wasInbound[2],player.position.actual.x));
+                    player.position.goal.z = player.position.actual.z = Math.max(wasInbound[1],Math.min(wasInbound[3],player.position.actual.z));
+                }
+                
+                if(DOBUKI.distance(player.position.actual, {x:0,y:0,z:-10}) < 25) {
+                    if(!metSquid) {
+                        metSquid = DOBUKI.time;
+                    }
+                } else {
+                    metSquid = null;
+                }
+                var dist = Math.sqrt(player.position.actual.x*player.position.actual.x + player.position.actual.z*player.position.actual.z);                
+                DOBUKI.setVolume('jsb-air.ogg', Math.min(1,100/dist));
+                
+                if(!freeFall && player.position.actual.x==-54 && player.position.actual.z<-45) {
+                    freeFall = DOBUKI.time;
+                }
+                
+                if(freeFall) {
+//                    player.position.actual.y += dy;
+                    for(var i=0;i<DOBUKI.spheres.length;i++) {
+                        DOBUKI.spheres[i].position.y-=dy;
+                        if(DOBUKI.spheres[i].position.y>2500) {
+                            DOBUKI.spheres[i].position.y -= 5000+1000*Math.random();
+                        }
+                        
+                        DOBUKI.spheres[i].__dirtyPosition = true;
+                    }
+                    dy--;
+                    if(DOBUKI.time - freeFall > 3000 && !gaga) {
+                        gaga = true;
+                        location = "../cage/index.html";
+                    }
+                }
+
             });
+        
+        var freeFall = 0, dy = 0;
+        var metSquid = null;
+        
+        var gaga = null;
+    
+        function inBound(x,z) {
+            return x>=-45 && x<=45 && z>=-45 && z<=45 ? [-45,-45,45,45] :
+                z==-45 && x>=-54 ? [-54,-45,45,-45] :
+                z<=-45 && x==-54 ? [-54,-45,-54,-100] : null;
+        }
     
         DOBUKI.makeProcess("add-squid-floor", function() {
+            DOBUKI.playMusic('jsb-air.ogg');
+    
             DOBUKI.setModel(
                 {
                     background: '#66cccc',
                     camera: {
-                        rotation: player.rotation,
-                        position: player.position,
+                        rotation: player.rotation.actual,
+                        position: player.position.actual,
                     },
                     objects: [
                         {   //  ground
-                            x: 0, y:-20, z:-50,
+                            x: 0, y:-20, z:0,
                             rotation: { x: -Math.PI*1/2 },
                             size: [100,1,100],
                             frame: {
@@ -117,44 +190,181 @@
                             }
                         },
                         {   //  front
-                            x: 0, y:10, z:-100,
+                            x: 0, y:10, z:-50,
                             size: [100,60,1],
                             frame: {
                                 src: 'wall.jpeg',
-                                cut: [ 0, 0, 900, 600 ]
+                                cut: [ 0, 0, 2048, 1500 ]
+                            }
+                        },
+                        {   //  front small
+                            x: -55, y:10, z:-40,
+                            size: [10,60,1],
+                            rotation: {y: Math.PI },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 128, 1500 ]
                             }
                         },
                         {   //  left
-                            x: -50, y:10, z:-50,
-                            size: [1,60,100],
+                            x: -50, y:10, z:5,
+                            size: [1,60,90],
                             rotation: {y: Math.PI*1/2 },
                             frame: {
                                 src: 'wall.jpeg',
-                                cut: [ 0, 0, 900, 600 ]
+                                cut: [ 0, 0, 2048, 1500 ]
+                            }
+                        },
+                        window.aaa = {   //  left2
+                            x: -60, y:5, z:-80,
+                            size: [.1,80,100],
+                            rotation: {y: Math.PI*1/2 },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 2048, 1500 ]
+                            }
+                        },
+                        {   //  left3
+                            x: -60, y:5, z:-180,
+                            size: [.1,90,100],
+                            rotation: {y: Math.PI*1/2 },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 2048, 1500 ]
                             }
                         },
                         {   // right
-                            x: 50, y:10, z:-50,
+                            x: 50, y:10, z:0,
                             size: [1,60,100],
                             rotation: {y: -Math.PI*1/2 },
                             frame: {
                                 src: 'wall.jpeg',
-                                cut: [ 0, 0, 900, 600 ]
+                                cut: [ 0, 0, 2048, 1500 ]
+                            }
+                        },
+                        {   // right2
+                            x: -50, y:10, z:-100,
+                            size: [.1,60,100],
+                            rotation: {y: -Math.PI*1/2 },
+                            frame: {
+                                src: 'wall.jpeg',
+                                cut: [ 0, 0, 2048, 1500 ]
                             }
                         },
                         {   //  back
-                            x: 0, y:10, z:0,
+                            x: 0, y:10, z:50,
                             size: [100,60,1],
                             rotation: {y: -Math.PI },
                             frame: {
                                 src: 'wall.jpeg',
-                                cut: [ 0, 0, 900, 600 ]
+                                cut: [ 0, 0, 2048, 1500 ]
+                            }
+                        },
+                        {   //  squid
+                            x: 0, y:3, z:-10,
+                            size: [8,8,8],
+                            rotation: {
+                                get y() {
+                                    return player.rotation.actual.y;
+                                },
+                            },
+                            frame: {
+                                src: 'squid.png',
+                                cut: [ 0, 0, 32, 32 ]
+                            }
+                        },
+                        {   //  carpet
+                            x: 0, y:-20, z:200,
+                            rotation: { x: -Math.PI*1/2 },
+                            size: [50,1,300],
+                            frame: {
+                                src: 'carpet.jpeg',
+                                cut: [ 0, 0, 498, 498 ]
                             }
                         },
                     ]
                 }
             );
+            makeText();
         }).startAfter("initialize");
+        
+        
+        
+        
+        
+       var narrative = [
+            ["welcome to this room"],
+            ["have a pleasant stay"],
+            ["hum... sorry. No, you cannot get out"],
+            ["this is the end of the line"],
+            ["what do you expect, from the worst game ever?"],
+            ["thanks for playing"],
+       ];
+       
+       function followNarrative() {
+       text2.style.display = metSquid?"":"none";
+        if(!metSquid) {
+            return;
+        }
+            var count = Math.floor((DOBUKI.time-metSquid) / 20) + 0;
+            for(var i=0;i<narrative.length;i++) {
+                var text = narrative[i][0];
+                var speed = 7;
+                if(count/speed<text.length) {
+                    text2.innerHTML = text.substr(0,Math.floor(count/speed));
+                    break;
+                } else {
+                    count -= speed*text.length;
+                }
+                
+                if(count<100) {
+                    text2.innerHTML = text;
+                    break;
+                } else {
+                    count -= 100;
+                }
+                
+                if(i<narrative.length-1) {
+                } else {
+                    text2.style.display = "none";
+                }
+            }
+            
+            
+//            text2.innerHTML = ""+count;
+       }
+       
+       
+       var text2;
+       function makeText() {
+            text2 = document.createElement('div');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+            text2.style.color = "silver";
+            text2.style.fontSize = 30;
+            text2.innerHTML = "";
+            text2.style.top = (window.innerHeight-60) + 'px';
+            text2.style.left = 0 + 'px';
+            text2.style.height = 60;
+            text2.style.width = window.innerWidth;
+            text2.style.textAlign="left";
+            text2.style.padding = 20;
+            document.body.appendChild(text2);
+            
+            function onResizeWindow() {
+                text2.style.top = (window.innerHeight-60) + 'px';
+                text2.style.left = 0 + 'px';
+                text2.style.height = 60;
+                text2.style.width = window.innerWidth;
+            }
+            window.addEventListener("resize",onResizeWindow);
+            setInterval(followNarrative,20);
+        }        
+        
+                
+        
+        
     </script>
 </head>
 <body>

@@ -1,0 +1,667 @@
+<head>
+    <title>cage</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <style>
+        html, body {
+          overflow-x: hidden; overflow-y: auto;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+        left: 0;pa
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+    </style>
+    <script>
+        if(window.nw) {
+            window.win = nw.Window.get();
+        }
+    </script>
+
+    <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
+    <script language="JavaScript" src="../lib/blueimp/md5.js"></script>
+    <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/graphicmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
+    <script>
+        var keyboard = {};
+        document.addEventListener("keydown",
+            function(e) {
+                keyboard[e.keyCode] = true;
+                e.preventDefault();
+            });
+        document.addEventListener("keyup",
+            function(e) {
+                keyboard[e.keyCode] = false;
+                e.preventDefault();
+            });
+            
+        var player = {
+            position: {
+                actual: { x: -582.5475441267196, y: 0, z: 430.0651184789332 },
+                goal: { x: -582.5475441267196, y: 0, z: 430.0651184789332 },
+            },
+            rotation: {
+                actual: {
+                    x:0, y:0, z:0,
+                },
+                goal: {
+                    x:0, y:-.7, z:0,
+                },
+            },
+        };
+        
+        
+        var move = {
+            x:0,
+            z:0,
+            lastX:0,
+            jumpTime:0,
+        };
+        DOBUKI.addLoop(0,
+            function() {
+                var dx=0, dz=0, drot=0;
+                if(keyboard[87] || keyboard[38]) {  //w
+                    dz --;
+                }
+                if(keyboard[83] || keyboard[40]) {  //s
+                    dz ++;
+                }
+                if(keyboard[65]) {  //a
+                    dx --;
+                }
+                if(keyboard[68]) {  //d
+                    dx ++;
+                }
+                if(keyboard[81] || keyboard[37]) {  //q
+                    dx ++;
+                }
+                if(keyboard[69] || keyboard[39]) {  //e
+                    dx --;
+                }
+                
+                var boy = window.b;
+                if(boy.bam && DOBUKI.time - boy.bam<1000) {
+                    dx = 0;
+                    dz = 1;
+                }
+                
+                if(keyboard[32] && DOBUKI.time - move.jumpTime > 700) {  // space
+                    move.jumpTime = DOBUKI.time;
+
+                }
+                var speed = DOBUKI.time - move.jumpTime<500?2:1;
+                var rotationChunk = Math.PI/4;
+
+                player.rotation.goal.y = Math.atan2(player.position.actual.x,player.position.actual.z);
+                player.rotation.actual.y = player.rotation.goal.y;
+                
+                var realDZ = Math.cos(player.rotation.actual.y) * dz - Math.sin(player.rotation.actual.y) * dx;
+                var realDX = Math.cos(player.rotation.actual.y) * dx + Math.sin(player.rotation.actual.y) * dz;
+                
+                if(realDZ) {
+                    player.position.goal.z = (player.position.actual.z/10 + realDZ*3.0*speed)*10;
+                }
+                if(realDX) {
+                    player.position.goal.x = (player.position.actual.x/10 + realDX*3.0*speed)*10;
+                }
+                player.position.actual.z += (player.position.goal.z - player.position.actual.z)/20;
+                player.position.actual.x += (player.position.goal.x - player.position.actual.x)/20;
+                player.position.actual.z = DOBUKI.closeEnough(player.position.actual.z, player.position.goal.z);
+                player.position.actual.x = DOBUKI.closeEnough(player.position.actual.x, player.position.goal.x);
+                
+                var dist = Math.sqrt(player.position.actual.x*player.position.actual.x + player.position.actual.z*player.position.actual.z);
+                DOBUKI.setVolume('cabincrew.ogg', Math.min(1,100/dist));
+                move.x = dx;
+                move.z = dz;
+                if(dx) {
+                    move.lastX = dx;
+                }
+                
+                var talking = DOBUKI.isPlaying('peach.ogg');
+                if(!talking && Math.sqrt(player.position.actual.z*player.position.actual.z + player.position.actual.x*player.position.actual.x)<10) {
+                    DOBUKI.playMusic('peach.ogg',1);
+                    peachCount--;
+                    if(text2)
+                    text2.innerHTML = "" + peachCount;
+                }
+                
+                if(peachCount==0 && !talking) {
+                    setTimeout(
+                        function() {
+                            location = "../tar/index.html";
+                        },500
+                    );
+                }
+                
+
+                    if(text2)
+                text2.style.display = talking?"": "none";
+
+            });
+            
+            var peachCount = 6;
+            
+        var dancer = DOBUKI.processPixels('dancer.png',
+            function(rgba, x, y) {
+                if(rgba[0]==0 && rgba[1]==0 && rgba[2]==0) {
+                    rgba[0] = (x+y)%256;
+                    rgba[1] = (x-y)%256;
+                    rgba[2] = (x^y)%256;
+                } else {
+                    rgba[3] = 0;
+                }
+                return rgba;
+            }
+        );
+        
+        var walls = DOBUKI.processPixels('wall.jpeg',
+            function(rgba, x, y) {
+                rgba[0] = (rgba[0]^(x+y))%256;
+                rgba[1] = (rgba[1]^(x-y))%256;
+                rgba[2] = (rgba[2]^(x^y))%256;
+                return rgba;
+            },
+            function(result) {
+                walls = DOBUKI.shorty(result);
+            }
+        );
+        
+        var floor = DOBUKI.processPixels('ground.jpeg',
+            function(rgba, x, y) {
+                rgba[0] = (rgba[0]^rgba[1])%256 ;
+                rgba[1] = (rgba[1]^rgba[2])%256 /2;
+                rgba[2] = (rgba[2]^rgba[0])%256 /2;
+                return rgba;
+            },
+            function(result) {
+                floor = DOBUKI.shorty(result);
+            }
+        );
+        
+        var ewok = DOBUKI.processPixels('ewok.png',
+            function(rgba, x, y) {
+                var px = x % 538;
+                var py = y % 255;
+                var dx = px-538/2;
+                var dy = py-255/2;
+                var dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if(dist > 100) {
+                    var val = dist-100;
+                    rgba[3] = Math.max(0, Math.min(255, 255-val*10));
+                }
+                return rgba;
+            }
+        );
+        
+        
+        
+        var zero = {x:0,y:0,z:0};
+        var objects = [
+            //  groundwork
+            DOBUKI.createModelObjects(0, 100,
+                function(i) {
+                    var cols = i%10;
+                    var rows = Math.floor(i/10);
+                
+                    return {   //  ground
+                        ground: true,
+                        x: (cols-5)*100, y:-20, z:(rows-5)*100,
+                        rotation: { 
+                            x: -Math.PI*1/2,
+                        },
+                        size: [100,1,100],
+                        frame: {
+                            get src() { return floor },
+                            cut: [ 0, 0, 900, 900 ]
+                        }
+                    };
+                }
+            ),        
+            {   //  front wall
+                wall: true,
+                x: 0, y:10, z:-50,
+                size: [100,60,1],
+                frame: {
+                    get src() { return walls },
+                    cut: [ 0, 0, 2048, 1500 ]
+                }
+            },
+            {   //  left wall
+                wall: true,
+                x: -50, y:10, z:0,
+                size: [1,60,100],
+                rotation: {y: Math.PI*1/2 },
+                frame: {
+                    get src() { return walls },
+                    cut: [ 0, 0, 2048, 1500 ]
+                }
+            },
+            {   // right wall
+                wall: true,
+                x: 50, y:10, z:0,
+                size: [1,60,100],
+                rotation: {y: -Math.PI*1/2 },
+                frame: {
+                    get src() { return walls },
+                    cut: [ 0, 0, 2048, 1500 ]
+                }
+            },
+            {   //  back wall
+                wall: true,
+                x: 0, y:10, z:50,
+                size: [100,60,1],
+                rotation: {y: -Math.PI },
+                frame: {
+                    get src() { return walls },
+                    cut: [ 0, 0, 2048, 1500 ]
+                }
+            },
+            {   //  cage
+                x: 0,
+                get y() {
+                    return Math.sin(DOBUKI.time/300)*5 + 5;
+                },
+                z:-10,
+                size: [32,48,32],
+                rotation: {
+                    get y() {
+                        return player.rotation.actual.y;
+                    },
+                },
+                frame: {
+                    get src() {
+                        var talking = DOBUKI.isPlaying('peach.ogg');
+                        var cycle = Math.floor(DOBUKI.time/50) % 7;
+                        if(talking) {
+                            switch(cycle) {
+                                case 0:
+                                    return Math.random()<.5?'cage.png':'cage-blink.png';
+                                case 1:
+                                    return 'cage-ah.png';
+                                case 2:
+                                    return 'cage-ah.png';
+                                case 3:
+                                    return 'cage-oh.png';
+                                case 4:
+                                    return 'cage-ah.png';
+                            }
+                        } else {
+                            return Math.floor(DOBUKI.time/900) % 8==0 ?'cage-blink.png':'cage.png';
+                        }
+                        return 'cage.png';
+                    },
+                    cut: [ 0, 0, 419, 600 ],
+                }
+            },
+            //  4 dancers
+            DOBUKI.createModelObjects(0, 4,
+                function(i) {
+                    var angle = i * 2 * Math.PI / 4;
+                    
+                    return {
+                        x: Math.cos(angle) * 40,
+                        z:  Math.sin(angle) * 40,
+                        get y() {
+                            return Math.sin(10+DOBUKI.time/300)*5 + 5;
+                        },
+                        rotation: { 
+                            get y() {
+                                return player.rotation.actual.y;
+                            },
+                        },
+                        size: [27,36,27],
+                        frame: {
+                            index: i,
+                            get src() {
+                                return dancer;
+                            },
+                            get cut() {
+                                return DOBUKI.animationCutFromGrid(
+                                    1890, 1800,
+                                    270, 360,
+                                    Math.floor(10*this.index+DOBUKI.time/30) % 34
+                                );
+                            },
+                        }
+                    };
+                }
+            ),   
+                 
+            DOBUKI.createModelObjects(0, 10,
+                function(i) {
+                    var angle = i * 2 * Math.PI / 10;
+                    return {
+                        wall: true,
+                        x: Math.cos(angle)*500, y:10, z:Math.sin(angle)*500,
+                        size: [1000,500,1000],
+                        rotation: {y: -angle-Math.PI/2 },
+                        frame: {
+                            get src() { return walls },
+                            cut: [ 0, 0, 2048, 1500 ],
+                        },
+                    };
+                }
+            ),       
+                        
+            DOBUKI.createModelObjects(0, 5,
+                function(i) {
+                    var angle = i * 2 * Math.PI / 5;
+                    return {
+                        x: Math.cos(angle)*300, y:100, z:Math.sin(angle)*300,
+                        size: [200,400,200],
+                        rotation: {
+                            get y() {
+                                return player.rotation.actual.y;
+                            },
+                        },
+                        frame: {
+                            src: 'snoop.png',
+                            get cut() {
+                                return DOBUKI.animationCutFromGrid(
+                                    1872, 1920,
+                                    234, 480,
+                                    Math.min(29,Math.abs(Math.floor(37+DOBUKI.time/15.7502) % 60 - 30))
+                                );
+                            },
+                        },                   
+                    };
+                }
+            ),
+            
+            //  boy
+            window.b = {   
+                boy:true,
+                get x() {
+                    var dx = player.position.actual.x;
+                    var dz = player.position.actual.z;
+                    var dist = Math.sqrt(dx*dx+dz*dz);
+                    
+                    return dist<100 ? player.position.actual.x/2 : player.position.actual.x - 50 * dx/dist;
+                },
+                get z() {
+                    var dx = player.position.actual.x;
+                    var dz = player.position.actual.z;
+                    var dist = Math.sqrt(dx*dx+dz*dz)
+                    ;
+                    return dist<100 ? player.position.actual.z/2 : player.position.actual.z - 50 * dz/dist;
+                },
+                get y() {
+                    var jumpDur = DOBUKI.time - move.jumpTime;
+                    if(jumpDur > 500) {
+                        return -10;
+                    } else {
+                        jumpDur = jumpDur/50-5;
+                        return 30-jumpDur*jumpDur;
+                    }
+                },
+                size: [16,16,16],
+                rotation: {
+                    get y() {
+                        return player.rotation.actual.y;
+                    },
+                    get z() {
+                        var jumpDur = DOBUKI.time - move.jumpTime;
+                        var talking = DOBUKI.isPlaying('peach.ogg');
+
+                        if(jumpDur > 500 && peachCount) {
+                            return 0;
+                        } else if(DOBUKI.isPlaying('peach.ogg') || !peachCount) {
+                            jumpDur = jumpDur/50-5;
+                            return jumpDur*Math.PI/20;
+                        }                        
+                    },
+                },
+                frame: {
+                    get src() {
+                        if(window.b.bam && DOBUKI.time-window.b.bam<1000) {
+                            return 'boy/boy-ko.png';
+                        }
+                        if(move.z<0) {
+                            return 'boy/boy-walk-up.png';
+                        } else if(move.z>0) {
+                            return 'boy/boy-walk-down.png';
+                        } else if(move.x<0) {
+                            return 'boy/boy-walk-left.png';
+                        } else if(move.x>0) {
+                            return 'boy/boy-walk-right.png';
+                        }
+                    
+                        return move.lastX <=0 ? 'boy/boy.png' : 'boy/boy-still-right.png';
+                    },
+                    get cut() {
+                        var frameCount = move.x==0 && move.z==0 ? 1 : 4;
+                        var frame = Math.floor(DOBUKI.time / 100) % frameCount;
+                        var c = frame % 2;
+                        var r = Math.floor(frame/2);
+                        bcut[0] = c*128;
+                        bcut[1] = r*128;
+                        return bcut;
+                    },
+                }
+            },
+            
+            //  ewok
+            window.eee = DOBUKI.createModelObjects(0, 50,
+                function(i) {
+                    return {
+                        get x() {
+                            return Math.sin(i * 50+ 10+DOBUKI.time/3000)*200;
+                        },
+                        get z() {
+                            return Math.cos(i * 134+ 10+DOBUKI.time/3000)*200;
+                        },
+                        y: -10,
+                        rotation: { 
+                            get y() {
+                                return player.rotation.actual.y;
+                            },
+                        },
+                        size: [53,25,53],
+                        frame: {
+                            src: ewok,
+                            get cut() {
+                                return DOBUKI.animationCutFromGrid(
+                                    1614, 1530,
+                                    538, 255,
+                                    Math.floor(DOBUKI.time/30) % 17
+                                );
+                            },
+                        },
+                    };
+                }
+            ),
+        ];
+        
+        
+        DOBUKI.addLoop(10,
+            function() {
+                var ewoks = window.eee;
+                var boy = window.b;
+                
+                if(!boy.bam || DOBUKI.time-boy.bam > 1000) {
+                    var mindist = Number.MAX_VALUE;
+                    for(var i=0;i<ewoks.length;i++) {
+                        var dist = DOBUKI.distance(boy, ewoks[i]);
+                        if(dist<mindist) {
+                            mindist = dist;
+                        }
+                    }
+                    if(mindist<20) {
+                        boy.bam = DOBUKI.time;
+                        move.jumpTime = DOBUKI.time;
+                        
+                    }
+                }
+            });
+        
+        var bcut = [0,0,128,128];
+
+        objects = DOBUKI.flatten(objects);
+        
+        
+        DOBUKI.addLoop(100,
+            function() {
+                objects.sort(
+                    function(o1,o2) {
+                        if(o1.ground && !o2.ground) {
+                            return -1;
+                        } else if(!o1.ground && o2.ground) {
+                            return 1;
+                        }
+                        if(o1.wall && !o2.wall) {
+                            return -1;
+                        } else if(!o1.wall && o2.wall) {
+                            return 1;
+                        }
+                        var dx1 = o1.x - player.position.actual.x;
+                        var dz1 = o1.z - player.position.actual.z;
+                        var distsq1 = dx1*dx1+dz1*dz1;
+                        var dx2 = o2.x - player.position.actual.x;
+                        var dz2 = o2.z - player.position.actual.z;
+                        var distsq2 = dx2*dx2+dz2*dz2;
+                        return distsq1 > distsq2 ? -1 : distsq1 < distsq2 ? 1 : 0;
+                    }
+                );
+            });
+        
+        DOBUKI.makeProcess("set-model", function() {
+            DOBUKI.setModel(
+                {
+                    background: '#66cccc',
+                    camera: {
+                        rotation: player.rotation.actual,
+                        position: player.position.actual,
+                    },
+                    objects: objects,
+                }
+            );
+            makeText();
+        }).startAfter("initialize");
+        
+        
+
+        
+        
+        DOBUKI.playMusic('cabincrew.ogg');
+        //DOBUKI.playMusic('peach.ogg',1);
+        
+        
+        
+        
+        
+        
+       var narrative = [
+            ["jacklehamster presents"],
+            ["the worst game ever"],
+            ["this is my scratch code for learning WebGL"],
+            ["when I found out about #crappygamejam"],
+            ["I decided to turn all this code"],
+            ["into\nA CRAPPY GAME."],
+            ["press any key to continue"],
+       ];
+       
+       function followNarrative() {
+            var count = Math.floor((Date.now() - startTime) / 25) + 0;
+            for(var i=0;i<narrative.length;i++) {
+                var text = narrative[i][0];
+                var speed = 7;
+                if(count/speed<text.length) {
+                    text2.innerHTML = text.substr(0,Math.floor(count/speed));
+                    break;
+                } else {
+                    count -= speed*text.length;
+                }
+                
+                if(count<100) {
+                    text2.innerHTML = text;
+                    break;
+                } else {
+                    count -= 100;
+                }
+                
+                if(i<narrative.length-1) {
+                    if(count<text.length) {
+                        text2.innerHTML = text.substr(0,text.length -count);
+                        break;
+                    } else {
+                        count -= text.length;
+                    }
+                } else {
+                    text2.innerHTML = Math.floor(count/10) % 4 ==0 ? "":text;
+                    text2.style.fontSize = count/10;
+                }
+            }
+            
+            
+//            text2.innerHTML = ""+count;
+       }
+       
+       
+       var startTime = Date.now();
+       function makeText() {
+            text2 = document.createElement('div');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+            text2.style.color = "yellow";
+            text2.style.fontSize = 30;
+            text2.innerHTML = "";
+            text2.style.display = "none";
+            text2.style.top = (window.innerHeight/2+50-100) + 'px';
+            text2.style.left = 0 + 'px';
+            text2.style.height = 100;
+            text2.style.width = window.innerWidth;
+            text2.style.textAlign="center";
+            text2.style.padding = 20;
+            document.body.appendChild(text2);
+            
+            function onResizeWindow() {
+                text2.style.top = (window.innerHeight/2+50-100) + 'px';
+                text2.style.left = 0 + 'px';
+                text2.style.height = 100;
+                text2.style.width = window.innerWidth;
+            }
+            window.addEventListener("resize",onResizeWindow);
+            //setInterval(followNarrative,20);
+        }        
+        
+        
+        
+        
+               var text2;
+
+        
+        
+        
+    </script>
+</head>
+<body>
+
+
+
+</body>
