@@ -1,0 +1,229 @@
+<head>
+    <title>maze</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <style>
+        html, body {
+          overflow-x: hidden; overflow-y: auto;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+        left: 0;pa
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+    </style>
+    <script>
+        if(window.nw) {
+            window.win = nw.Window.get();
+        }
+    </script>
+
+    <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
+    <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <script language="JavaScript" src="../lib/blueimp/md5.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/graphicmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
+    <script>
+        var keyboard = {};
+        setTimeout(
+            function() {
+                document.addEventListener("keydown",
+                    function(e) {
+                        keyboard[e.keyCode] = true;
+                        e.preventDefault();
+                    });
+            },1000);
+            
+        var player = {
+            position: {
+                actual: {
+                    x:0, y:0, z:10,
+                },
+                goal: {
+                    x:0, y:0, z:10,
+                },
+            },
+            rotation: {
+                actual: {
+                    x:0, y:0, z:0,
+                },
+                goal: {
+                    x:0, y:0, z:0,
+                },
+            },
+        };
+        
+        DOBUKI.makeProcess("add-squid-floor", function() {
+            DOBUKI.playMusic('disco.ogg');
+    
+            DOBUKI.setModel(
+                {
+                    background: '#66cccc',
+                    camera: {
+                        rotation: player.rotation.actual,
+                        position: player.position.actual,
+                    },
+                    objects: [
+                        {   //  ground
+                            x: 0, y:-20, z:0,
+                            rotation: { x: -Math.PI*1/2 },
+                            size: [100,1,100],
+                            frame: {
+                                src: 'discofloor.png',
+                                cut: [ 0, 0, 446, 446 ]
+                            }
+                        },
+                        {   //  top
+                            x: 0, y:40, z:0,
+                            rotation: { x: Math.PI*1/2 },
+                            size: [100,1,100],
+                            frame: {
+                                src: 'discofloor.png',
+                                cut: [ 0, 0, 446, 446 ]
+                            }
+                        },
+                        {   //  front
+                            x: 0, y:10, z:-50,
+                            size: [100,60,1],
+                            frame: {
+                                src: 'disco-172-120x137.png',
+                                get cut() {
+                                    return DOBUKI.animationCutFromGrid(
+                                        1680, 1781,
+                                        120, 137,
+                                        Math.floor(DOBUKI.time/30) % 172
+                                    );
+                                },
+                            }
+                        },
+                        {   //  left
+                            x: -50, y:10, z:0,
+                            size: [1,60,100],
+                            rotation: {y: Math.PI*1/2 },
+                            frame: {
+                                src: 'discofloor.png',
+                                cut: [ 0, 0, 446, 446 ]
+                            }
+                        },
+                        {   // right
+                            x: 50, y:10, z:0,
+                            size: [1,60,100],
+                            rotation: {y: -Math.PI*1/2 },
+                            frame: {
+                                src: 'discofloor.png',
+                                cut: [ 0, 0, 446, 446 ]
+                            }
+                        },
+                        {   //  back
+                            x: 0, y:10, z:50,
+                            size: [100,60,1],
+                            rotation: {y: -Math.PI },
+                            frame: {
+                                src: 'discofloor.png',
+                                cut: [ 0, 0, 446, 446 ]
+                            }
+                        },
+                    ]
+                }
+            );
+            makeText();
+        }).startAfter("initialize");
+        
+       var narrative = [
+            ["Thank you for playing"],
+            ["The worst game ever"],
+            ["I'll make a better one next time"],
+            ["This is really the end"],
+            ["Enjoy your day"],
+            ["Go outside"],
+            ["Talk to people"],
+       ];
+       
+       var startCount = 0;
+       function followNarrative() {
+            var count = Math.floor((DOBUKI.time-startCount) / 20) + 0;
+            for(var i=0;i<narrative.length;i++) {
+                var text = narrative[i][0];
+                var speed = 7;
+                if(count/speed<text.length) {
+                    text2.innerHTML = text.substr(0,Math.floor(count/speed));
+                    break;
+                } else {
+                    count -= speed*text.length;
+                }
+                
+                if(count<100) {
+                    text2.innerHTML = text;
+                    break;
+                } else {
+                    count -= 100;
+                }
+                
+                if(i<narrative.length-1) {
+                } else {
+                    startCount = DOBUKI.time;
+                }
+            }
+       }
+       
+       
+       var text2;
+       function makeText() {
+            text2 = document.createElement('div');
+            text2.style.position = 'absolute';
+            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            text2.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+            text2.style.color = "silver";
+            text2.style.fontSize = 30;
+            text2.innerHTML = "";
+            text2.style.top = (window.innerHeight-60) + 'px';
+            text2.style.left = 0 + 'px';
+            text2.style.height = 60;
+            text2.style.width = window.innerWidth;
+            text2.style.textAlign="left";
+            text2.style.padding = 20;
+            document.body.appendChild(text2);
+            
+            function onResizeWindow() {
+                text2.style.top = (window.innerHeight-60) + 'px';
+                text2.style.left = 0 + 'px';
+                text2.style.height = 60;
+                text2.style.width = window.innerWidth;
+            }
+            window.addEventListener("resize",onResizeWindow);
+            setInterval(followNarrative,20);
+        }        
+        
+                
+        
+        
+    </script>
+</head>
+<body>
+
+
+
+</body>

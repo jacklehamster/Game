@@ -152,7 +152,7 @@
                 if(peachCount==0 && !talking) {
                     setTimeout(
                         function() {
-                            location = "../tar/index.html";
+                            DOBUKI.changeScene('tar','next.html');
                         },500
                     );
                 }
@@ -552,7 +552,9 @@
         DOBUKI.makeProcess("set-model", function() {
             DOBUKI.setModel(
                 {
-                    background: '#66cccc',
+                    get background() {
+                        return (0x993333 + Math.round(DOBUKI.time/100)) % 0xFFFFFF;
+                    },
                     camera: {
                         rotation: player.rotation.actual,
                         position: player.position.actual,

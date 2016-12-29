@@ -8,7 +8,7 @@
     <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
     <meta name="theme-color" content="#d5f97a" />
 	<script>
-       var regex = /\/$|index\.html$/g;
+       var regex = /\/$|index\.html$|next\.html$/g;
        if (!regex.exec(location.pathname)) {
            window.history.pushState(null,"", location.pathname+"/"+location.search+location.hash);
        }
@@ -323,7 +323,7 @@ console.log(camera.aspect);
                             function() {
                                 if(!gonext) {
                                     gonext = true;
-                                    window.location = '../walls/index.html';
+                                    location.replace('../walls/next.html');
 
                                 }
                             },8000
@@ -333,7 +333,7 @@ console.log(camera.aspect);
                 pressy++;
                 if(pressy>=10) {
                 gonext = true;
-                    window.location = '../walls/index.html';
+                    window.location.replace('../walls/next.html');
                 }
                 e.preventDefault();
             }
@@ -402,8 +402,8 @@ console.log(camera.aspect);
         }
         
         
-        var audio = new Audio('superman.ogg');
-        audio.play();
+//        var audio = new Audio('superman.ogg');
+  //      audio.play();
     </script>
 
 
