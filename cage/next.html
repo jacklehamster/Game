@@ -42,7 +42,8 @@
     <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
     <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
     <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
-    <script language="JavaScript" src="../lib/dobuki/graphicmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/objectparser.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/coremodel.js"></script>
     <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
     <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
     <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
@@ -552,9 +553,12 @@
         DOBUKI.makeProcess("set-model", function() {
             DOBUKI.setModel(
                 {
-                    get background() {
-                        return (0x993333 + Math.round(DOBUKI.time/100)) % 0xFFFFFF;
+                    background: { 
+                        color: {
+                            "js-function": "return (0x993333 + Math.round(DOBUKI.time/100)) % 0xFFFFFF"
+                        },
                     },
+
                     camera: {
                         rotation: player.rotation.actual,
                         position: player.position.actual,
@@ -563,7 +567,7 @@
                 }
             );
             makeText();
-        }).startAfter("initialize");
+        }).startAfter("initialize-renderer");
         
         
 
