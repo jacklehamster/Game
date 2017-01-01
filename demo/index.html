@@ -1,0 +1,70 @@
+<head>
+    <title>maze</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <style>
+        html, body {
+          overflow-x: hidden; overflow-y: hidden;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+    </style>
+    <script>
+        if(window.nw) {
+            window.win = nw.Window.get();
+        }
+    </script>
+
+    <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
+    <script language="JavaScript" src="../lib/threejs/three.js"></script>
+    <script language="JavaScript" src="../lib/blueimp/md5.js"></script>
+    <script language="JavaScript" src="../lib/mathjs/math.js"></script>
+    <script language="JavaScript" src="../lib/jsgif/gif.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/utils.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/loop.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/processor.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/objectdecoder.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/coremodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/watcher.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/fetchmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/jsmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/mathmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/loopmodel.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/text.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/keyboard.js"></script>
+    <script>
+        DOBUKI.setModel(
+            { "fetch-content": "world.json" }
+        );        
+        
+    </script>
+</head>
+<body>
+
+
+
+</body>

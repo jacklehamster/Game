@@ -1,0 +1,96 @@
+{
+  "window": {
+    "title": "Disco!"
+  },
+  "keyboard": {
+    "active": true
+  },
+  "overlay": {
+    "text": {
+      "js-function": {
+          "fetch-raw": "textthrough.js"
+      }
+    },
+    "narrative" : [
+      "Welcome, this is a demo",
+      "Have a good day"
+    ]
+  },
+  "music": {
+    "volume": 0.5,
+    "path" : "rag.ogg"
+  },
+  "background": {
+    "color" : "#000000",
+    "theme-color": "#d5f97a"
+  },
+  "camera": {
+    "position": {
+      "x":0, "y":0, "z": {
+        "js-function" : "return 15 + 10 * Math.sin(DOBUKI.time/3000);"
+      }
+    },
+    "rotation": {
+      "x":0, "y":0, "z":0
+    }
+  },
+  "objects": [
+    { "//":"___________ground____________________",
+      "x": 0, "y":-20, "z":0,
+      "rotation": {
+        "x": { "calculate": "-π/2" }
+      },
+      "size": [100,1,100],
+      "frame": {
+        "src": "discofloor.png"
+      }
+    },
+    { "//":"______________top____________________",
+      "x": 0, "y":40, "z":0,
+      "rotation": { 
+        "x": { "calculate": "π/2" }
+      },
+      "size": [100,1,100],
+      "frame": {
+        "src": "discofloor.png"
+      }
+    },
+    { "//":"_______________front__________________",
+      "x": 0, "y":10, "z":-50,
+      "size": [100,60,1],
+      "frame": {
+        "src": "munchkin4.gif"
+      }
+    },
+    { "//":"_______________left__________________",
+      "x": -50, "y":10, "z":0,
+      "size": [1,60,100],
+      "rotation": {
+        "y" : { "calculate" : "π/2" }
+      },
+      "frame": {
+        "src": "discofloor.png"
+      }
+    },
+    { "//":"_______________ right __________________",
+      "x": 50, "y":10, "z":0,
+      "size": [1,60,100],
+      "rotation": {
+        "y" : { "calculate" : "-π/2" }
+      },
+      "frame": {
+        "src": "discofloor.png"
+      }
+    },
+    { 
+      "x": 49, "y":10, "z":-10,
+      "size": [30,25,30],
+      "rotation": {
+        "y" : { "js-code" : "-Math.PI/2" }
+      },
+      "frame": {
+        "src": "news.gif"
+      }
+    }
+  ]
+}
