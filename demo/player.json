@@ -1,0 +1,12 @@
+{
+  "position": {
+    "x":0, "y":0, "z":15
+  },
+  "rotation": {
+    "x":0, "y":0, "z":0
+  },
+  "js-period": 10,
+  "js-loop": {
+    "fetch-raw": "player.js"
+  }
+}

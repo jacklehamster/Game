@@ -3,7 +3,8 @@
     "title": "Disco!"
   },
   "keyboard": {
-    "active": true
+    "active": true,
+    "pressed": {}
   },
   "overlay": {
     "text": {
@@ -24,14 +25,15 @@
     "color" : "#000000",
     "theme-color": "#d5f97a"
   },
+  "player": {
+    "fetch-content": "player.json"
+  },
   "camera": {
     "position": {
-      "x":0, "y":0, "z": {
-        "js-function" : "return 15 + 10 * Math.sin(DOBUKI.time/3000);"
-      }
+      "formula": "model.player.position"
     },
     "rotation": {
-      "x":0, "y":0, "z":0
+      "formula": "model.player.rotation"
     }
   },
   "objects": [
@@ -86,10 +88,20 @@
       "x": 49, "y":10, "z":-10,
       "size": [30,25,30],
       "rotation": {
-        "y" : { "js-code" : "-Math.PI/2" }
+        "y" : { "calculate" : "-π/2" }
       },
       "frame": {
         "src": "news.gif"
+      }
+    },
+    { "//":"_______________back__________________",
+      "x": 0, "y":10, "z":50,
+      "size": [100,60,1],
+      "rotation": {
+        "y" : { "calculate" : "π" }
+      },
+      "frame": {
+        "src": "disco.gif"
       }
     }
   ]

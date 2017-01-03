@@ -1,4 +1,4 @@
 {
-  "name": "The Worst Game Ever",
-  "main": "webgl/index.html"
+  "name": "Demo",
+  "main": "demo/index.html"
 }
