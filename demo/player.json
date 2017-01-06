@@ -5,8 +5,25 @@
   "rotation": {
     "x":0, "y":0, "z":0
   },
-  "js-period": 10,
-  "js-loop": {
-    "fetch-raw": "player.js"
+  "action": {
+    "forward":      { "formula": "anyKeyPressed(87,38)" },  //  W or Forward arrow
+    "backward":     { "formula": "anyKeyPressed(83,40)" },  //  S or Back arrow
+    "left":         { "formula": "anyKeyPressed(65)" },     //  A
+    "right":        { "formula": "anyKeyPressed(68)" },     //  D
+    "rotateLeft":   { "formula": "anyKeyPressed(81,37)" },  //  Q or Left arrow
+    "rotateRight":  { "formula": "anyKeyPressed(69,39)" },   //  E or Right arrow
+    "dz":           { "formula": "5 * ((this.forward?-1:0) + (this.backward?1:0))" },
+    "dx":           { "formula": "5 * ((this.left?-1:0) + (this.right?1:0))" },
+    "rot":          { "formula": "(π/64) * ((this.rotateLeft?1:0) + (this.rotateRight?-1:0))" },
+    "realDZ":       { "formula": "cos(model.player.rotation.y) * this.dz - sin(model.player.rotation.y) * this.dx" },
+    "realDX":       { "formula": "cos(model.player.rotation.y) * this.dx + sin(model.player.rotation.y) * this.dz" }
+  },
+  "updates": {
+    "period": 10,
+    "update-loop": [
+      "this.rotation.y = this.rotation.y + this.action.rot",
+      "this.position.x = this.position.x + this.action.realDX",
+      "this.position.z = this.position.z + this.action.realDZ"
+    ]
   }
 }

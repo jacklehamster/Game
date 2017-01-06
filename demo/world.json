@@ -1,29 +1,37 @@
 {
   "window": {
-    "title": "Disco!"
+    "title": "Disco!",
+    "width": { "js-function" : "return innerWidth" },
+    "height": { "js-function" : "return innerHeight" },
+    "color" : "#000000"
   },
-  "keyboard": {
-    "active": true,
-    "pressed": {}
+  "input": {
+    "keyboard": {
+      "active": true,
+      "lastPressed": 0
+    },
+    "mouse": {
+      "cursor": {
+          "src": "hand-cursor.png",
+          "offset": [55, 10]
+      },
+      "active": true,
+      "lastMoved": 0
+    }
   },
   "overlay": {
-    "text": {
-      "js-function": {
-          "fetch-raw": "textthrough.js"
+    "objects": [
+      {
+        "visible" : false,//{ "formula" : "model.input.keyboard.lastPressed >= model.input.mouse.lastMoved" },
+        "position": { "formula": "model.input.mouse.position" },
+        "frame": { "formula": "model.input.mouse.cursor" },
+        "absolute": true
       }
-    },
-    "narrative" : [
-      "Welcome, this is a demo",
-      "Have a good day"
     ]
   },
   "music": {
     "volume": 0.5,
     "path" : "rag.ogg"
-  },
-  "background": {
-    "color" : "#000000",
-    "theme-color": "#d5f97a"
   },
   "player": {
     "fetch-content": "player.json"
@@ -38,7 +46,9 @@
   },
   "objects": [
     { "//":"___________ground____________________",
-      "x": 0, "y":-20, "z":0,
+      "position": {
+        "x": 0, "y":-20, "z":0
+      },
       "rotation": {
         "x": { "calculate": "-π/2" }
       },
@@ -48,7 +58,9 @@
       }
     },
     { "//":"______________top____________________",
-      "x": 0, "y":40, "z":0,
+      "position": {
+        "x": 0, "y": 40, "z": 0
+      },
       "rotation": { 
         "x": { "calculate": "π/2" }
       },
@@ -58,14 +70,18 @@
       }
     },
     { "//":"_______________front__________________",
-      "x": 0, "y":10, "z":-50,
+      "position": {
+        "x": 0, "y": 10, "z": -50
+      },
       "size": [100,60,1],
       "frame": {
         "src": "munchkin4.gif"
       }
     },
     { "//":"_______________left__________________",
-      "x": -50, "y":10, "z":0,
+      "position": {
+        "x": -50, "y": 10, "z": 0
+      },
       "size": [1,60,100],
       "rotation": {
         "y" : { "calculate" : "π/2" }
@@ -75,7 +91,9 @@
       }
     },
     { "//":"_______________ right __________________",
-      "x": 50, "y":10, "z":0,
+      "position": {
+        "x": 50, "y": 10, "z": 0
+      },
       "size": [1,60,100],
       "rotation": {
         "y" : { "calculate" : "-π/2" }
@@ -84,8 +102,10 @@
         "src": "discofloor.png"
       }
     },
-    { 
-      "x": 49, "y":10, "z":-10,
+    {
+      "position": {
+        "x": 49, "y": 10, "z": -10
+      },
       "size": [30,25,30],
       "rotation": {
         "y" : { "calculate" : "-π/2" }
@@ -95,7 +115,9 @@
       }
     },
     { "//":"_______________back__________________",
-      "x": 0, "y":10, "z":50,
+      "position": {
+        "x": 0, "y": 10, "z": 50
+      },
       "size": [100,60,1],
       "rotation": {
         "y" : { "calculate" : "π" }

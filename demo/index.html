@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#d5f97a" />
     <style>
         html, body {
-          overflow-x: hidden; overflow-y: hidden;
+          overflow: hidden;
           margin: 0px;
           padding: 0px;
           background-color: black;
@@ -36,6 +36,7 @@
         }
     </script>
 
+    <script language="JavaScript" src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.12.2/coffee-script.js"></script>
     <script language="JavaScript" src="../lib/dobuki/setup.js"></script>
     <script language="JavaScript" src="../lib/threejs/three.js"></script>
     <script language="JavaScript" src="../lib/blueimp/md5.js"></script>
@@ -51,13 +52,15 @@
     <script language="JavaScript" src="../lib/dobuki/fetchmodel.js"></script>
     <script language="JavaScript" src="../lib/dobuki/jsmodel.js"></script>
     <script language="JavaScript" src="../lib/dobuki/mathmodel.js"></script>
-    <script language="JavaScript" src="../lib/dobuki/loopmodel.js"></script>
     <script language="JavaScript" src="../lib/dobuki/audio.js"></script>
     <script language="JavaScript" src="../lib/dobuki/gifhandler.js"></script>
     <script language="JavaScript" src="../lib/dobuki/spritesheet.js"></script>
     <script language="JavaScript" src="../lib/dobuki/renderer.js"></script>
-    <script language="JavaScript" src="../lib/dobuki/text.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/corerenderer.js"></script>
     <script language="JavaScript" src="../lib/dobuki/keyboard.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/mouse.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/overlay.js"></script>
+    <script language="JavaScript" src="../lib/dobuki/config.js"></script>
     <script>
         DOBUKI.setModel(
             { "fetch-content": "world.json" }
@@ -66,7 +69,4 @@
     </script>
 </head>
 <body>
-
-
-
 </body>
