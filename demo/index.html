@@ -29,14 +29,17 @@
            -ms-user-select: none;
            user-select: none;
         }
+        @font-face {
+            font-family: '8-bit';
+            src: url('8-bit.ttf');
+        }
     </style>
     <script>
         if(window.nw) {
             window.win = nw.Window.get();
         }
     </script>
-    <script src="../lib/coffeescript/coffee-script.min.js"></script>
-    <script type="text/coffeescript" src="../lib/scale9/scale9.coffee"></script>
+    
     <script src="../lib/dobuki/setup.js"></script>
     <script src="../lib/threejs/three.js"></script>
     <script src="../lib/blueimp/md5.js"></script>
@@ -61,7 +64,7 @@
     <script src="../lib/dobuki/mouse.js"></script>
     <script src="../lib/dobuki/overlay.js"></script>
     <script src="../lib/dobuki/config.js"></script>
-    <script type="text/NAPLScript">
+    <script type="text/dobuscript">
         { "fetch-content": "world.json" }
     </script>
 </head>

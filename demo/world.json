@@ -22,10 +22,14 @@
   "overlay": {
     "objects": [
       {
-        "visible" : false,//{ "formula" : "model.input.keyboard.lastPressed >= model.input.mouse.lastMoved" },
-        "position": { "formula": "model.input.mouse.position" },
-        "frame": { "formula": "model.input.mouse.cursor" },
-        "absolute": true
+        "visible" : true,
+        "size":[220,300],
+        "position": { "x":10, "y":10 },
+        "frame": { 
+            "src": "frame.png",
+            "scale9": [4,4,24,24],
+            "scale": 4
+        }
       }
     ]
   },
