@@ -16,46 +16,53 @@ void main() {
     uv.y = vCut.y + uv.y * vCut.w;
     int iTex = int(vTex);
 
-    vec2 coord = vec2(uv.x, uv.y);
+    vec2 coord = uv;
     if(effect==1) {
         float dx = 4.0*(1.0/2048.0);
         float dy = 4.0*(1.0/2048.0);
-        coord = vec2(dx*floor(coord.x/dx), dy*floor(coord.y/dy));
+        uv.x = dx*floor(coord.x/dx);
+        uv.y = dy*floor(coord.y/dy);
     }
      
     if(iTex==0) {
-        gl_FragColor = texture2D( texture[0],  coord);
+        gl_FragColor = texture2D( texture[0],  uv);
     } else if(iTex==1) {
-        gl_FragColor = texture2D( texture[1],  coord);
+        gl_FragColor = texture2D( texture[1],  uv);
     } else if(iTex==2) {
-        gl_FragColor = texture2D( texture[2],  coord);            
+        gl_FragColor = texture2D( texture[2],  uv);            
     } else if(iTex==3) {
-        gl_FragColor = texture2D( texture[3],  coord);            
+        gl_FragColor = texture2D( texture[3],  uv);            
     } else if(iTex==4) {
-        gl_FragColor = texture2D( texture[4],  coord);            
+        gl_FragColor = texture2D( texture[4],  uv);            
     } else if(iTex==5) {
-        gl_FragColor = texture2D( texture[5],  coord);            
+        gl_FragColor = texture2D( texture[5],  uv);            
     } else if(iTex==6) {
-        gl_FragColor = texture2D( texture[6],  coord);            
+        gl_FragColor = texture2D( texture[6],  uv);            
     } else if(iTex==7) {
-        gl_FragColor = texture2D( texture[7],  coord);            
+        gl_FragColor = texture2D( texture[7],  uv);            
     } else if(iTex==8) {
-        gl_FragColor = texture2D( texture[8],  coord);            
+        gl_FragColor = texture2D( texture[8],  uv);            
     } else if(iTex==9) {
-        gl_FragColor = texture2D( texture[9],  coord);            
+        gl_FragColor = texture2D( texture[9],  uv);            
     } else if(iTex==10) {
-        gl_FragColor = texture2D( texture[10],  coord);            
+        gl_FragColor = texture2D( texture[10],  uv);            
     } else if(iTex==11) {
-        gl_FragColor = texture2D( texture[11],  coord);            
+        gl_FragColor = texture2D( texture[11],  uv);            
     } else if(iTex==12) {
-        gl_FragColor = texture2D( texture[12],  coord);            
+        gl_FragColor = texture2D( texture[12],  uv);            
     } else if(iTex==13) {
-        gl_FragColor = texture2D( texture[13],  coord);            
+        gl_FragColor = texture2D( texture[13],  uv);            
     } else if(iTex==14) {
-        gl_FragColor = texture2D( texture[14],  coord);            
+        gl_FragColor = texture2D( texture[14],  uv);            
     } else if(iTex==15) {
-        gl_FragColor = texture2D( texture[15],  coord);            
+        gl_FragColor = texture2D( texture[15],  uv);            
     }
+    
+    float div = .25;
+//    gl_FragColor.x = div*floor(gl_FragColor.x/div + .5);
+//    gl_FragColor.y = div*floor(gl_FragColor.y/div + .5);
+//    gl_FragColor.z = div*floor(gl_FragColor.z/div + .5);
+    
 //    gl_FragColor.w = gl_FragColor.z;
 /*    float div = 1.0;
     gl_FragColor.x = div*floor(gl_FragColor.x/div + .5);

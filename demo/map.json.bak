@@ -1,0 +1,26 @@
+{
+  "id": "map",
+  "tiles": {
+    "wood":{
+      "src":"wood-floor.png", 
+      "size":[50,50],"scale":2,"floor":1, "offset":{"x":0,"y":0},
+      "block":false
+    },
+    "wall":{
+      "src":"wall.png", 
+      "size":[50,100],"scale":2,"floor":0, "offset":{"x":0,"y":25},
+      "block":true
+    }
+  },
+  "objects": [
+    {"x":0,"y":0, "tile":"wood"},
+    {"x":1,"y":0, "tile":"wood"},
+    {"x":2,"y":0, "tile":"wall"}
+  ],
+  "editor": {
+    "tiles":[
+      "wood",
+      "wall"
+    ]
+  }
+}

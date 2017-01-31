@@ -1,8 +1,10 @@
 //version 100
 
 varying vec2 vUv;
+
 attribute vec4 cut;
 varying vec4 vCut;
+
 attribute float tex;
 varying float vTex;
 void main()

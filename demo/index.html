@@ -55,6 +55,8 @@
     <script src="../lib/dobuki/fetchmodel.js"></script>
     <script src="../lib/dobuki/jsmodel.js"></script>
     <script src="../lib/dobuki/mathmodel.js"></script>
+    <script src="../lib/dobuki/switchmodel.js"></script>
+    <script src="../lib/dobuki/mapmodel.js"></script>
     <script src="../lib/dobuki/audio.js"></script>
     <script src="../lib/dobuki/gifhandler.js"></script>
     <script src="../lib/dobuki/spritesheet.js"></script>
@@ -65,7 +67,31 @@
     <script src="../lib/dobuki/overlay.js"></script>
     <script src="../lib/dobuki/config.js"></script>
     <script type="text/dobuscript">
-        { "fetch-content": "world.json" }
+        { "fetch-content": {"js-code":"location.hash?location.hash.substr(1):'world.json'"} }
+    </script>
+    <script language="javascript" src="editor/editor.js"></script>
+    <script>
+        DOBUKI.watchModel("player.tile-position.x|player.tile-position.y",
+            function() {
+                for(var i=0;i<meetable.length;i++) {
+                    if(meetable[i]['tile-position'].x == DOBUKI.model.player['tile-position'].x
+                    && meetable[i]['tile-position'].y == DOBUKI.model.player['tile-position'].y) {
+                        meetable[i].meet.value = DOBUKI.time;
+                        DOBUKI.model.dialog.discussion = meetable[i].meet.discussion;
+                        DOBUKI.model.dialog.start = DOBUKI.time;
+                        DOBUKI.model.player.action.lastDX = meetable[i].position.x > DOBUKI.model.player.position.x?1:-1;
+                    } else {
+                        meetable[i].meet.value = false;
+                    }
+                }
+            }
+        );
+        var meetable = [];
+        DOBUKI.registerModel("meet",
+            function(object, prop, parent, objectName) {
+                meetable.push(object);
+            }
+        );
     </script>
 </head>
 <body>
