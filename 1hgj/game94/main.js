@@ -33,8 +33,8 @@ window.onload = function() {
     document.body.appendChild( renderer.domElement );
 //    renderer.render(scene,camera);
 
-    var mats = []; var imgs = ["cloud.png","cloud2.png","cloud3.png","mariocloud.png"];
-    for(var i=0;i<4;i++) {
+    var mats = []; var imgs = ["cloud.png","cloud2.png","cloud3.png","mariocloud.png","choco.png","Arale.png"];
+    for(var i=0;i<imgs.length;i++) {
         var tex = THREE.ImageUtils.loadTexture(imgs[i]);
         var mat = new THREE.MeshBasicMaterial({
             map: tex, transparent: true
@@ -45,7 +45,7 @@ window.onload = function() {
     var plane = new THREE.PlaneGeometry( 150, 100);
     var clouds = [];
     for(var i=0; i<1000; i++) {
-        var cloudMesh = new THREE.Mesh(plane, mats[i<900?i%3:i%5]);
+        var cloudMesh = new THREE.Mesh(plane, mats[i<950?i%3:i%(mats.length+1)]);
         resetCloud(cloudMesh);
         scene.add(cloudMesh);
         clouds.push(cloudMesh);
@@ -76,7 +76,7 @@ window.onload = function() {
                 resetCloud(mesh);
             }
         }
-        camera.rotateZ(mouseX/100);
+        camera.rotateZ(mouseX/300);
 
         renderer.render(scene,camera);
     }
