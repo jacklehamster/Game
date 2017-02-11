@@ -83,6 +83,8 @@ window.onload = function() {
         bloods.push(bloodmesh);
     }
 
+    var audio = new Audio('Squish 1-SoundBible.com-662226724.mp3');
+
     function loop(time) {
         requestAnimationFrame( loop );
 
@@ -95,6 +97,8 @@ window.onload = function() {
                     var bloodmesh = bloods[bloodindex];
                     bloodindex = (bloodindex + 1)%bloods.length;
                     bloodmesh.position.set(mesh.position.x,mesh.position.y,mesh.position.z);
+                    if(Math.abs(mesh.position.x)<100 && Math.abs(mesh.position.y)<100)
+                        audio.play();
                 }
 //                console.log(imgs[i%imgs.length].length,mesh.position.x, mesh.position.y);
                 resetCloud(mesh);
