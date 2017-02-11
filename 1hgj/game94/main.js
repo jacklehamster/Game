@@ -71,7 +71,7 @@ window.onload = function() {
 
         for(var i=0; i<clouds.length;i++) {
             var mesh = clouds[i];
-            mesh.position.set(mesh.position.x - mouseX*10, mesh.position.y - mouseY*10, mesh.position.z + 1);
+            mesh.position.set(mesh.position.x - mouseX*5, mesh.position.y + mouseY*5, mesh.position.z + 1);
             if(mesh.position.z>500) {
                 resetCloud(mesh);
             }
