@@ -65,6 +65,23 @@ window.onload = function() {
         }
     );
 
+    var bloodtex = THREE.ImageUtils.loadTexture("blood.png");
+    var bloodmat = new THREE.MeshBasicMaterial({
+        map: bloodtex, transparent: true
+    });
+
+
+    var bloodindex = 0;
+    var bloods = [];
+    for(var i=0;i<500;i++) {
+        var bloodmesh = new THREE.Mesh(
+            plane,bloodmat
+        );
+        bloodmesh.position.set(0,0,500);
+        bloodmesh.scale.set(.3,.3,.3);
+        scene.add(bloodmesh);
+        bloods.push(bloodmesh);
+    }
 
     function loop(time) {
         requestAnimationFrame( loop );
@@ -72,9 +89,19 @@ window.onload = function() {
         for(var i=0; i<clouds.length;i++) {
             var mesh = clouds[i];
             mesh.position.set(mesh.position.x - mouseX*5, mesh.position.y + mouseY*5, mesh.position.z + 1);
-            if(mesh.position.z>500) {
+            if(mesh.position.z>390) {
+                if(i%imgs.length>3) {
+
+                    var bloodmesh = bloods[bloodindex];
+                    bloodindex = (bloodindex + 1)%bloods.length;
+                    bloodmesh.position.set(mesh.position.x,mesh.position.y,mesh.position.z);
+                }
+//                console.log(imgs[i%imgs.length].length,mesh.position.x, mesh.position.y);
                 resetCloud(mesh);
             }
+        }
+        for(var i=0;i<bloods.length;i++) {
+            bloods[i].rotateZ(mouseX/300);
         }
         camera.rotateZ(mouseX/300);
 
