@@ -33,7 +33,7 @@ window.onload = function() {
     document.body.appendChild( renderer.domElement );
 //    renderer.render(scene,camera);
 
-    var mats = []; var imgs = ["cloud.png","cloud2.png","cloud3.png","mariocloud.png","choco.png","Arale.png"];
+    var mats = []; var imgs = ["cloud.png","cloud2.png","cloud3.png","mariocloud.png","choco.png","Arale.png","witch.png","superman.png"];
     for(var i=0;i<imgs.length;i++) {
         var tex = THREE.ImageUtils.loadTexture(imgs[i]);
         var mat = new THREE.MeshBasicMaterial({
@@ -45,7 +45,7 @@ window.onload = function() {
     var plane = new THREE.PlaneGeometry( 150, 100);
     var clouds = [];
     for(var i=0; i<1000; i++) {
-        var cloudMesh = new THREE.Mesh(plane, mats[i<950?i%3:i%(mats.length+1)]);
+        var cloudMesh = new THREE.Mesh(plane, mats[i<950?i%3:i%(mats.length)]);
         resetCloud(cloudMesh);
         scene.add(cloudMesh);
         clouds.push(cloudMesh);
