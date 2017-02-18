@@ -37,6 +37,21 @@ window.onload = function() {
     camera.position.set(0,0,400);
     document.body.appendChild( renderer.domElement );
 
+    var mons = [
+        "sprite_0.png",
+        "sprite_1.png",
+        "sprite_2.png",
+        "sprite_3.png",
+    ];
+    mons = mons.map(
+        function(img) {
+            return THREE.ImageUtils.loadTexture(img);
+        }
+    ).map(function(tex) {
+            return new THREE.MeshBasicMaterial({map:tex, transparent:true});
+        }
+    );
+
     var blocks = [
         new THREE.MeshBasicMaterial( {color: 0x774444, side: THREE.DoubleSide}),
         new THREE.MeshBasicMaterial( {color: 0x774444, side: THREE.DoubleSide}),
@@ -115,6 +130,7 @@ window.onload = function() {
             var speed = (cat.position.y<=-100 ? 1 : 2) + (time-s)/10000;
             blocks.forEach(
                 function(block) {
+                    block.material = mons[frame%3];
                     block.position.x -= (time-previousTime)/3 * speed;
                     if(block.position.x < -innerWidth/2) {
                         block.position.x += innerWidth + 500*Math.random();
