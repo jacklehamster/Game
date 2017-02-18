@@ -132,8 +132,8 @@ window.onload = function() {
             var ss =Math.floor((time-s)/100)*10;
             bs = Math.max(ss,bs);
                 //best
-            score.textContent = "" + ss;
-            best.innerText = ""+bs;
+            score.textContent = "SCORE: " + ss;
+            best.innerText = "BEST: "+bs;
         } else {
             var shake = time-cathit;
             if(cathit) {
