@@ -67,19 +67,17 @@ window.onload = function() {
                 block.position.set(innerWidth/2+index*500,-100,0);
             }
         );
+        cathit = 0;
+        s = previousTime;
+        paused = 0;
+        camera.position.x = 0;
+        camera.position.y = 0;
     }
-
-    function shake() {
-
-    }
-
 
     var doubleJump = 2;
     document.addEventListener("keydown",
         function(e) {
             if(paused && previousTime-paused > 500) {
-                s = previousTime;
-                paused = 0;
                 restart();
                 return;
             }
@@ -122,10 +120,18 @@ window.onload = function() {
                     var dist = dx*dx+dy*dy;
                     if(dist<50) {
                         paused = time;
+                        cathit = time;
                     }
                 }
             );
             score.textContent = "" + Math.floor((time-s)/100)*10;
+        } else {
+            var shake = time-cathit;
+            if(cathit) {
+                cat.rotateZ(-shake/10000);
+            }
+            camera.position.x = (time-s)/shake/5 * (Math.random()-.5);
+            camera.position.y = (time-s)/shake/5 * (Math.random()-.5);
         }
 
         renderer.render(scene,camera);
@@ -133,6 +139,8 @@ window.onload = function() {
     }
     loop(0);
 
+
+    var cathit = 0;
 
     var score = document.createElement("span");
     score.style.color = "white";
