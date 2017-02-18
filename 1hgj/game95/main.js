@@ -91,6 +91,8 @@ window.onload = function() {
     var axis = new THREE.Vector3(0,0,-1);
     var paused = 1;
 
+    var audio = new Audio('meow.mp3');
+
     var s = 0;
     var previousTime = 0;
     function loop(time) {
@@ -122,6 +124,8 @@ window.onload = function() {
                     if(dist<50) {
                         paused = time;
                         cathit = time;
+                        audio.play();
+
                     }
                 }
             );
