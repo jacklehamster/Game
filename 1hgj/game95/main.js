@@ -84,6 +84,7 @@ window.onload = function() {
             if(cat.position.y<=-100 || doubleJump) {
                 doubleJump --;
                 dy = 15;
+                pok.play();
             }
             e.preventDefault();
     });
@@ -92,6 +93,7 @@ window.onload = function() {
     var paused = 1;
 
     var audio = new Audio('meow.mp3');
+    var pok = new Audio("pok.ogg");
 
     var s = 0;
     var previousTime = 0;
