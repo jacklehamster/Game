@@ -85,6 +85,7 @@ window.onload = function() {
                 doubleJump --;
                 dy = 15;
             }
+            e.preventDefault();
     });
 //    Object3D.rotateOnAxis( axis, angle );
     var axis = new THREE.Vector3(0,0,-1);
