@@ -124,23 +124,28 @@ window.onload = function() {
                     }
                 }
             );
-            score.textContent = "" + Math.floor((time-s)/100)*10;
+            var ss =Math.floor((time-s)/100)*10;
+            bs = Math.max(ss,bs);
+                //best
+            score.textContent = "" + ss;
+            best.innerText = ""+bs;
         } else {
             var shake = time-cathit;
             if(cathit) {
                 cat.rotateZ(-shake/10000);
+                camera.position.x = (time-s)/shake/5 * (Math.random()-.5);
+                camera.position.y = (time-s)/shake/5 * (Math.random()-.5);
             }
-            camera.position.x = (time-s)/shake/5 * (Math.random()-.5);
-            camera.position.y = (time-s)/shake/5 * (Math.random()-.5);
         }
 
         renderer.render(scene,camera);
         previousTime = time;
     }
-    loop(0);
 
 
     var cathit = 0;
+
+    var bs = 0;
 
     var score = document.createElement("span");
     score.style.color = "white";
@@ -149,4 +154,13 @@ window.onload = function() {
     score.style.top = "40px";
     score.textContent = "SPACE to Jump/double-jump";
     document.body.appendChild(score);
+
+    var best = document.createElement("span");
+    best.style.color = "white";
+    best.style.position = "absolute";
+    best.style.left = "340px";
+    best.style.top = "40px";
+    best.textContent = "-";
+    document.body.appendChild(best);
+    loop(0);
 };
