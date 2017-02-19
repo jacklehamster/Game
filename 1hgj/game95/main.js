@@ -10,6 +10,9 @@ window.onload = function() {
             camera.top = innerHeight/2;
             camera.bottom = -innerHeight/2;
             camera.updateProjectionMatrix();
+            renderer.setSize( innerWidth, innerHeight );
+            ground.scale.set(innerWidth*10, 100, 1);
+//            cat.position.set(-200,-100,0);
         }
     );
 
@@ -70,10 +73,11 @@ window.onload = function() {
     });
 
     var ground = new THREE.Mesh(
-        new THREE.PlaneGeometry( innerWidth*10, 100),
-        new THREE.MeshBasicMaterial( {color: 0x777777, side: THREE.DoubleSide})
+        new THREE.PlaneGeometry( 1, 1),
+        new THREE.MeshBasicMaterial( {color: 0x777777})
     );
     ground.position.set(0,-175,0);
+    ground.scale.set(innerWidth*10, 100, 1);
     scene.add(ground);
 
     function restart() {
@@ -118,7 +122,7 @@ window.onload = function() {
     var axis = new THREE.Vector3(0,0,-1);
     var paused = 1;
 
-    var audio = new Audio('meow.mp3');
+    var audio = new Audio('meow.ogg');
     var pok = new Audio("pok.ogg");
 
     var s = 0;
@@ -199,7 +203,7 @@ window.onload = function() {
     best.style.position = "absolute";
     best.style.left = "340px";
     best.style.top = "40px";
-    best.textContent = "-";
+    best.textContent = "";
     document.body.appendChild(best);
     loop(0);
 };
