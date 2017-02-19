@@ -112,15 +112,17 @@ window.onload = function() {
 
     var s = 0;
     var previousTime = 0;
+    var sco = 0;
     function loop(time) {
         requestAnimationFrame( loop );
 
         if(!paused) {
+            var dt = time-previousTime;
             var frame = Math.floor(time/50);
             cat.material = mats[frame%mats.length];
             cat.position.y += dy;
             cat.setRotationFromAxisAngle(axis, -dy/30);
-            dy --;
+            dy -= dt/15;
             if(cat.position.y<=-100) {
                 cat.position.y = -100;
                 dy = 0;
@@ -131,7 +133,7 @@ window.onload = function() {
             blocks.forEach(
                 function(block) {
                     block.material = mons[frame%3];
-                    block.position.x -= (time-previousTime)/3 * speed;
+                    block.position.x -= (dt)/3 * speed;
                     if(block.position.x < -innerWidth/2) {
                         block.position.x += innerWidth + 500*Math.random();
                         block.scale.y = .5 + Math.random();
@@ -148,10 +150,13 @@ window.onload = function() {
                 }
             );
             var ss =Math.floor((time-s)/100)*10;
-            bs = Math.max(ss,bs);
+            if (sco!=ss) {
+                sco = ss;
+                bs = Math.max(ss,bs);
                 //best
-            score.textContent = "SCORE: " + ss;
-            best.innerText = "BEST: "+bs;
+                score.textContent = "SCORE: " + ss;
+                best.innerText = "BEST: "+bs;
+            }
         } else {
             var shake = time-cathit;
             if(cathit) {
