@@ -95,7 +95,7 @@ window.onload = function() {
             action();
             e.preventDefault();
     });
-    document.addEventListener("mousedown",
+    document.addEventListener("touchstart",
         function(e) {
             action();
             e.preventDefault();
