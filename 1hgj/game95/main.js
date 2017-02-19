@@ -92,17 +92,28 @@ window.onload = function() {
     var doubleJump = 2;
     document.addEventListener("keydown",
         function(e) {
-            if(paused && previousTime-paused > 500) {
-                restart();
-                return;
-            }
-            if(cat.position.y<=-100 || doubleJump) {
-                doubleJump --;
-                dy = 15;
-                pok.play();
-            }
+            action();
             e.preventDefault();
     });
+    document.addEventListener("mousedown",
+        function(e) {
+            action();
+            e.preventDefault();
+        }
+    );
+    
+    function action() {
+        if(paused && previousTime-paused > 500) {
+            restart();
+            return;
+        }
+        if(cat.position.y<=-100 || doubleJump) {
+            doubleJump --;
+            dy = 15;
+            pok.play();
+        }
+    }
+    
 //    Object3D.rotateOnAxis( axis, angle );
     var axis = new THREE.Vector3(0,0,-1);
     var paused = 1;
