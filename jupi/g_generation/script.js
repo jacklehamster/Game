@@ -382,7 +382,7 @@ var scenes = [
             state.slots[0].naturalWidth*scale,
             state.slots[0].naturalHeight*scale,
         ];
-        var dx=10,dy=0;
+        var jumpy=0;
         var bounce = 0;
         var bounceTime = 0;
 
@@ -444,7 +444,7 @@ var scenes = [
             var t = time-foe[2];
             var pos = getFoePosition(foe);
 
-            if(!foe[5]) {
+            if(foe[5]<foe[6]) {
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(pos.x, pos.y,
@@ -467,7 +467,7 @@ var scenes = [
             }
             if(pos.x+100 < 0) {
                 if(gameOver) {
-                    foe[5] = 1;
+                    foe[5] = foe[6];
                 } else {
                     foe[0] += 1000 + 1000*Math.random();
                     rand += (Math.random()-.5)*2;
@@ -489,30 +489,31 @@ var scenes = [
         }
 
         var foes = [
-            [4000,0,delay,300,0,0],
-            [12000,0,delay,500,0,0],
-            [13000,0,delay,100,0,0],
-            [20000,0,delay,100,0,0],
-            [22000,0,delay,350,0,0],
-            [42000,0,delay,100,1,0],
-            [50300,0,delay,100,1,0],
-            [106100,0,delay,100,1,0],
+            [4000,0,delay,300,0,0,2],
+            [12000,0,delay,500,0,0,3],
+            [13000,0,delay,100,0,0,1],
+            [20000,0,delay,100,0,0,1],
+            [22000,0,delay,350,0,0,2],
+            [42000,0,delay,100,1,0,1],
+            [50300,0,delay,100,1,0,1],
+            [106100,0,delay,200,1,0,1],
         ];
 
         var bonuses = [
-            [900,400,delay,true],
-            [900,400,delay,true],
-            [900,400,delay,true],
-            [900,400,delay,true],
-            [900,400,delay,true],
-            [900,400,delay,true],
-            [900,400,delay,true],
-            [900,400,delay,true],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
+            [900,400,delay,true,1],
         ];
         var bonusIndex = 0;
         function drawBonus(bonus) {
             var t = time - bonus[2];
-            var scale = 50/state.slots[1].naturalHeight;
+            var size = bonus[4]*25;
+            var scale = size/state.slots[1].naturalHeight;
             var x = bonus[0] - t/5;
             var y = bonus[1] - state.slots[1].naturalHeight*scale/2;
             if(!bonus[3]) {
@@ -581,7 +582,7 @@ var scenes = [
             var t = time - shot[2];
             var scale = 40/state.slots[3].naturalHeight;
             var ppos = getShotPosition(shot);
-            var angle = t/100;
+            var angle = (t + shot[0] + shot[1])/100;
             if(!shot[3]) {
                 ctx.translate(ppos.x, ppos.y);
                 ctx.rotate(angle);
@@ -609,7 +610,7 @@ var scenes = [
 
         var particles = new Array(100);
         for(var i=0;i<particles.length;i++) {
-            particles[i] = [0, 0, 0, 0, delay, null, true];
+            particles[i] = [0, 0, 0, 0, delay, null, true, false];
         }
         var particleIndex = 0;
         function fetchParticle() {
@@ -620,7 +621,7 @@ var scenes = [
 
         var movingParticles = [];
 
-        function throwParticle(x,y,img) {
+        function throwParticle(x,y,img,bonus) {
             var particle = fetchParticle();
             particle[0] = x;
             particle[1] = y;
@@ -629,6 +630,7 @@ var scenes = [
             particle[4] = time;
             particle[5] = img;
             particle[6] = false;
+            particle[7] = bonus;
             movingParticles.push(particle);
         }
 
@@ -644,10 +646,20 @@ var scenes = [
 
             y += h*particle[3];
 
+            var final = 3000;
+            if(particle[7]) {
+                final = 500+Math.abs(particle[2])*10;
+                var tt = t/final;
+                x = (1-tt)*x + tt*45;
+                y = (1-tt)*y + tt*45;
+            }
 
             ctx.save();
+            var angle = ((particle[2]%2<1?time:-time) + particle[2] + particle[3])/200;
+            ctx.translate(x, y);
+            ctx.rotate(angle);
             ctx.beginPath();
-            ctx.arc(x+img.naturalWidth*scale/2, y+img.naturalHeight*scale/2,
+            ctx.arc(0, 0,
                 Math.min(img.naturalWidth*scale,img.naturalHeight*scale)/2,
                 0, Math.PI*2,true
             );
@@ -659,39 +671,82 @@ var scenes = [
                 0,
                 img.naturalWidth,
                 img.naturalHeight,
-                x,
-                y,
+                -img.naturalWidth*scale/2,
+                -img.naturalHeight*scale/2,
                 img.naturalWidth*scale,
                 img.naturalHeight*scale
             );
+            ctx.rotate(-angle);
+            ctx.translate(-x, -y);
             ctx.restore();
 
-            if(t > 3000) {
+            if(t > final) {
                 particle[6] = true;
+                if(particle[7]) {
+                    hearts++;
+                    pulse = time;
+                }
             }
         }
 
         var gameOver = 0;
+        var hearts = 0;
 
-        function checkCollision(foe,index) {
+        function checkBonus(bonus) {
             if(gameOver) {
                 return;
             }
-            if(!foe[5]) {
+//            [900,400,delay,true],
+            if(!bonus[3]) {
+                var t = time - bonus[2];
+                var scale = 50/state.slots[1].naturalHeight;
+                var x = bonus[0] - t/5;
+                var y = bonus[1] - state.slots[1].naturalHeight*scale/2;
+                var radius = Math.min(state.slots[1].naturalWidth*scale,state.slots[1].naturalHeight*scale)/2;
+                var dx = pos[0] - x;
+                var dy = pos[1] - y;
+                var dist = Math.sqrt(dx*dx+dy*dy);
+                if(dist < radius + pos[2]/2) {
+                    bonus[3] = time;
+                    var count = bonus[4]*4;
+                    for(var p=0;p<count;p++) {
+                        throwParticle(pos[0],pos[1],state.slots[1],true);
+                    }
+                    return;
+                }
+            }
+        }
+
+        function checkCollision(foe) {
+            if(gameOver) {
+                return;
+            }
+            if(foe[5]<foe[6]) {
                 var foeScale = foe[3]/3/state.slots[2].naturalHeight;
                 var radius = Math.min(state.slots[2].naturalWidth*foeScale,state.slots[2].naturalHeight*foeScale)/2;
 
                 var ppos= getFoePosition(foe);
 
-                var dx = pos[0] - ppos.x;
-                var dy = pos[1] - ppos.y;
-                var dist = Math.sqrt(dx*dx+dy*dy);
-                if(dist < radius + pos[2]/4) {
-                    gameOver = time;
-                    for(var p=0;p<10;p++) {
-                        throwParticle(pos[0],pos[1],state.slots[0]);
+                if(!hit || time-hit>3000) {
+                    var dx = pos[0] - ppos.x;
+                    var dy = pos[1] - ppos.y;
+                    var dist = Math.sqrt(dx*dx+dy*dy);
+                    if(dist < radius + pos[2]/4) {
+                        if(!hearts) {
+                            gameOver = time;
+                            for(var p=0;p<10;p++) {
+                                throwParticle(pos[0],pos[1],state.slots[0],false);
+                            }
+                            return;
+                        } else {
+                            jumpy = -20;
+                            hit = time;
+                            for(var p=0;p<Math.min(particles.length,Math.ceil(hearts/3));p++) {
+                                throwParticle(pos[0],pos[1],state.slots[1],false);
+                            }
+                            hearts = 0;
+                        }
                     }
-                    return;
                 }
 
                 for(var i=0;i<shots.length;i++) {
@@ -703,16 +758,20 @@ var scenes = [
                             var dist = Math.sqrt(dx*dx+dy*dy);
                             //console.log(dist, radius+20);
                             if(dist < radius+10) {
-                                foe[5] = 1;
+                                foe[5]++;
                                 shots[i][3] = true;
-                                var bonus = bonuses[bonusIndex];
-                                bonusIndex = (bonusIndex + 1)%bonuses.length;
-                                bonus[0] = ppos.x;
-                                bonus[1] = ppos.y;
-                                bonus[2] = time;
-                                bonus[3] = false;
-                                for(var p=0;p<10;p++) {
-                                    throwParticle(ppos.x,ppos.y,state.slots[2]);
+                                if(foe[5]===foe[6]) {
+                                    var bonus = bonuses[bonusIndex];
+                                    bonusIndex = (bonusIndex + 1)%bonuses.length;
+                                    bonus[0] = ppos.x;
+                                    bonus[1] = ppos.y;
+                                    bonus[2] = time;
+                                    bonus[3] = false;
+                                    bonus[4] = foe[6];
+                                }
+                                var count = foe[5]===foe[6] ? foe[6]*5 : 3;
+                                for(var p=0;p<count;p++) {
+                                    throwParticle(ppos.x,ppos.y,foe[5]===foe[6]?state.slots[2]:state.slots[3],false);
                                 }
                             }
                         }
@@ -737,14 +796,15 @@ var scenes = [
             mountains.forEach(drawMountain);
 
             foes.forEach(checkCollision);
+            bonuses.forEach(checkBonus);
 
             bonuses.forEach(drawBonus);
             shots.forEach(drawShot);
 
-            if(!gameOver) {
+            if(!gameOver && (!hit || time-hit>3000 || time%100>30)) {
                 var x = pos[0];
                 var y = pos[1];
-                var angle = dy/100;
+                var angle = (hit && time-hit<1000) ? time : jumpy/100;
                 ctx.translate(x, y);
                 ctx.rotate(angle);
                 ctx.drawImage(state.slots[0],
@@ -767,25 +827,25 @@ var scenes = [
                     if(space) {
                         jump(false);
                     }
-                    if(pos[1]+pos[3]/2+dy > 400) {
+                    if(pos[1]+pos[3]/2+jumpy > 400) {
                         pos[1] = 400 - pos[3] / 2;
                         bounceTime = time;
-                        bounce = dy;
-                        dy = -dy * bounceValue;
-                        if (dy > -1) {
-                            dy = 0;
+                        bounce = jumpy;
+                        jumpy = -jumpy * bounceValue;
+                        if (jumpy > -1) {
+                            jumpy = 0;
                             bounce = 0;
                             bounceTime = 0;
                         }
-                    } else if(pos[1]-pos[3]/2+dy < 0) {
+                    } else if(pos[1]-pos[3]/2+jumpy < 0) {
                         bounceTime = time;
-                        bounce = dy;
-                        dy = -dy * bounceValue;
+                        bounce = jumpy;
+                        jumpy = -jumpy * bounceValue;
                     } else if(pos[1] < 400-pos[3]/2) {
-                        dy++;
+                        jumpy++;
                     }
-                    if(dy) {
-                        pos[1] += dy;
+                    if(jumpy) {
+                        pos[1] += jumpy;
                     }
                     currentTime+=20;
                 }
@@ -798,29 +858,49 @@ var scenes = [
                 2
             );
             ctx.strokeRect.apply(ctx,box.map(Math.round));
+
+            if(hearts) {
+                var t = time-pulse;
+                var pu = Math.max(100-t,0)/10;
+
+                ctx.drawImage(state.slots[1],
+                    0,0,state.slots[1].naturalWidth,state.slots[1].naturalHeight,
+                    20-pu/2,
+                    20-pu/2,
+                    30+pu,
+                    30+pu);
+            }
+
+            if(hearts>0) {
+                ctx.fillStyle = "#FF0000";
+                ctx.font = "20px Comic";
+                ctx.fillText(hearts,60,40);
+            }
         }
+        var pulse = 0;
+        var hit = 0;
 
         var plane = false;
         var doubleJump = false;
         var jumpCount = 0;
         function jump(justJump) {
             if(plane) {
-                if(pos[1] === 400-pos[3]/2 && dy===0) {
-                    dy = -5;
+                if(pos[1] === 400-pos[3]/2 && jumpy===0) {
+                    jumpy = -5;
                 } else if(justJump) {
-                    dy = -5;
+                    jumpy = -5;
                 } else {
-                    dy-= 1.5;
+                    jumpy-= 1.5;
                 }
             } else {
-                if(pos[1] === 400-pos[3]/2 && dy===0) {
-                    dy = -16;
+                if(pos[1] === 400-pos[3]/2 && jumpy===0) {
+                    jumpy = -16;
                     jumpCount = 1;
                 } else if(doubleJump && justJump && jumpCount == 1) {
-                    dy = -16;
+                    jumpy = -16;
                     jumpCount = 2;
                 } else {
-                    dy -= 1/2;
+                    jumpy -= 1/2;
                 }
             }
         }
