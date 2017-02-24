@@ -718,10 +718,10 @@ var scenes = [
                 return;
             }
 //            [900,400,delay,true],
-            if(!bonus[3]) {
+            if(!bonus[3] && (!hit || time-hit>1000)) {
                 var t = time - bonus[2];
                 var scale = 50/state.slots[1].getH();
-                var x = bonus[0] - t/5;
+                var x = bonus[0] - t/5 + state.slots[1].getW()*scale/2;
                 var y = bonus[1] - state.slots[1].getH()*scale/2;
                 var radius = Math.min(state.slots[1].getW()*scale,state.slots[1].getH()*scale)/2;
                 var dx = pos[0] - x;
