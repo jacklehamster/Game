@@ -85,12 +85,23 @@ var grd=ctx.createRadialGradient(
 grd.addColorStop(0,"#FFFFFF");
 grd.addColorStop(1,"#EEFEFE");
 
+var back = document.createElement("canvas");
+back.width = canvas.width;
+back.height = canvas.height;
+back.getContext("2d").fillStyle = grd;
+back.getContext("2d").fillRect(0,0,back.width,back.height);
+
 
 var started = false;
 function makeBackground() {
-    ctx.fillStyle=started||sceneIndex>0?grd:"#000000";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="#000000";
+    if(!started && sceneIndex===0) {
+        ctx.fillStyle=started||sceneIndex>0?grd:"#000000";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle="#000000";
+    } else {
+        ctx.drawImage(back,0,0);
+        ctx.fillStyle="#000033";
+    }
 }
 var hero = [null,0,0,0,0,0,0,0,0];
 var box = [canvas.width/2,canvas.height/2,1,1];
@@ -668,6 +679,9 @@ var scenes = [
             y += h*particle[3];
 
             var final = 3000;
+            if(particle[7] && (hit && time-hit<3000||gameOver)) {
+                particle[7] = false;
+            }
             if(particle[7]) {
                 final = 500+Math.abs(particle[2])*10;
                 var tt = t/final;
@@ -841,7 +855,14 @@ var scenes = [
 
             foes.forEach(drawFoe);
             movingParticles.forEach(drawParticle);
-            movingParticles = movingParticles.filter(filterParticle);
+
+
+            for(var i=movingParticles.length-1;i>=0;i--) {
+                if(!filterParticle(movingParticles[i])) {
+                    movingParticles[i] = movingParticles[movingParticles.length-1];
+                    movingParticles.pop();
+                }
+            }
 
             if(!gameOver) {
                 while(currentTime < time) {
