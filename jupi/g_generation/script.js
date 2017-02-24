@@ -91,6 +91,8 @@ back.height = canvas.height;
 back.getContext("2d").fillStyle = grd;
 back.getContext("2d").fillRect(0,0,back.width,back.height);
 
+var errorMessage = null;
+
 
 var started = false;
 function makeBackground() {
@@ -100,7 +102,7 @@ function makeBackground() {
         ctx.fillStyle="#000000";
     } else {
         ctx.drawImage(back,0,0);
-        ctx.fillStyle="#000033";
+        ctx.fillStyle="#555566";
     }
 }
 var hero = [null,0,0,0,0,0,0,0,0];
@@ -188,10 +190,10 @@ var scenes = [
         var start = time;
         var message = [
             null,
-            ["Hello " + state.name + ". May I see you?", "Please drop a picture in the box below."],
-            ["You look great "+state.name+"! Let's keep going.", "What do you like? Please drop a picture below"],
-            ["How about something you dislike?", "Can you drop that picture below?"],
-            ["Finally, can you drop one more picture?", "Just choose something random."]
+            ["Hello " + state.name + ". May I see you?", "Please drop a picture in the box below.", "The picture doesn't have to be you, it can be your avatar.","Transparent backgrounds and animated gif are ok. Square images are best."],
+            ["You look great "+state.name+"! Let's keep going.", "What do you like? Please drop a picture below", "Good example of pictures to drop are:","hearts, flowers, happy face, bubbles, puppies, rainbows..."],
+            ["How about something you dislike?", "Can you drop that picture below?", "Good example of pictures are: skulls, vampire bats,","space alien, trolls, a witch on a broom, a photo of Donald Trump..."],
+            ["Finally, can you drop one more picture?", "Just choose something random.","Like: pizza, wet socks, fish, a car, beer bottle,","cheese, your underwear, an iPhone, a photo of Donald Trump..."]
         ];
 
         var dropped = 0;
@@ -212,6 +214,8 @@ var scenes = [
             ctx.font = "25px Comic";
             ctx.fillText(makeText(message[sceneIndex][0],start),290,30);
             ctx.fillText(makeText(message[sceneIndex][1],start+4500),255,60);
+            ctx.fillText(makeText(message[sceneIndex][2],start+9000),150,405);
+            ctx.fillText(makeText(message[sceneIndex][3],start+15000),150,435);
             var max = Math.max(img.naturalWidth, img.naturalHeight);
             if(dropped && time-dropped>600 && img.naturalWidth) {
                 makeBox(
@@ -274,8 +278,10 @@ var scenes = [
             reader.addEventListener( 'loadend', function(e) {
                 if((file.type!='image/gif'
                     &&file.type!='image/jpeg'
-                    &&file.type!='image/png')
-                    ||file.size>10000000) {
+                    &&file.type!='image/png')) {
+
+                    return;
+                } else if(file.size>10000000) {
                     return;
                 }
                 var bin = this.result;
@@ -316,7 +322,7 @@ var scenes = [
             ctx.fillText(makeText("        is what "+state.name+" looks like.", start+4000),260,150);
             ctx.fillText(makeText("        is something "+state.name+" is fond of.", start+8000),260,200);
             ctx.fillText(makeText(".. not so much ", start+13000),260,250);
-            ctx.fillText(makeText("About            ... I just don't know what to say", start+17000),260,300);
+            ctx.fillText(makeText("About            ... let's say it just got thrown in there.", start+17000),260,300);
             ctx.fillText(makeText("Are you happy with your choices?", start+26000),260,350);
             ctx.fillText(makeText("Press the  space bar  for YES, esc for NO.", start+31000),260,400);
             for(var i=0; i<state.slots.length;i++) {
@@ -893,13 +899,15 @@ var scenes = [
                 }
             }
 
-            makeBox(
-                0,
-                400,
-                900,
-                2
-            );
-            ctx.strokeRect.apply(ctx,box.map(Math.round));
+            if(!gameOver) {
+                makeBox(
+                    0,
+                    400,
+                    900,
+                    2
+                );
+                ctx.strokeRect.apply(ctx,box.map(Math.round));
+            }
 
             if(hearts) {
                 var t = time-pulse;
@@ -914,12 +922,27 @@ var scenes = [
             }
 
             if(hearts>0) {
-                ctx.fillStyle = "#FF0000";
+                ctx.fillStyle = "#AAAABB";
                 ctx.font = "20px Comic";
                 ctx.fillText(hearts,60,40);
             }
 
             gifSlots.forEach(rotateGif);
+
+            if(gameOver) {
+                ctx.fillStyle = "#CCCCDD";
+                ctx.font = "60px Comic";
+                ctx.fillText(makeText("GAME OVER", gameOver),270,220);
+                makeBox(
+                    250,
+                    150,
+                    400,
+                    100
+                );
+                ctx.strokeRect.apply(ctx,box.map(Math.round));
+                ctx.font = "25px Comic";
+                ctx.fillText(makeText("Press the space bar to continue, esc to start over.", gameOver+11000),210,400);
+            }
         }
         var pulse = 0;
         var hit = 0;
@@ -1044,9 +1067,9 @@ function getGif(src) {
     return gif;
 }
 
-Object.prototype.getW = function() {
+HTMLCanvasElement.prototype.getW = Image.prototype.getW = function() {
     return this.naturalWidth?this.naturalWidth:this.width;
 }
-Object.prototype.getH = function() {
+HTMLCanvasElement.prototype.getH = Image.prototype.getH = function() {
     return this.naturalHeight?this.naturalHeight:this.height;
 }
