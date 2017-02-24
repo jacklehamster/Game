@@ -85,6 +85,7 @@ var grd=ctx.createRadialGradient(
 grd.addColorStop(0,"#FFFFFF");
 grd.addColorStop(1,"#EEFEFE");
 
+
 var started = false;
 function makeBackground() {
     ctx.fillStyle=started||sceneIndex>0?grd:"#000000";
@@ -363,6 +364,26 @@ var scenes = [
         }
     },
     function() {
+
+        //  handle gif
+        var gifSlots = [null,null,null,null];
+        window.gf = gifSlots;
+        for(var i=0;i<state.slots.length;i++) {
+            if(state.slots[i].src.slice(-4).toLowerCase()===".gif" || state.slots[i].src.indexOf("data:image/gif;")===0) {
+                gifSlots[i] = getGif(state.slots[i].src);
+            }
+        }
+
+        function rotateGif(gif,index) {
+            if(gif) {
+                var canvas = gif.canvases[gif.getFrame()];
+                if(canvas) {
+                    state.slots[index] = canvas;
+                }
+            }
+        }
+
+
         saveState("game", state);
 
         function cancel(e) {
@@ -375,12 +396,12 @@ var scenes = [
         document.addEventListener('dragleave', cancel);
         document.addEventListener('drop', cancel);
 
-        var scale = 50/state.slots[0].naturalHeight;
+        var scale = 50/state.slots[0].getH();
         var pos = [
             locations[0][0],
             locations[0][1],
-            state.slots[0].naturalWidth*scale,
-            state.slots[0].naturalHeight*scale,
+            state.slots[0].getW()*scale,
+            state.slots[0].getH()*scale,
         ];
         var jumpy=0;
         var bounce = 0;
@@ -423,24 +444,24 @@ var scenes = [
 
         var ppos = {};
         function getFoePosition(foe) {
-            var foeScale = foe[3]/3/state.slots[2].naturalHeight;
+            var foeScale = foe[3]/3/state.slots[2].getH();
             var t = time-foe[2];
             var x,y;
             x = foe[0]-t/2;
             var h = foe[3]<=100 ? (t*1.5 % (foe[3]*2)-foe[3])/foe[3] : (t/4 % (foe[3]*2)-foe[3])/foe[3];
             h = 1-h*h;
             y = foe[4]===0
-                ? 400-state.slots[2].naturalHeight*foeScale-h*foe[3]/2
+                ? 400-state.slots[2].getH()*foeScale-h*foe[3]/2
                 : h*foe[3]/2;
-            ppos.x = x+state.slots[2].naturalWidth*foeScale/2;
-            ppos.y = y+state.slots[2].naturalHeight*foeScale/2;
+            ppos.x = x+state.slots[2].getW()*foeScale/2;
+            ppos.y = y+state.slots[2].getH()*foeScale/2;
             return ppos;
         }
 
 
 
         function drawFoe(foe) {
-            var foeScale = foe[3]/3/state.slots[2].naturalHeight;
+            var foeScale = foe[3]/3/state.slots[2].getH();
             var t = time-foe[2];
             var pos = getFoePosition(foe);
 
@@ -448,20 +469,20 @@ var scenes = [
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(pos.x, pos.y,
-                    Math.min(state.slots[2].naturalWidth*foeScale,state.slots[2].naturalHeight*foeScale)/2,
+                    Math.min(state.slots[2].getW()*foeScale,state.slots[2].getH()*foeScale)/2,
                     0, Math.PI*2,true
                 );
                 ctx.closePath();
                 ctx.clip();
                 ctx.drawImage(state.slots[2],
-                    state.slots[2].naturalWidth*0,
-                    state.slots[2].naturalHeight*0,
-                    state.slots[2].naturalWidth*1,
-                    state.slots[2].naturalHeight*1,
-                    pos.x-state.slots[2].naturalWidth*foeScale/2,
-                    pos.y-state.slots[2].naturalHeight*foeScale/2,
-                    state.slots[2].naturalWidth*foeScale,
-                    state.slots[2].naturalHeight*foeScale
+                    state.slots[2].getW()*0,
+                    state.slots[2].getW()*0,
+                    state.slots[2].getW()*1,
+                    state.slots[2].getH()*1,
+                    pos.x-state.slots[2].getW()*foeScale/2,
+                    pos.y-state.slots[2].getH()*foeScale/2,
+                    state.slots[2].getW()*foeScale,
+                    state.slots[2].getH()*foeScale
                 );
                 ctx.restore();
             }
@@ -513,22 +534,22 @@ var scenes = [
         function drawBonus(bonus) {
             var t = time - bonus[2];
             var size = bonus[4]*25;
-            var scale = size/state.slots[1].naturalHeight;
+            var scale = size/state.slots[1].getH();
             var x = bonus[0] - t/5;
-            var y = bonus[1] - state.slots[1].naturalHeight*scale/2;
+            var y = bonus[1] - state.slots[1].getH()*scale/2;
             if(!bonus[3]) {
                 ctx.drawImage(state.slots[1],
-                    state.slots[1].naturalWidth*0,
-                    state.slots[1].naturalHeight*0,
-                    state.slots[1].naturalWidth*1,
-                    state.slots[1].naturalHeight*1,
+                    state.slots[1].getW()*0,
+                    state.slots[1].getH()*0,
+                    state.slots[1].getW()*1,
+                    state.slots[1].getH()*1,
                     x,
                     y,
-                    state.slots[1].naturalWidth*scale,
-                    state.slots[1].naturalHeight*scale
+                    state.slots[1].getW()*scale,
+                    state.slots[1].getH()*scale
                 );
             }
-            if(x+state.slots[1].naturalWidth*scale < 0) {
+            if(x+state.slots[1].getW()*scale < 0) {
                 bonus[4] = true;
             }
         }
@@ -564,9 +585,9 @@ var scenes = [
         var spos = {};
         function getShotPosition(shot) {
             var t = time - shot[2];
-            var scale = 40/state.slots[3].naturalHeight;
+            var scale = 40/state.slots[3].getH();
             var x = shot[0] + t;
-            var y = shot[1] + state.slots[3].naturalHeight*scale/2;
+            var y = shot[1] + state.slots[3].getH()*scale/2;
 
             var h = (t-300)/300;
             h = 1-h*h;
@@ -580,7 +601,7 @@ var scenes = [
         function drawShot(shot) {
             if(gameOver) return;
             var t = time - shot[2];
-            var scale = 40/state.slots[3].naturalHeight;
+            var scale = 40/state.slots[3].getH();
             var ppos = getShotPosition(shot);
             var angle = (t + shot[0] + shot[1])/100;
             if(!shot[3]) {
@@ -589,12 +610,12 @@ var scenes = [
                 ctx.drawImage(state.slots[3],
                     0,
                     0,
-                    state.slots[3].naturalWidth,
-                    state.slots[3].naturalHeight,
-                    - state.slots[3].naturalWidth*scale/2,
-                    - state.slots[3].naturalHeight*scale/2,
-                    state.slots[3].naturalWidth*scale,
-                    state.slots[3].naturalHeight*scale
+                    state.slots[3].getW(),
+                    state.slots[3].getW(),
+                    - state.slots[3].getW()*scale/2,
+                    - state.slots[3].getH()*scale/2,
+                    state.slots[3].getW()*scale,
+                    state.slots[3].getH()*scale
                 );
                 ctx.rotate(-angle);
                 ctx.translate(-ppos.x, -ppos.y);
@@ -637,8 +658,8 @@ var scenes = [
         function drawParticle(particle) {
             var t = time - particle[4];
             var img = particle[5];
-            var scale = 20/img.naturalHeight;
-            var x = particle[0]-img.naturalWidth*scale + t/500*particle[2];
+            var scale = 20/img.getH();
+            var x = particle[0]-img.getW()*scale + t/500*particle[2];
             var y = particle[1];
 
             var h = (t-250)/500;
@@ -660,7 +681,7 @@ var scenes = [
             ctx.rotate(angle);
             ctx.beginPath();
             ctx.arc(0, 0,
-                Math.min(img.naturalWidth*scale,img.naturalHeight*scale)/2,
+                Math.min(img.getW()*scale,img.getH()*scale)/2,
                 0, Math.PI*2,true
             );
             ctx.closePath();
@@ -669,12 +690,12 @@ var scenes = [
             ctx.drawImage(particle[5],
                 0,
                 0,
-                img.naturalWidth,
-                img.naturalHeight,
-                -img.naturalWidth*scale/2,
-                -img.naturalHeight*scale/2,
-                img.naturalWidth*scale,
-                img.naturalHeight*scale
+                img.getW(),
+                img.getH(),
+                -img.getW()*scale/2,
+                -img.getH()*scale/2,
+                img.getW()*scale,
+                img.getH()*scale
             );
             ctx.rotate(-angle);
             ctx.translate(-x, -y);
@@ -699,10 +720,10 @@ var scenes = [
 //            [900,400,delay,true],
             if(!bonus[3]) {
                 var t = time - bonus[2];
-                var scale = 50/state.slots[1].naturalHeight;
+                var scale = 50/state.slots[1].getH();
                 var x = bonus[0] - t/5;
-                var y = bonus[1] - state.slots[1].naturalHeight*scale/2;
-                var radius = Math.min(state.slots[1].naturalWidth*scale,state.slots[1].naturalHeight*scale)/2;
+                var y = bonus[1] - state.slots[1].getH()*scale/2;
+                var radius = Math.min(state.slots[1].getW()*scale,state.slots[1].getH()*scale)/2;
                 var dx = pos[0] - x;
                 var dy = pos[1] - y;
                 var dist = Math.sqrt(dx*dx+dy*dy);
@@ -722,8 +743,8 @@ var scenes = [
                 return;
             }
             if(foe[5]<foe[6]) {
-                var foeScale = foe[3]/3/state.slots[2].naturalHeight;
-                var radius = Math.min(state.slots[2].naturalWidth*foeScale,state.slots[2].naturalHeight*foeScale)/2;
+                var foeScale = foe[3]/3/state.slots[2].getH();
+                var radius = Math.min(state.slots[2].getW()*foeScale,state.slots[2].getH()*foeScale)/2;
 
                 var ppos= getFoePosition(foe);
 
@@ -808,7 +829,7 @@ var scenes = [
                 ctx.translate(x, y);
                 ctx.rotate(angle);
                 ctx.drawImage(state.slots[0],
-                    0,0,state.slots[0].naturalWidth,state.slots[0].naturalHeight,
+                    0,0,state.slots[0].getW(),state.slots[0].getH(),
                     w-pos[2]/2,
                     -w-pos[3]/2,
                     pos[2]-w*2,
@@ -864,7 +885,7 @@ var scenes = [
                 var pu = Math.max(100-t,0)/10;
 
                 ctx.drawImage(state.slots[1],
-                    0,0,state.slots[1].naturalWidth,state.slots[1].naturalHeight,
+                    0,0,state.slots[1].getW(),state.slots[1].getH(),
                     20-pu/2,
                     20-pu/2,
                     30+pu,
@@ -876,6 +897,8 @@ var scenes = [
                 ctx.font = "20px Comic";
                 ctx.fillText(hearts,60,40);
             }
+
+            gifSlots.forEach(rotateGif);
         }
         var pulse = 0;
         var hit = 0;
@@ -914,7 +937,10 @@ var scenes = [
                         jump(!space);
                         space = true;
                     } else if(time-gameOver>3000) {
-                        loadGame(state);
+                        var savedState = loadState("game");
+                        loadGame(savedState);
+
+//                        loadGame(state);
                     }
                 } else if(e.keyCode===27) {
                     startOver();
@@ -956,8 +982,50 @@ var timings = [4000, 8000, 15000, 18000];
 
 scenes[0]();
 function looper(t) {
-    time = t;
+    DOK.time = time = t;
     loop();
     requestAnimationFrame(looper);
 }
 looper(0);
+
+
+function getGif(src) {
+    var gif = DOK.createGif(src);
+    var canvases = [];
+    gif.addEventListener("load", function(e) {
+        var width = gif.naturalWidth, height = gif.naturalHeight;
+
+        for (var i = 0; i < gif.frameCount; i++) {
+            makeCanvas(gif,i,width,height);
+        }
+    });
+
+    function makeCanvas(gif,index,width,height) {
+        var canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        gif.putOnCanvas(
+            ctx,
+            0,0,
+            width,
+            height,
+            0,
+            0,
+            width,
+            height,
+            index,
+            function() {
+                canvases[index] = canvas;
+            }
+        );
+    }
+    gif.canvases = canvases;
+    return gif;
+}
+
+Object.prototype.getW = function() {
+    return this.naturalWidth?this.naturalWidth:this.width;
+}
+Object.prototype.getH = function() {
+    return this.naturalHeight?this.naturalHeight:this.height;
+}
