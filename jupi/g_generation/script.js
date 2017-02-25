@@ -7,6 +7,13 @@ var preNext = nop;
 var loadGameFunction;
 var skip = location.search.indexOf("skip") > 0;
 
+var sounds = {
+    collect: new Audio('media/collect.ogg'),
+    hit: new Audio('media/hit.ogg'),
+    jump: new Audio('media/jump.ogg'),
+    shoot: new Audio('media/shoot.ogg'),
+};
+
 var state = {
     name: "",
     slots: [],
@@ -322,7 +329,7 @@ var scenes = [
             ctx.fillText(makeText("        is what "+state.name+" looks like.", start+4000),260,150);
             ctx.fillText(makeText("        is something "+state.name+" is fond of.", start+8000),260,200);
             ctx.fillText(makeText(".. not so much ", start+13000),260,250);
-            ctx.fillText(makeText("About            ... let's say it just got thrown in there.", start+17000),260,300);
+            ctx.fillText(makeText("About            ... let's just say it got thrown in there.", start+17000),260,300);
             ctx.fillText(makeText("Are you happy with your choices?", start+26000),260,350);
             ctx.fillText(makeText("Press the  space bar  for YES, esc for NO.", start+31000),260,400);
             for(var i=0; i<state.slots.length;i++) {
@@ -371,7 +378,7 @@ var scenes = [
             loop = function () {
                 clearCanvas();
                 if(state.slots.every(function(slot) {
-                    return slot.naturalWidth;
+                    return slot.getW();
                 })) {
                     nextScene();
                 }
@@ -384,12 +391,12 @@ var scenes = [
 
         //  handle gif
         var gifSlots = [null,null,null,null];
-        window.gf = gifSlots;
         for(var i=0;i<state.slots.length;i++) {
             if(state.slots[i].src.slice(-4).toLowerCase()===".gif" || state.slots[i].src.indexOf("data:image/gif;")===0) {
                 gifSlots[i] = getGif(state.slots[i].src);
             }
         }
+        window.gg = gifSlots;
 
         function rotateGif(gif,index) {
             if(gif) {
@@ -600,9 +607,9 @@ var scenes = [
 //        var shotIndex = 0;
 
         var spos = {};
-        function getShotPosition(shot) {
+        function getShotPosition(shot,time,scaleFactor) {
             var t = time - shot[2];
-            var scale = 40/state.slots[3].getH();
+            var scale = 40/state.slots[3].getH()*scaleFactor;
             var x = shot[0] + t;
             var y = shot[1] + state.slots[3].getH()*scale/2;
 
@@ -616,10 +623,18 @@ var scenes = [
         }
 
         function drawShot(shot) {
-            if(gameOver) return;
+            if (gameOver) return;
+            drawShotHelper(shot, time, 1);
+            if(hearts>=50) {
+                drawShotHelper(shot, time-20, .8);
+                drawShotHelper(shot, time-40, .5);
+            }
+        }
+
+        function drawShotHelper(shot, time, scaleFactor) {
             var t = time - shot[2];
-            var scale = 40/state.slots[3].getH();
-            var ppos = getShotPosition(shot);
+            var scale = 40/state.slots[3].getH() * scaleFactor;
+            var ppos = getShotPosition(shot,time,scaleFactor);
             var angle = (t + shot[0] + shot[1])/100;
             if(!shot[3]) {
                 ctx.translate(ppos.x, ppos.y);
@@ -643,6 +658,8 @@ var scenes = [
                 shot[1] = pos[1];
                 shot[2] = time;
                 shot[3] = false;
+                if(scaleFactor===1)
+                    sounds.shoot.play();
             }
         }
 
@@ -672,6 +689,10 @@ var scenes = [
             movingParticles.push(particle);
         }
 
+        function breakParticle(particle) {
+            particle[7] = false;
+        }
+
         function drawParticle(particle) {
             var t = time - particle[4];
             var img = particle[5];
@@ -685,7 +706,7 @@ var scenes = [
             y += h*particle[3];
 
             var final = 3000;
-            if(particle[7] && (hit && time-hit<3000||gameOver)) {
+            if(particle[7] && gameOver) {
                 particle[7] = false;
             }
             if(particle[7]) {
@@ -726,6 +747,7 @@ var scenes = [
                 if(particle[7]) {
                     hearts++;
                     pulse = time;
+                    score += 100 * (hearts>=500?2:1);
                 }
             }
         }
@@ -749,10 +771,11 @@ var scenes = [
                 var dist = Math.sqrt(dx*dx+dy*dy);
                 if(dist < radius + pos[2]/2) {
                     bonus[3] = time;
-                    var count = bonus[4]*4;
+                    var count = bonus[4]*3;
                     for(var p=0;p<count;p++) {
                         throwParticle(pos[0],pos[1],state.slots[1],true);
                     }
+                    sounds.collect.play();
                     return;
                 }
             }
@@ -773,16 +796,26 @@ var scenes = [
                     var dy = pos[1] - ppos.y;
                     var dist = Math.sqrt(dx*dx+dy*dy);
                     if(dist < radius + pos[2]/4) {
+                        sounds.hit.play();
+                        movingParticles.forEach(breakParticle);
                         if(!hearts) {
                             gameOver = time;
-                            for(var p=0;p<10;p++) {
+                            if(score > best) {
+                                best = score;
+                                bestName = state.name;
+                                localStorage.setItem("best", best);
+                                localStorage.setItem("bestName", bestName);
+                                console.log(bestName);
+                            }
+                            for(var p=0;p<8;p++) {
                                 throwParticle(pos[0],pos[1],state.slots[0],false);
                             }
                             return;
                         } else {
                             jumpy = -20;
                             hit = time;
-                            for(var p=0;p<Math.min(particles.length,Math.ceil(hearts/3));p++) {
+                            var pcount = Math.min(particles.length,Math.ceil(hearts/3));
+                            for(var p=0;p<pcount;p++) {
                                 throwParticle(pos[0],pos[1],state.slots[1],false);
                             }
                             hearts = 0;
@@ -792,16 +825,17 @@ var scenes = [
 
                 for(var i=0;i<shots.length;i++) {
                     if(!shots[i][3]) {
-                        var spos = getShotPosition(shots[i]);
+                        var spos = getShotPosition(shots[i],time,1);
                         if(spos.x < 900) {
                             var dx = ppos.x - spos.x;
                             var dy = ppos.y - spos.y;
                             var dist = Math.sqrt(dx*dx+dy*dy);
                             //console.log(dist, radius+20);
                             if(dist < radius+10) {
-                                foe[5]++;
+                                foe[5]+= (hearts>=50?2:1);
                                 shots[i][3] = true;
-                                if(foe[5]===foe[6]) {
+                                sounds.hit.play();
+                                if(foe[5]>=foe[6]) {
                                     var bonus = bonuses[bonusIndex];
                                     bonusIndex = (bonusIndex + 1)%bonuses.length;
                                     bonus[0] = ppos.x;
@@ -809,10 +843,11 @@ var scenes = [
                                     bonus[2] = time;
                                     bonus[3] = false;
                                     bonus[4] = foe[6];
+                                    score += 1000 * (hearts>=500?2:1);
                                 }
-                                var count = foe[5]===foe[6] ? foe[6]*5 : 3;
+                                var count = foe[5]>=foe[6] ? foe[6]*4 : 3;
                                 for(var p=0;p<count;p++) {
-                                    throwParticle(ppos.x,ppos.y,foe[5]===foe[6]?state.slots[2]:state.slots[3],false);
+                                    throwParticle(ppos.x,ppos.y,foe[5]>=foe[6]?state.slots[2]:state.slots[3],false);
                                 }
                             }
                         }
@@ -843,9 +878,13 @@ var scenes = [
             shots.forEach(drawShot);
 
             if(!gameOver && (!hit || time-hit>3000 || time%100>30)) {
+                var doubleJump = hearts>=20 && hearts<100;
+                var plane = hearts>=100;
+
                 var x = pos[0];
                 var y = pos[1];
-                var angle = (hit && time-hit<1000) ? time : jumpy/100;
+                var flip = pos[1] < 400-pos[3]/2 && jumpCount === 2;
+                var angle = flip ? jumpy*(400-pos[3]/2-pos[1])/2000 * Math.PI : (hit && time-hit<1000) ? time : jumpy/100;
                 ctx.translate(x, y);
                 ctx.rotate(angle);
                 ctx.drawImage(state.slots[0],
@@ -856,6 +895,18 @@ var scenes = [
                     pos[3]+w*2);
                 ctx.rotate(-angle);
                 ctx.translate(-x, -y);
+                if(doubleJump) {
+                    ctx.beginPath();
+                    ctx.arc(x,y,pos[2]*(40+time%200)/200,Math.PI/2-Math.PI/8,Math.PI/2+Math.PI/8);
+                    ctx.stroke();
+                } else if(plane) {
+                    ctx.beginPath();
+                    ctx.arc(x,y,pos[2]*(40+time%200)/400,Math.PI-Math.PI/8,Math.PI+Math.PI/8);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(x,y,pos[2]*(40+time%200)/400,-Math.PI/8,+Math.PI/8);
+                    ctx.stroke();
+                }
             }
 
 
@@ -896,6 +947,7 @@ var scenes = [
                         pos[1] += jumpy;
                     }
                     currentTime+=20;
+                    score+=(hearts>=500?2:1);
                 }
             }
 
@@ -916,7 +968,7 @@ var scenes = [
                 ctx.drawImage(state.slots[1],
                     0,0,state.slots[1].getW(),state.slots[1].getH(),
                     20-pu/2,
-                    20-pu/2,
+                    40-pu/2,
                     30+pu,
                     30+pu);
             }
@@ -924,7 +976,24 @@ var scenes = [
             if(hearts>0) {
                 ctx.fillStyle = "#AAAABB";
                 ctx.font = "20px Comic";
-                ctx.fillText(hearts,60,40);
+                if(hearts < 20) {
+                    ctx.fillText(hearts + " / 20: DBL JUMP",60,60);
+                } else if(hearts < 50) {
+                    ctx.fillText(hearts + " / 50: DBL DMG",60,60);
+                } else if(hearts < 100) {
+                    ctx.fillText(hearts + " / 100: WINGS",60,60);
+                } else if(hearts < 500) {
+                    ctx.fillText(hearts + " / 500: DBL SCORE",60,60);
+                } else {
+                    ctx.fillText(hearts + " / 1000000000: GOD MODE",60,60);
+                }
+            }
+            if(score>0) {
+                visualScore +=  (score -visualScore)/10;
+                ctx.fillStyle = "#AAAABB";
+                ctx.font = "20px Comic";
+                var vScore = Math.round(visualScore);
+                ctx.fillText(vScore >= best ? vScore : vScore + " < " + best + " (" + bestName + ")",30,30);
             }
 
             gifSlots.forEach(rotateGif);
@@ -944,28 +1013,43 @@ var scenes = [
                 ctx.fillText(makeText("Press the space bar to continue, esc to start over.", gameOver+11000),210,400);
             }
         }
+
+        var level = 1;
+        var xp = [
+            20,
+            50,
+            100,
+            500,
+            5000,
+        ];
+
+        var score = 0;
+        var visualScore = 0;
         var pulse = 0;
         var hit = 0;
 
-        var plane = false;
-        var doubleJump = false;
         var jumpCount = 0;
         function jump(justJump) {
+            var plane = hearts>=100;
             if(plane) {
                 if(pos[1] === 400-pos[3]/2 && jumpy===0) {
                     jumpy = -5;
+                    sounds.jump.play();
                 } else if(justJump) {
                     jumpy = -5;
                 } else {
                     jumpy-= 1.5;
                 }
             } else {
+                var doubleJump = hearts>=20;
                 if(pos[1] === 400-pos[3]/2 && jumpy===0) {
                     jumpy = -16;
                     jumpCount = 1;
+                    sounds.jump.play();
                 } else if(doubleJump && justJump && jumpCount == 1) {
                     jumpy = -16;
                     jumpCount = 2;
+                    sounds.jump.play();
                 } else {
                     jumpy -= 1/2;
                 }
@@ -982,9 +1066,9 @@ var scenes = [
                         space = true;
                     } else if(time-gameOver>3000) {
                         var savedState = loadState("game");
-                        loadGame(savedState);
+//                        loadGame(savedState);
 
-//                        loadGame(state);
+                        loadGame(state);
                     }
                 } else if(e.keyCode===27) {
                     startOver();
@@ -1015,8 +1099,6 @@ var scenes = [
     nop,
 ];
 
-var jumpValue = -5;
-var floatValue = 1;
 var bounceValue = .2;
 var locations = [[250,110],[250,165],[445,215],[345,265],
     [375,374,125,40],
@@ -1032,6 +1114,8 @@ function looper(t) {
 }
 looper(0);
 
+var best = localStorage.getItem("best") || 0;
+var bestName = localStorage.getItem("bestName") || "";
 
 function getGif(src) {
     var gif = DOK.createGif(src);
@@ -1047,6 +1131,7 @@ function getGif(src) {
     function makeCanvas(gif,index,width,height) {
         var canvas = document.createElement('canvas');
         canvas.width = width; canvas.height = height;
+        canvas.src = src;
         var ctx = canvas.getContext("2d");
         gif.putOnCanvas(
             ctx,
@@ -1073,3 +1158,4 @@ HTMLCanvasElement.prototype.getW = Image.prototype.getW = function() {
 HTMLCanvasElement.prototype.getH = Image.prototype.getH = function() {
     return this.naturalHeight?this.naturalHeight:this.height;
 }
+HTMLCanvasElement.prototype.src = null;
