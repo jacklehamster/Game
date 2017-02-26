@@ -1133,15 +1133,9 @@ function getGif(src) {
         canvas.width = width; canvas.height = height;
         canvas.src = src;
         var ctx = canvas.getContext("2d");
-        gif.putOnCanvas(
-            ctx,
-            0,0,
-            width,
-            height,
-            0,
-            0,
-            width,
-            height,
+        gif.putOnCanvas(ctx,
+            0, 0, width, height,
+            0, 0, width, height,
             index,
             function() {
                 canvases[index] = canvas;
