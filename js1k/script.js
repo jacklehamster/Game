@@ -1,4 +1,6 @@
 var canvas = document.getElementsByTagName("canvas")[0];
+var div = 2;
+canvas.width /= div; canvas.height /= div;
 var ctx = canvas.getContext("2d");
 var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 var data = imageData.data;
@@ -11,18 +13,16 @@ for(var i=0; i<data.length;i+=4) {
 var prex,prey;
 document.addEventListener("mousemove",
     function(e) {
-        mouseTo(e.pageX,e.pageY);
+        mouseTo(e.pageX/div,e.pageY/div);
     }
 );
 document.addEventListener("touchmove",
     function(e) {
-        mouseTo(e.touches[0].pageX,e.touches[0].pageY);
+        mouseTo(e.touches[0].pageX/div,e.touches[0].pageY/div);
     }
 );
 
 function mouseTo(x,y) {
-    var x = e.pageX;
-    var y = e.pageY;
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 10;
     ctx.lineCap = "round";
@@ -39,15 +39,11 @@ function mouseTo(x,y) {
 
 function loop() {
     for(var i=0; i<data.length;i+=4) {
-        var x = Math.floor(Math.random()*5)-2;
-        var y = Math.floor(Math.random()*5)-2;
-        move(data, i, i+(x*4 + y*canvas.width*4 + canvas.width*canvas.height*4)%(canvas.height*canvas.width*4));
-        var x = Math.floor(Math.random()*5)-2;
-        var y = Math.floor(Math.random()*5)-2;
-        move(data, 1+i, 1+i+(x*4 + y*canvas.width*4 + canvas.width*canvas.height*4)%(canvas.height*canvas.width*4));
-        var x = Math.floor(Math.random()*5)-2;
-        var y = Math.floor(Math.random()*5)-2;
-        move(data, 2+i, 2+i+(x*4 + y*canvas.width*4 + canvas.width*canvas.height*4)%(canvas.height*canvas.width*4));
+        for(var c=0;c<3;c++) {
+            var x = Math.floor(Math.random()*5)-2;
+            var y = Math.floor(Math.random()*5)-2;
+            move(data, i+c, i+c+(x*4 + y*canvas.width*4 + canvas.width*canvas.height*4)%(canvas.height*canvas.width*4));
+        }
     }
     ctx.putImageData(imageData, 0, 0);
     requestAnimationFrame(loop);
