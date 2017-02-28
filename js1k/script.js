@@ -25,8 +25,7 @@ document.addEventListener("touchmove",
 function mouseTo(x,y) {
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 10;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = ctx.lineJoin = "round";
     ctx.beginPath();
     ctx.moveTo(prex,prey);
     ctx.lineTo(x,y);
