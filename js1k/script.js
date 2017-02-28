@@ -1,5 +1,5 @@
 var canvas = document.getElementsByTagName("canvas")[0];
-var div = 3;
+var div = 4;
 canvas.width /= div; canvas.height /= div;
 var ctx = canvas.getContext("2d");
 var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
