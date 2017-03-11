@@ -7,3 +7,12 @@
 [submodule "jupi/g_generation/JavaScript-MD5"]
 	path = jupi/g_generation/JavaScript-MD5
 	url = https://github.com/blueimp/JavaScript-MD5
+[submodule "lib/gamelib"]
+	path = lib/gamelib
+	url = https://github.com/jacklehamster/gamelib
+[submodule "lib/jsgif"]
+	path = lib/jsgif
+	url = https://github.com/shachaf/jsgif
+[submodule "lib/JavaScript-MD5"]
+	path = lib/JavaScript-MD5
+	url = https://github.com/blueimp/JavaScript-MD5
