@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading...</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <link rel="stylesheet" type="text/css" href="lib/dobuki/style/style.css">
+</head>
+<body>
+<span id="fps" style="display:block; position:absolute; color:silver; top:0; left:0"></span>
+
+
+<script src="lib/dobuki/setup.js"></script>
+<script src="lib/md5/md5.min.js"></script>
+<script src="lib/threejs/three.min.js"></script>
+<script src="lib/jsgif/gif.js"></script>
+<script src="lib/dobuki/objectpool.js"></script>
+<script src="lib/dobuki/turbosort.js"></script>
+<script src="lib/dobuki/utils.js"></script>
+<script src="lib/dobuki/gifhandler.js"></script>
+<script src="lib/dobuki/audio.js"></script>
+<script src="lib/dobuki/packer.js"></script>
+<script src="lib/dobuki/menu.js"></script>
+<script src="lib/dobuki/loop.js"></script>
+<script src="lib/dobuki/triggerloop.js"></script>
+<script src="lib/dobuki/imageloader.js"></script>
+<script src="lib/dobuki/camera.js"></script>
+<script src="lib/dobuki/spritesheet.js"></script>
+<script src="lib/dobuki/spriterenderer.js"></script>
+<script src="lib/dobuki/collection.js"></script>
+<script src="lib/dobuki/keyboard.js"></script>
+<script src="lib/dobuki/editcontrol.js"></script>
+
+<script>
+    var debug = {
+        fps: location.search.indexOf("fps")>=0,
+    };
+
+    document.getElementById("fps").style.display = debug.fps ? "" : "none";
+
+    var renderer = new THREE.WebGLRenderer();//{ antialias: true });
+    var scene = new THREE.Scene();
+    renderer.setClearColor (0, 1);
+
+
+    renderer.render(scene,DOK.getCamera());
+    window.addEventListener("resize",function() {
+        renderer.setSize( innerWidth, innerHeight );
+    });
+    renderer.sortObjects = false;
+
+    renderer.setSize( innerWidth, innerHeight );
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor (0xffffff, 1);
+    document.body.appendChild( renderer.domElement );
+
+    DOK.addControlBall();
+    DOK.addControlBox();
+
+    var images = {
+        squid: [
+            "lib/dobuki/images/squid.png|0,0,32,32",
+            "lib/dobuki/images/squid.png|32,0,32,32",
+            "lib/dobuki/images/squid.png|0,32,32,32",
+            "lib/dobuki/images/squid.png|32,32,32,32",
+        ],
+        floor: "lib/dobuki/images/wood.png",
+    };
+    DOK.preLoad(images);
+
+    var spriteRenderer = new DOK.SpriteRenderer();
+    scene.add(spriteRenderer.mesh);
+
+
+    var range = 50;
+    renderer.setClearColor (0xffffff, 1);
+
+    var defaultCells = [
+        new DOK.SpriteObject().init(
+            0,0,1,
+            64,64,
+            true,
+            1,
+            -1
+        ),
+        new DOK.SpriteObject().init(
+            0,0,1,
+            64,64,
+            false,
+            2,
+            -1
+        ),
+    ];
+
+    var collection = new DOK.Collection(
+        {
+            type: "grid",
+            x: -Math.floor(range/2),
+            y: -Math.floor(range/2),
+            width: range,
+            height: range,
+            count: 2,
+        },
+        function(x,y,c) {
+            var cell = defaultCells[c];
+            var frame = Math.floor(DOK.time/100);
+            cell.pos[0] = x*64;
+            cell.pos[1] = y*64;
+            cell.pos[2] = c*-64;
+            cell.img = c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor;
+            cell.light = c===0?1:1.5;
+            return cell;
+        }
+    );
+
+    function initialize() {
+        DOK.getLoadingBar();
+        DOK.setOnLoad(gameLoaded);
+    }
+
+    function gameLoaded() {
+        document.body.removeChild(DOK.getLoadingBar());
+        renderer.setClearColor (0xffffff, 1);
+        renderer.render(scene,DOK.getCamera());
+        startGame();
+    }
+
+    function startGame() {
+        DOK.fps = 45;
+        var frame = 0;
+        DOK.addLoop(function() {
+            frame++;
+            var camera = DOK.getCamera();
+            spriteRenderer.display(collection);
+            spriteRenderer.render(camera);
+            spriteRenderer.updateGraphics();
+            if(debug.fps && frame%10===0)
+                document.getElementById("fps").textContent = DOK.fps + " fps";
+            renderer.render(scene, camera);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded",initialize);
+</script>
+</body>
+
+</html>
