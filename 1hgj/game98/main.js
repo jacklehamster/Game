@@ -122,9 +122,9 @@ window.onload = function() {
     egg.position.set(0,300,0);
     egg.geometry.scale(8,10,8);
     scene.add(egg);
-    var light = new THREE.AmbientLight( 0xdddddd ); // soft white light
+    var light = new THREE.AmbientLight( 0xeeeeee ); // soft white light
     scene.add( light );
-    var light2 = new THREE.PointLight( 0xdddddd, 5, 100,2 );
+    var light2 = new THREE.PointLight( 0xdddddd, 20, 100,2 );
     light2.position.set( 50, 50, 50 );
     scene.add( light2 );
 
