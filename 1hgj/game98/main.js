@@ -72,6 +72,7 @@ window.onload = function() {
 
     function log(msg) {
         document.getElementById("info").innerText = msg;
+        document.getElementById("info").style.marginTop =- (document.getElementById("info").offsetHeight) +"px";
     }
 
     log("[TAP] at the right moment to catch the egg.");
