@@ -1,5 +1,5 @@
 window.onload = function() {
-    var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer({antiAlias:true});
     renderer.setSize( innerWidth, innerHeight );
     var camera = new THREE.OrthographicCamera(-innerWidth/2, innerWidth/2, innerHeight/2, -innerHeight/2, 0.1, THREE.Infinity );
     var scene = new THREE.Scene();
@@ -123,10 +123,10 @@ window.onload = function() {
     egg.position.set(0,200,0);
     egg.geometry.scale(8,10,8);
     scene.add(egg);
-    var light = new THREE.AmbientLight( 0xeeeeee ); // soft white light
+    var light = new THREE.AmbientLight( 0xcccccc ); // soft white light
     scene.add( light );
-    var light2 = new THREE.PointLight( 0xdddddd, 20, 100,2 );
-    light2.position.set( 50, 50, 50 );
+    var light2 = new THREE.PointLight( 0xffffff, 1, 0, 5 );
+    light2.position.set( -50, 250, 50 );
     scene.add( light2 );
 
     var pik = new Audio('pik.ogg');
