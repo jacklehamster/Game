@@ -74,7 +74,7 @@ window.onload = function() {
         document.getElementById("info").innerText = msg;
     }
 
-    log("Press [SPACE] at the right moment to catch the egg.\nMake screen taller if you cannot see the egg.");
+    log("[TAP] at the right moment to catch the egg.");
 
     var canPress = true;
     function clearKey() {
@@ -86,13 +86,13 @@ window.onload = function() {
             return;
         }
         if(egged && t-egged>500) {
-            log("Press [SPACE] at the right moment to catch the egg.");
+            log("[TAP] at the right moment to catch the egg.");
             score = 0;
             gameStarted = false;
             eggInTheAir = true;
             egged = false;
             egg.visible = true;
-            egg.position.set(0,300,0);
+            egg.position.set(0,200,0);
             dy = 0;
 //            meo.play();
             return;
@@ -102,7 +102,7 @@ window.onload = function() {
             pik.play();
 
             egg.position.y = 5;
-            dy = 20+Math.random()*10;
+            dy = 20+Math.random()*5;
             eggInTheAir = true;
             egg.visible = true;
         }
@@ -119,7 +119,7 @@ window.onload = function() {
 //    var material = new THREE.MeshNormalMaterial();
     var material = new THREE.MeshLambertMaterial();
     var egg = new THREE.Mesh(geometry, material);
-    egg.position.set(0,300,0);
+    egg.position.set(0,200,0);
     egg.geometry.scale(8,10,8);
     scene.add(egg);
     var light = new THREE.AmbientLight( 0xeeeeee ); // soft white light
@@ -141,14 +141,16 @@ window.onload = function() {
     var t = 0;
     var dy = 0;
     var egged = false;
+
     function loop(time) {
+        var dt = time-t;
         t = time;
         if(eggInTheAir) {
             egg.rotateZ(.2);
             egg.rotateX(.1);
             if(gameStarted) {
                 egg.position.y += dy;
-                dy--;
+                dy-=dt/20;
             }
             if(egg.position.y < 5) {
                 eggInTheAir = false;
