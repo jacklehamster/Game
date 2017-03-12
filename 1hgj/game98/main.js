@@ -159,7 +159,11 @@ window.onload = function() {
                 if(!mouthO()) {
                     pok.play();
                     egged = t;
-                    log("EGGED! Ohh you let us down. Final score: "+score);
+                    var best = localStorage.getItem('best-egg') || 0;
+                    best = Math.max(best, score);
+                    localStorage.setItem('best-egg',best);
+
+                    log("EGGED! Ohh you let us down.\nFINAL SCORE: "+score+"   BEST: "+best);
                 } else {
                     pik.play();
                     score++;
