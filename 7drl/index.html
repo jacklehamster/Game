@@ -81,23 +81,6 @@
     var range = 50;
     renderer.setClearColor (0xffffff, 1);
 
-    var defaultCells = [
-        new DOK.SpriteObject().init(
-            0,0,1,
-            64,64,
-            true,
-            1,
-            -1
-        ),
-        new DOK.SpriteObject().init(
-            0,0,1,
-            64,64,
-            false,
-            2,
-            -1
-        ),
-    ];
-
     var collection = new DOK.Collection(
         {
             type: "grid",
@@ -108,14 +91,16 @@
             count: 2,
         },
         function(x,y,c) {
-            var cell = defaultCells[c];
             var frame = Math.floor(DOK.time/100);
-            cell.pos[0] = x*64;
-            cell.pos[1] = y*64;
-            cell.pos[2] = c*-64;
-            cell.img = c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor;
-            cell.light = c===0?1:1.5;
-            return cell;
+
+            return DOK.create(DOK.SpriteObject).init(
+                x*64,y*64,c*-64,
+                64,64,
+                c===0,
+                c===0?1:1.5,
+                c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor,
+                0,0,0
+            );
         }
     );
 
@@ -132,12 +117,25 @@
         startGame();
     }
 
+    var camera = DOK.getCamera();
+    var mz = 0, rot = 0;
+    DOK.setOnTouch(
+        function(dx,dy) {
+            mz -= dy/2;
+            rot += (dx/1000);
+        }
+    );
+
     function startGame() {
         DOK.fps = 45;
         var frame = 0;
         DOK.addLoop(function() {
             frame++;
             var camera = DOK.getCamera();
+            camera.position.z += mz;
+            camera.rotateY(rot);
+            mz *= .9;
+            rot *= .9;
             spriteRenderer.display(collection);
             spriteRenderer.render(camera);
             spriteRenderer.updateGraphics();
