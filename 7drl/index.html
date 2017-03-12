@@ -34,6 +34,7 @@
 <script src="lib/dobuki/spriterenderer.js"></script>
 <script src="lib/dobuki/collection.js"></script>
 <script src="lib/dobuki/keyboard.js"></script>
+<script src="lib/dobuki/mouse.js"></script>
 <script src="lib/dobuki/editcontrol.js"></script>
 
 <script>
@@ -121,6 +122,7 @@
     function initialize() {
         DOK.getLoadingBar();
         DOK.setOnLoad(gameLoaded);
+        DOK.setOnTouch(console.log);
     }
 
     function gameLoaded() {

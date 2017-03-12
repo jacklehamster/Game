@@ -94,7 +94,7 @@ window.onload = function() {
             egg.visible = true;
             egg.position.set(0,300,0);
             dy = 0;
-            meo.play();
+//            meo.play();
             return;
         }
 
@@ -134,7 +134,7 @@ window.onload = function() {
     meo.play();
 
     function mouthO() {
-        return t - pressed<100;
+        return t - pressed<150;
     }
 
     var gameStarted = 0;
