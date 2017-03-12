@@ -86,7 +86,7 @@ window.onload = function() {
             return;
         }
         if(egged && t-egged>500) {
-            log("Press [SPACE] at the right moment to catch the egg.\nMake screen taller if you cannot see the egg.");
+            log("Press [SPACE] at the right moment to catch the egg.");
             score = 0;
             gameStarted = false;
             eggInTheAir = true;
@@ -130,8 +130,8 @@ window.onload = function() {
 
     var pik = new Audio('pik.ogg');
     var pok = new Audio("pok.ogg");
-    var meo = new Audio('assets/1_hour_game_jam_splash.ogg');
-    meo.play();
+//    var meo = new Audio('assets/1_hour_game_jam_splash.ogg');
+//    meo.play();
 
     function mouthO() {
         return t - pressed<150;
