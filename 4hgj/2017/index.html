@@ -86,6 +86,7 @@
         return r - Math.floor(r)
     }
 
+    var cells = [];
     var collection = new DOK.Collection(
         {
             type: "grid",
@@ -97,31 +98,60 @@
             },
             width: range,
             height: range,
-            count: 2,
         },
-        function(x,y,c) {
+        function(x,y) {
             var frame = Math.floor(DOK.time/100);
 
             var hasCell = random(x,y,0)<.8 && random((y/3)|0,(x/3)|0,1) < .8;
-//            if(!hasCell) {
-  //              return null;
-    //        }
-
-
-            if(c===0) return null;
             var dx = x - camera.position.x/256;
             var dz = y - camera.position.z/256;
             var distSq = Math.sqrt(dx*dx+dz*dz);
 
-            return DOK.create(DOK.SpriteObject).init(
-                x*256,!hasCell ?-80:-64,y*256,
-                256,256,
-                c===0 ? null : DOK.groundQuaternionArray,
-                (distSq+1)/2,//c===0 ? 1:1.5,
-                !hasCell ? DOK.spritesheet.water :
-                    c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor,
-                0,0,0
-            );
+            if(hasCell) {
+                return DOK.create(DOK.SpriteObject).init(
+                    x*256,-64,y*256,
+                    256,256,
+                    DOK.groundQuaternionArray,
+                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    !hasCell ? DOK.spritesheet.water : DOK.spritesheet.floor,
+                    0,0,0
+                );
+            } else {
+                cells.length = 0;
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64+128,y*256+128,
+                    256,256,
+                    DOK.southQuaternionArray,
+                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    DOK.spritesheet.floor,
+                    0,0,0
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64+128,y*256-128,
+                    256,256,
+                    DOK.northQuaternionArray,
+                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    DOK.spritesheet.floor,
+                    0,0,0
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256-128,-64+128,y*256,
+                    256,256,
+                    DOK.westQuaternionArray,
+                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    DOK.spritesheet.floor,
+                    0,0,0
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256+128,-64+128,y*256,
+                    256,256,
+                    DOK.eastQuaternionArray,
+                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    DOK.spritesheet.floor,
+                    0,0,0
+                ));
+                return cells;
+            }
         }
     );
 
