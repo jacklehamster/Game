@@ -108,14 +108,16 @@
             var distSq = Math.sqrt(dx*dx+dz*dz);
 
             if(hasCell) {
-                return DOK.create(DOK.SpriteObject).init(
+                cells.length = 0;
+                cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64,y*256,
                     256,256,
                     DOK.groundQuaternionArray,
                     (distSq+1)/2,//c===0 ? 1:1.5,
                     !hasCell ? DOK.spritesheet.water : DOK.spritesheet.floor,
                     0,0,0
-                );
+                ));
+                return cells;
             } else {
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
