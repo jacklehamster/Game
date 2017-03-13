@@ -44,10 +44,9 @@
 
     document.getElementById("fps").style.display = debug.fps ? "" : "none";
 
-    var renderer = new THREE.WebGLRenderer();//{ antialias: true });
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
     var scene = new THREE.Scene();
     renderer.setClearColor (0, 1);
-
 
     renderer.render(scene,DOK.getCamera());
     window.addEventListener("resize",function() {
@@ -70,7 +69,8 @@
             "lib/dobuki/images/squid.png|0,32,32,32",
             "lib/dobuki/images/squid.png|32,32,32,32",
         ],
-        floor: "lib/dobuki/images/wood.png",
+        floor: "lib/dobuki/images/wood.png|border",
+        water: "lib/dobuki/images/water.gif",
     };
     DOK.preLoad(images);
 
@@ -78,14 +78,23 @@
     scene.add(spriteRenderer.mesh);
 
 
-    var range = 11;
+    var range = 20;
     renderer.setClearColor (0xffffff, 1);
+
+    function random(x, y, n) {
+        var r = Math.PI * ((x*13) ^ y*11 ^ n);
+        return r - Math.floor(r)
+    }
 
     var collection = new DOK.Collection(
         {
             type: "grid",
-            x: -Math.floor(range/2),
-            y: -Math.floor(range/2),
+            get x() {
+                return -Math.floor(range/2 - camera.position.x/256);
+            },
+            get y() {
+                return -Math.floor(range/2 - camera.position.z/256);
+            },
             width: range,
             height: range,
             count: 2,
@@ -93,12 +102,24 @@
         function(x,y,c) {
             var frame = Math.floor(DOK.time/100);
 
+            var hasCell = random(x,y,0)<.8 && random((y/3)|0,(x/3)|0,1) < .8;
+//            if(!hasCell) {
+  //              return null;
+    //        }
+
+
+            if(c===0) return null;
+            var dx = x - camera.position.x/256;
+            var dz = y - camera.position.z/256;
+            var distSq = Math.sqrt(dx*dx+dz*dz);
+
             return DOK.create(DOK.SpriteObject).init(
-                x*64,y*64,c*-64,
-                64,64,
-                c===0,
-                c===0?1:1.5,
-                c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor,
+                x*256,!hasCell ?-80:-64,y*256,
+                256,256,
+                c===0 ? null : DOK.groundQuaternionArray,
+                (distSq+1)/2,//c===0 ? 1:1.5,
+                !hasCell ? DOK.spritesheet.water :
+                    c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor,
                 0,0,0
             );
         }
@@ -117,34 +138,70 @@
     }
 
     var camera = DOK.getCamera();
-    var mz = 0, rot = 0;
+    var mz = 0, rot = 0, rotA = 0, buttonDown = false;
     DOK.setOnTouch(
-        function(dx,dy) {
-            mz -= dy/2;
-            rot += (dx/1000);
+        function(dx,dy,down) {
+            if(dx!==null) {
+                rot += (dx/200);
+            }
+            if(dy!==null) {
+                mz -= dy/2;
+            }
+            buttonDown = down;
         }
     );
 
 
-    var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
-    var material = new THREE.MeshNormalMaterial();
-    var egg = new THREE.Mesh(geometry, material);
-    egg.position.set(0,0,0);
-    egg.geometry.scale(8,10,8);
-    scene.add(egg);
+    /*    var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
+        var material = new THREE.MeshNormalMaterial();
+        var egg = new THREE.Mesh(geometry, material);
+        egg.position.set(0,0,0);
+        egg.geometry.scale(8,10,8);
+        scene.add(egg);
+    */
 
-
+    var forwardVector = new THREE.Vector3(0,1,0);
+    var moveVector = new THREE.Vector3(0,0,0);
+    var rotationChunk = Math.PI/4;
+    var gridChunk = 64;
     function startGame() {
         DOK.fps = 45;
         var frame = 0;
         DOK.addLoop(function() {
-            egg.rotateX(.1);
+//            egg.rotateX(.1);
             frame++;
             var camera = DOK.getCamera();
-            camera.position.z += mz;
-            camera.rotateY(rot);
-            mz *= .8;
-            rot *= .8;
+            if(Math.abs(mz)>0) {
+                moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
+                moveVector.setLength(mz);
+                camera.position.add(moveVector);
+                mz *= buttonDown ? .9 :.7;
+            } else {
+                mz = 0;
+            }
+
+            /*if(!buttonDown) {
+                var closestSpotX = Math.round(camera.position.x/gridChunk) * gridChunk;
+                var closestSpotZ = Math.round(camera.position.z/gridChunk) * gridChunk;
+                var slowdown = Math.min(1,Math.abs(mz)*2);
+                camera.position.x = (closestSpotX * (1-slowdown) + camera.position.x * slowdown);
+                camera.position.z = (closestSpotZ * (1-slowdown) + camera.position.z * slowdown);
+            }*/
+            if(Math.abs(rot)>.01) {
+                rotA += rot;
+                rot *= .5;
+//                camera.rotateY(rot);
+            } else if(!buttonDown) {
+                var closestRotation = Math.round(rotA /rotationChunk) * rotationChunk;
+                rotA += (closestRotation - rotA) / 5;
+                if(Math.abs(rotA - closestRotation)<.001) {
+                    rotA = closestRotation;
+                }
+            }
+            camera.quaternion.setFromAxisAngle(forwardVector, rotA);
+
+
+
             spriteRenderer.display(collection);
             spriteRenderer.render(camera);
             spriteRenderer.updateGraphics();
@@ -157,5 +214,6 @@
     document.addEventListener("DOMContentLoaded",initialize);
 </script>
 </body>
+<div style="position:absolute; top:0; left:0; color:black" id="log"></div>
 
 </html>
