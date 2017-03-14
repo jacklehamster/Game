@@ -46,7 +46,6 @@
 
     var renderer = new THREE.WebGLRenderer({ antialias: true });
     var scene = new THREE.Scene();
-    renderer.setClearColor (0, 1);
 
     renderer.render(scene,DOK.getCamera());
     window.addEventListener("resize",function() {
@@ -59,8 +58,8 @@
     renderer.setClearColor (0xffffff, 1);
     document.body.appendChild( renderer.domElement );
 
-    DOK.addControlBall();
-    DOK.addControlBox();
+  //  DOK.addControlBall();
+//    DOK.addControlBox();
 
     var images = {
         squid: [
@@ -69,7 +68,7 @@
             "lib/dobuki/images/squid.png|0,32,32,32",
             "lib/dobuki/images/squid.png|32,32,32,32",
         ],
-        floor: "lib/dobuki/images/wood.png|border",
+        floor: "lib/dobuki/images/wood.png",
         water: "lib/dobuki/images/water.gif",
     };
     DOK.preLoad(images);
@@ -84,6 +83,35 @@
     function random(x, y, n) {
         var r = Math.PI * ((x*13) ^ y*11 ^ n);
         return r - Math.floor(r)
+    }
+
+    var CellType = {
+        wall: 1,
+        water: 2,
+        ground: 3,
+    };
+
+    function getCellType(x,y) {
+        x = Math.round(x); y = Math.round(y);
+        var hasCell = random(x,y,0)<.6 || random((y/3)|0,(x/3)|0,1) < .1;
+        var hasWater = x%10===5 || y%20===10;
+        if(!hasCell) {
+            return CellType.wall;
+        } else if(hasWater) {
+            return CellType.water;
+        } else {
+            return CellType.ground;
+        }
+    }
+
+    var margin = .4;
+    function canGo(x,y) {
+        x = x/256;
+        y = y/256;
+        return getCellType(x-margin,y-margin) !== CellType.wall
+            && getCellType(x+margin,y-margin) !== CellType.wall
+            && getCellType(x-margin,y+margin) !== CellType.wall
+            && getCellType(x+margin,y+margin) !== CellType.wall;
     }
 
     var cells = [];
@@ -102,30 +130,26 @@
         function(x,y) {
             var frame = Math.floor(DOK.time/100);
 
-            var hasWater = x%10===5 || y%20===10;
-            var hasCell = random(x,y,0)<.8 && random((y/3)|0,(x/3)|0,1) < .8;
-            var dx = x - camera.position.x/256;
-            var dz = y - camera.position.z/256;
-            var distSq = Math.sqrt(dx*dx+dz*dz);
+            var cellType = getCellType(x,y);
 
-            if(hasWater) {
+            if(cellType === CellType.water) {
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
-                    x*256,-64,y*256,
-                    256,256,
+                    x*256,-64-20,y*256,
+                    257,257,
                     DOK.groundQuaternionArray,
-                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    1,
                     DOK.spritesheet.water,
                     0,0,0
                 ));
                 return cells;
-            } else if(hasCell) {
+            } else if(cellType === CellType.ground) {
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64,y*256,
-                    256,256,
+                    257,257,
                     DOK.groundQuaternionArray,
-                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    1,
                     DOK.spritesheet.floor,
                     0,0,0
                 ));
@@ -136,7 +160,7 @@
                     x*256,-64+128,y*256+128,
                     256,256,
                     DOK.southQuaternionArray,
-                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    1,
                     DOK.spritesheet.floor,
                     0,0,0
                 ));
@@ -144,7 +168,7 @@
                     x*256,-64+128,y*256-128,
                     256,256,
                     DOK.northQuaternionArray,
-                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    1,
                     DOK.spritesheet.floor,
                     0,0,0
                 ));
@@ -152,7 +176,7 @@
                     x*256-128,-64+128,y*256,
                     256,256,
                     DOK.westQuaternionArray,
-                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    1,
                     DOK.spritesheet.floor,
                     0,0,0
                 ));
@@ -160,7 +184,7 @@
                     x*256+128,-64+128,y*256,
                     256,256,
                     DOK.eastQuaternionArray,
-                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    1,
                     DOK.spritesheet.floor,
                     0,0,0
                 ));
@@ -176,7 +200,7 @@
 
     function gameLoaded() {
         document.body.removeChild(DOK.getLoadingBar());
-        renderer.setClearColor (0xffffff, 1);
+        renderer.setClearColor (0, 1);
         renderer.render(scene,DOK.getCamera());
         startGame();
     }
@@ -201,14 +225,14 @@
         mz = THREE.Math.clamp(mz - mov[1], -50, 20);
     });
 
-
-    /*    var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
+/*
+        var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
         var material = new THREE.MeshNormalMaterial();
         var egg = new THREE.Mesh(geometry, material);
-        egg.position.set(0,0,0);
+        egg.position.set(0,-50,0);
         egg.geometry.scale(8,10,8);
         scene.add(egg);
-    */
+*/
 
     var forwardVector = new THREE.Vector3(0,1,0);
     var moveVector = new THREE.Vector3(0,0,0);
@@ -226,7 +250,6 @@
             if(Math.abs(mz)>0) {
                 moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
                 moveVector.setLength(mz);
-                camera.position.add(moveVector);
                 mz *= .9;
             } else {
                 mz = 0;
@@ -236,7 +259,22 @@
                 rotA += rot;
                 rot *= .5;
             }
+
             camera.quaternion.setFromAxisAngle(forwardVector, rotA);
+            var canGoX = canGo(camera.position.x + moveVector.x, camera.position.z);
+            var canGoZ = canGo(camera.position.x, camera.position.z + moveVector.z);
+            var canGoXZ = canGo(camera.position.x + moveVector.x, camera.position.z + moveVector.z);
+
+            if(canGoX && canGoZ && canGoXZ) {
+            } else if(canGoX) {
+                moveVector.z = 0;
+            } else if(canGoZ) {
+                moveVector.x = 0;
+            } else {
+                moveVector.x = 0;
+                moveVector.z = 0;
+            }
+            camera.position.add(moveVector);
         });
         DOK.addLoop(function() {
             spriteRenderer.display(collection);
