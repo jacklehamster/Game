@@ -102,19 +102,31 @@
         function(x,y) {
             var frame = Math.floor(DOK.time/100);
 
+            var hasWater = x%10===5 || y%20===10;
             var hasCell = random(x,y,0)<.8 && random((y/3)|0,(x/3)|0,1) < .8;
             var dx = x - camera.position.x/256;
             var dz = y - camera.position.z/256;
             var distSq = Math.sqrt(dx*dx+dz*dz);
 
-            if(hasCell) {
+            if(hasWater) {
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64,y*256,
                     256,256,
                     DOK.groundQuaternionArray,
                     (distSq+1)/2,//c===0 ? 1:1.5,
-                    !hasCell ? DOK.spritesheet.water : DOK.spritesheet.floor,
+                    DOK.spritesheet.water,
+                    0,0,0
+                ));
+                return cells;
+            } else if(hasCell) {
+                cells.length = 0;
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64,y*256,
+                    256,256,
+                    DOK.groundQuaternionArray,
+                    (distSq+1)/2,//c===0 ? 1:1.5,
+                    DOK.spritesheet.floor,
                     0,0,0
                 ));
                 return cells;
@@ -174,14 +186,20 @@
     DOK.setOnTouch(
         function(dx,dy,down) {
             if(dx!==null) {
-                rot += (dx/200);
+                rot = THREE.Math.clamp(rot + dx/200, -10, 10);
             }
             if(dy!==null) {
-                mz -= dy/2;
+                mz = THREE.Math.clamp(mz - dy/2, -50, 20);
             }
             buttonDown = down;
         }
     );
+
+    DOK.addLoop(function() {
+        var mov = DOK.getMove();
+        rot = THREE.Math.clamp(rot - mov[0]*.05, -10, 10);
+        mz = THREE.Math.clamp(mz - mov[1], -50, 20);
+    });
 
 
     /*    var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
@@ -194,51 +212,35 @@
 
     var forwardVector = new THREE.Vector3(0,1,0);
     var moveVector = new THREE.Vector3(0,0,0);
-    var rotationChunk = Math.PI/4;
-    var gridChunk = 64;
+
     function startGame() {
         DOK.fps = 45;
         var frame = 0;
         DOK.addLoop(function() {
-//            egg.rotateX(.1);
             frame++;
+            if(debug.fps && frame%10===0)
+                document.getElementById("fps").textContent = DOK.fps + " fps";
+        });
+        DOK.addLoop(function() {
             var camera = DOK.getCamera();
             if(Math.abs(mz)>0) {
                 moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
                 moveVector.setLength(mz);
                 camera.position.add(moveVector);
-                mz *= buttonDown ? .9 :.7;
+                mz *= .9;
             } else {
                 mz = 0;
             }
 
-            /*if(!buttonDown) {
-                var closestSpotX = Math.round(camera.position.x/gridChunk) * gridChunk;
-                var closestSpotZ = Math.round(camera.position.z/gridChunk) * gridChunk;
-                var slowdown = Math.min(1,Math.abs(mz)*2);
-                camera.position.x = (closestSpotX * (1-slowdown) + camera.position.x * slowdown);
-                camera.position.z = (closestSpotZ * (1-slowdown) + camera.position.z * slowdown);
-            }*/
             if(Math.abs(rot)>.01) {
                 rotA += rot;
                 rot *= .5;
-//                camera.rotateY(rot);
-            } else if(!buttonDown) {
-                var closestRotation = Math.round(rotA /rotationChunk) * rotationChunk;
-                rotA += (closestRotation - rotA) / 5;
-                if(Math.abs(rotA - closestRotation)<.001) {
-                    rotA = closestRotation;
-                }
             }
             camera.quaternion.setFromAxisAngle(forwardVector, rotA);
-
-
-
+        });
+        DOK.addLoop(function() {
             spriteRenderer.display(collection);
-            spriteRenderer.render(camera);
             spriteRenderer.updateGraphics();
-            if(debug.fps && frame%10===0)
-                document.getElementById("fps").textContent = DOK.fps + " fps";
             renderer.render(scene, camera);
         });
     }
