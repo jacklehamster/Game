@@ -13,3 +13,6 @@
 [submodule "submodules/gamelib"]
 	path = submodules/gamelib
 	url = https://github.com/jacklehamster/gamelib
+[submodule "submodules/jsgif"]
+	path = submodules/jsgif
+	url = https://github.com/jacklehamster/jsgif
