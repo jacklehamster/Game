@@ -68,8 +68,22 @@
             "lib/dobuki/images/squid.png|0,32,32,32",
             "lib/dobuki/images/squid.png|32,32,32,32",
         ],
-        floor: "lib/dobuki/images/wood.png",
-        water: "lib/dobuki/images/water.gif",
+        squid_shadow: [
+            "lib/dobuki/images/squid.png|0,0,32,32|shadow",
+            "lib/dobuki/images/squid.png|32,0,32,32|shadow",
+            "lib/dobuki/images/squid.png|0,32,32,32|shadow",
+            "lib/dobuki/images/squid.png|32,32,32,32|shadow",
+        ],
+        floor: [
+            "floor.png",
+            "floor.png|scale:-1,1",
+            "floor.png|scale:1,-1",
+            "floor.png|scale:-1,-1",
+        ],
+        wall: "wall.png",
+        water: [
+            "lib/dobuki/images/water.gif",
+        ]
     };
     DOK.preLoad(images);
 
@@ -128,37 +142,47 @@
             height: range,
         },
         function(x,y) {
-
             var cellType = getCellType(x,y);
+            var size = 257;
+            var cycle = (random(x,y,100)*1000) | 0;
 
             if(cellType === CellType.water) {
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64-20,y*256,
-                    256,256,
+                    size,size,
                     DOK.groundQuaternionArray,
                     1,
-                    DOK.spritesheet.water,
+                    DOK.spritesheet.water[cycle % DOK.spritesheet.water.length],
                     0,0,0
                 ));
                 return cells;
             } else if(cellType === CellType.ground) {
+                var floorCycle = DOK.spritesheet.floor;
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64,y*256,
-                    256,256,
+                    size,size,
                     DOK.groundQuaternionArray,
                     1,
-                    DOK.spritesheet.floor,
+                    floorCycle[cycle % floorCycle.length],
                     0,0,0
                 ));
                 if(random(x,y,3)<.05) {
                     cells.push(DOK.create(DOK.SpriteObject).init(
                         x*256,-64+128,y*256,
-                        256,256,
+                        size,size,
                         null,
                         1,
                         DOK.spritesheet.squid[((DOK.time/100)|0)%DOK.spritesheet.squid.length],
+                        0,0,0
+                    ));
+                    cells.push(DOK.create(DOK.SpriteObject).init(
+                        x*256,-64+1,y*256,
+                        size,size,
+                        DOK.shadowQuatArray(x*256,y*256),
+                        1,
+                        DOK.spritesheet.squid_shadow[((DOK.time/100)|0)%DOK.spritesheet.squid_shadow.length],
                         0,0,0
                     ));
                 }
@@ -167,34 +191,34 @@
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+128,y*256+128,
-                    256,256,
+                    size,size,
                     DOK.southQuaternionArray,
                     1,
-                    DOK.spritesheet.floor,
+                    DOK.spritesheet.wall,
                     0,0,0
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+128,y*256-128,
-                    256,256,
+                    size,size,
                     DOK.northQuaternionArray,
                     1,
-                    DOK.spritesheet.floor,
+                    DOK.spritesheet.wall,
                     0,0,0
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256-128,-64+128,y*256,
-                    256,256,
+                    size,size,
                     DOK.westQuaternionArray,
                     1,
-                    DOK.spritesheet.floor,
+                    DOK.spritesheet.wall,
                     0,0,0
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256+128,-64+128,y*256,
-                    256,256,
+                    size,size,
                     DOK.eastQuaternionArray,
                     1,
-                    DOK.spritesheet.floor,
+                    DOK.spritesheet.wall,
                     0,0,0
                 ));
                 return cells;
@@ -209,7 +233,7 @@
 
     function gameLoaded() {
         document.body.removeChild(DOK.getLoadingBar());
-        renderer.setClearColor (0, 1);
+        renderer.setClearColor (0xffffff, 1);
         renderer.render(scene,DOK.getCamera());
         startGame();
     }
