@@ -128,7 +128,6 @@
             height: range,
         },
         function(x,y) {
-            var frame = Math.floor(DOK.time/100);
 
             var cellType = getCellType(x,y);
 
@@ -136,7 +135,7 @@
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64-20,y*256,
-                    257,257,
+                    256,256,
                     DOK.groundQuaternionArray,
                     1,
                     DOK.spritesheet.water,
@@ -147,12 +146,22 @@
                 cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64,y*256,
-                    257,257,
+                    256,256,
                     DOK.groundQuaternionArray,
                     1,
                     DOK.spritesheet.floor,
                     0,0,0
                 ));
+                if(random(x,y,3)<.05) {
+                    cells.push(DOK.create(DOK.SpriteObject).init(
+                        x*256,-64+128,y*256,
+                        256,256,
+                        null,
+                        1,
+                        DOK.spritesheet.squid[((DOK.time/100)|0)%DOK.spritesheet.squid.length],
+                        0,0,0
+                    ));
+                }
                 return cells;
             } else {
                 cells.length = 0;
