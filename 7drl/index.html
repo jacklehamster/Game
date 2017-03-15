@@ -96,7 +96,7 @@
             return DOK.create(DOK.SpriteObject).init(
                 x*64,y*64,c*-64,
                 64,64,
-                c===0,
+                c===0?null:DOK.southQuaternionArray,
                 c===0?1:1.5,
                 c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor,
                 0,0,0
