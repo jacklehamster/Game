@@ -1,18 +1,12 @@
-[submodule "three.js"]
-	path = three.js
-	url = https://github.com/jacklehamster/three.js/
 [submodule "jupi/g_generation/jsgif"]
 	path = jupi/g_generation/jsgif
 	url = https://github.com/shachaf/jsgif
 [submodule "jupi/g_generation/JavaScript-MD5"]
 	path = jupi/g_generation/JavaScript-MD5
 	url = https://github.com/blueimp/JavaScript-MD5
-[submodule "lib/gamelib"]
-	path = lib/gamelib
-	url = https://github.com/jacklehamster/gamelib
 [submodule "lib/jsgif"]
 	path = lib/jsgif
 	url = https://github.com/shachaf/jsgif
-[submodule "lib/JavaScript-MD5"]
-	path = lib/JavaScript-MD5
-	url = https://github.com/blueimp/JavaScript-MD5
+[submodule "submodules/three.js"]
+	path = submodules/three.js
+	url = https://github.com/mrdoob/three.js/
