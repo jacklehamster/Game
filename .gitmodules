@@ -10,3 +10,6 @@
 [submodule "submodules/three.js"]
 	path = submodules/three.js
 	url = https://github.com/mrdoob/three.js/
+[submodule "submodules/gamelib"]
+	path = submodules/gamelib
+	url = https://github.com/jacklehamster/gamelib
