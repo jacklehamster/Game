@@ -40,6 +40,7 @@
 <script>
     var debug = {
         fps: location.search.indexOf("fps")>=0,
+        control: location.search.indexOf("constrol")>=0,
     };
 
     document.getElementById("fps").style.display = debug.fps ? "" : "none";
@@ -58,8 +59,10 @@
     renderer.setClearColor (0xffffff, 1);
     document.body.appendChild( renderer.domElement );
 
-  //  DOK.addControlBall();
-//    DOK.addControlBox();
+    if(debug.conrol) {
+        DOK.addControlBall();
+        DOK.addControlBox();
+    }
 
     var images = {
         squid: {
@@ -76,14 +79,23 @@
                 "lib/dobuki/images/squid.png|32,32,32,32|shadow",
             ]
         },
-        floor: [
+/*        floor: [
             "assets/img/floor.png",
             "assets/img/floor.png|scale:-1,1",
             "assets/img/floor.png|scale:1,-1",
             "assets/img/floor.png|scale:-1,-1",
+        ],*/
+        floor: [
+            "assets/img/ice.png|scale:-1,-1",
+            "assets/img/ice.png",
+            "assets/img/ice.png|scale:1,-1",
+            "assets/img/ice.png|scale:-1,1",
         ],
         wall: [
-            "assets/img/wall.png",
+            "assets/img/snow.png|0,0,32,32",
+            "assets/img/snow.png|32,0,32,32",
+            "assets/img/snow.png|0,32,32,32",
+            "assets/img/snow.png|32,32,32,32",
         ],
         water: [
             "lib/dobuki/images/water.gif",
@@ -132,6 +144,7 @@
             && getCellType(x+margin,y+margin) !== CellType.wall;
     }
 
+    var overallLight = .7;
     var cells = [];
     var collection = new DOK.Collection(
         {
@@ -157,7 +170,7 @@
                     x*256,-64-20,y*256,
                     size,size,
                     DOK.groundQuaternionArray,
-                    1,
+                    overallLight,
                     DOK.spritesheet.water.getFrame(cycle)
                 ));
                 return cells;
@@ -167,7 +180,7 @@
                     x*256,-64,y*256,
                     size,size,
                     DOK.groundQuaternionArray,
-                    1,
+                    overallLight,
                     DOK.spritesheet.floor.getFrame(cycle)
                 ));
                 if(random(x,y,3)<.05) {
@@ -175,14 +188,14 @@
                         x*256,-64+128,y*256,
                         size,size,
                         null,
-                        1,
+                        overallLight,
                         DOK.spritesheet.squid.normal.getFrame(timeCycle)
                     ));
                     cells.push(DOK.create(DOK.SpriteObject).init(
                         x*256,-64+1,y*256,
                         size,size,
                         DOK.shadowQuatArray(x*256,y*256),
-                        1,
+                        overallLight,
                         DOK.spritesheet.squid.shadow.getFrame(timeCycle)
                     ));
                 }
@@ -193,34 +206,47 @@
                     x*256,-64+128,y*256+128,
                     size,size,
                     DOK.southQuaternionArray,
-                    1,
+                    overallLight,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+128,y*256-128,
                     size,size,
                     DOK.northQuaternionArray,
-                    1,
+                    overallLight,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256-128,-64+128,y*256,
                     size,size,
                     DOK.westQuaternionArray,
-                    1,
+                    overallLight,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256+128,-64+128,y*256,
                     size,size,
                     DOK.eastQuaternionArray,
-                    1,
+                    overallLight,
+                    DOK.spritesheet.wall.getFrame(cycle)
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64+256,y*256,
+                    size,size,
+                    DOK.groundQuaternionArray,
+                    overallLight,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 return cells;
             }
         }
     );
+
+    var penguinOverlay = {
+        get sprite() {
+
+        }
+    };
 
     function initialize() {
         DOK.getLoadingBar();
@@ -275,6 +301,8 @@
                 document.getElementById("fps").textContent = DOK.fps + " fps";
         });
         DOK.addLoop(function() {
+            if(debug.conrol)
+                return;
             var camera = DOK.getCamera();
             if(Math.abs(mz)>0) {
                 moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
@@ -306,7 +334,7 @@
             camera.position.add(moveVector);
         });
         DOK.addLoop(function() {
-            spriteRenderer.display(collection);
+            collection.forEach(spriteRenderer.display);
             spriteRenderer.updateGraphics();
             renderer.render(scene, camera);
         });
