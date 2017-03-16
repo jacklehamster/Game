@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html>    
+<head>
+    <title>Loading...</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <link rel="stylesheet" type="text/css" href="lib/dobuki/style/style.css">
+    <link rel="shortcut icon" type="image/png" href="lib/dobuki/images/logo.ico"/>
+
+    <style>
+        @font-face {
+            font-family: 'bit';
+            src: url('font-8-bit.ttf');
+        }
+    </style>
+    
+</head>
+<body>
+    <maps style="display:none">
+        <map id="map1">
+                  [ô]
+            [ ][ ][ ][ ]
+            [ ]   [8]      [ ]
+            /ô/   [ ]()o   [ ][H]
+            [ ][ ][ ][ ]   [ ]
+                  [ ]>^^   îîî
+            îîî[ ][ ]   [ ]
+            [ ]//////[ ][ ]
+               ///   ///
+               [ ][ ][ ]
+        </map>
+    </maps>
+
+
+    <span id="fps" style="display:block; position:absolute; color:silver; top:0; left:0"></span>
+
+
+    <script src="lib/dobuki/setup.js"></script>
+    <script src="lib/md5/md5.min.js"></script>
+    <script src="lib/threejs/three.min.js"></script>
+    <script src="lib/jsgif/gif.js"></script>
+    <script src="lib/dobuki/objectpool.js"></script>
+    <script src="lib/dobuki/turbosort.js"></script>
+    <script src="lib/dobuki/utils.js"></script>
+    <script src="lib/dobuki/gifhandler.js"></script>
+    <script src="lib/dobuki/audio.js"></script>
+    <script src="lib/dobuki/packer.js"></script>
+    <script src="lib/dobuki/menu.js"></script>
+    <script src="lib/dobuki/loop.js"></script>
+    <script src="lib/dobuki/triggerloop.js"></script>
+    <script src="lib/dobuki/imageloader.js"></script>
+    <script src="lib/dobuki/camera.js"></script>
+    <script src="lib/dobuki/spritesheet.js"></script>
+    <script src="lib/dobuki/spriterenderer.js"></script>
+    <script src="lib/dobuki/collection.js"></script>
+    <script src="lib/dobuki/keyboard.js"></script>
+    <script src="lib/dobuki/editcontrol.js"></script>
+    <script src="../editor/editor.js"></script>
+
+<script>
+
+    String.prototype.formatMap = function() {
+        var map = this.split("\n");
+        var firstBlank = Number.MAX_SAFE_INTEGER;
+        var firstLine = -1, lastLine = -1;
+        for(var i=0;i<map.length;i++) {
+            var blank = -1;
+            for(var c=0;c<map[i].length;c++) {
+                if(map[i].charAt(c)!==' ') {
+                    blank = c;
+                    break;
+                }
+            }
+            if(blank > 0 && blank < firstBlank) {
+                firstBlank = blank;
+            }
+            if(blank > 0) {
+                if(firstLine<0)
+                    firstLine = i;
+                lastLine = i;
+            }
+        }
+        var lines = [];
+        for(var i=firstLine;i<=lastLine;i++) {
+            var line = map[i].substr(firstBlank);
+            lines.push(line);
+        }
+        return lines.join("\n");
+    };
+
+
+    var gameTitle = "Penguin Quest";
+
+
+
+    var debug = {
+        fps: location.search.indexOf("fps")>=0,
+    };
+    
+    document.getElementById("fps").style.display = debug.fps ? "" : "none";
+
+    var renderer = new THREE.WebGLRenderer();//{ antialias: true });
+    var scene = new THREE.Scene();
+    renderer.setClearColor (0, 1);
+
+
+    var camData = {"is3d":true,"position":[160.06592543339826,110.88104236052463,377.95832567765535],"quaternion":[0.11479589791073182,-0.00575326592611185,0.0022154257291602084,0.9933699681603478]};
+    DOK.setCameraPosition(camData);
+
+    renderer.render(scene,DOK.getCamera());
+    window.addEventListener("resize",function() {
+        renderer.setSize( innerWidth, innerHeight );
+    });
+    renderer.sortObjects = false;
+
+    var pixelate = 1;
+    renderer.setSize( innerWidth, innerHeight );
+    renderer.setPixelRatio(window.devicePixelRatio/pixelate);
+    renderer.setClearColor (0xffffff, 1);
+    document.body.appendChild( renderer.domElement );
+
+    DOK.addControlBall();
+    DOK.addControlBox();
+//    camera.lookAt(scene.position);
+//    camera.rotation.set(.5,0,0);
+  //  camera.position.set(0,-400,400);
+
+/*    var mergedGeometry = new THREE.Geometry();
+    var geometry = new THREE.PlaneGeometry( 100, 100);
+    var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+*/
+/*    var material2 = new THREE.ShaderMaterial( {
+        uniforms: {
+            texture:  {
+                type: 'tv',
+                get value() { return DOK.getTextures() }
+            },
+        },
+        vertexShader: document.getElementById('vertex-shader').textContent,
+        fragmentShader: document.getElementById('fragment-shader').textContent,
+        transparent:true,
+    } );
+*/
+/*
+    mergedGeometry.merge(geometry);
+    geometry.translate(300,0,0);
+    mergedGeometry.merge(geometry);
+    geometry.translate(100,0,0);
+    mergedGeometry = new THREE.BufferGeometry().fromGeometry(mergedGeometry);
+    geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+//    geometry.from
+    var plane = new THREE.Mesh( mergedGeometry, material );
+    scene.add(plane);
+    window.gg = geometry;
+    window.mg = mergedGeometry;
+
+*/
+
+    var images = {
+        squid: [
+            "lib/dobuki/images/squid.png|0,0,32,32",
+            "lib/dobuki/images/squid.png|32,0,32,32",
+            "lib/dobuki/images/squid.png|0,32,32,32",
+            "lib/dobuki/images/squid.png|32,32,32,32",
+        ],
+//        floor: "50x50|text:123|border",
+        floor: "sample.gif",
+//        floor: "lib/dobuki/images/floor.png|scale:2",
+//        floor: "10x10|border|scale:5",
+//        floor: "http://i.imgur.com/KvhOWv9b.jpg|scale:.2",
+        cell: {
+            ground: "lib/dobuki/images/wood.png",
+            ice: "lib/dobuki/images/ice.png",
+            turtle: "turtle2.png",
+            croco: "croco.png",
+            tree: "tree.png",
+        },
+        turtle: {
+            normal: "turtle.png|40,100,310,500",
+            shadow: "turtle.png|40,100,310,500|shadow",
+        },
+        hamster: {
+            normal: "turtle.png|465,100,280,500",
+        },
+        penguin: {
+            normal: "penguin.png|350,0,300,600",
+        },
+     };
+    DOK.preLoad(images);
+
+    var spriteRenderer = new DOK.SpriteRenderer();
+    scene.add(spriteRenderer.mesh);
+    
+    
+    var range = 50;
+    renderer.setClearColor (0xffffff, 1);
+
+    var raycaster = new THREE.Raycaster(); // create once
+    var mouse = new THREE.Vector2(); // create once
+    document.addEventListener("mousemove",
+        function(event) {
+            //mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+            //mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+        }
+    );
+
+    var collection = new DOK.Collection(
+        {
+            type: "grid",
+            x: -Math.floor(range/2),
+            y: -Math.floor(range/2),
+            width: range,
+            height: range,
+            count: 2,
+        },
+        function(x,y,c) {
+            var dx = x*64 - aoa.x;
+            var dy = y*64 - aoa.y;
+            var dist = dx*dx+dy*dy;
+            var frame = Math.floor(DOK.time/100);
+
+            return DOK.create(DOK.SpriteObject).init(
+                x*64,y*64,c*-64,
+                64,64,
+                c===0 ? null : DOK.southQuaternionArray,
+                Math.sqrt(Math.sqrt(1/(100/Math.sqrt(dist/2+1)))),
+                c===0 ? DOK.spritesheet.squid[frame%DOK.spritesheet.squid.length] : DOK.spritesheet.floor,
+                0,0,0
+            );
+        }
+    );
+
+
+
+    var elements = [];
+    var cam = {x:0,y:0};
+
+
+    var blank = "   ", turtleCell = "()o";
+    function makeCollection(map) {
+        map = map.reverse();
+        var regex = /.{1,3}/g;
+        for(var y=0; y<map.length; y++) {
+            map[y] = map[y].match(regex);
+        }
+
+        function getCell(tag) {
+            var cell = null;
+            switch(tag.charAt(0)) {
+                case '[':
+                    cell = DOK.create(DOK.SpriteObject).init(
+                        0,0,0,
+                        64,64,
+                        DOK.southQuaternionArray, 1, DOK.spritesheet.cell.ground,
+                        0,0,0
+                    );
+                    break;
+                case '/':
+                    cell = DOK.create(DOK.SpriteObject).init(
+                        0,0,0,
+                        64,64,
+                        DOK.southQuaternionArray, 1, DOK.spritesheet.cell.ice,
+                        0,0,0
+                    );
+                    break;
+                case '(':
+                    cell = DOK.create(DOK.SpriteObject).init(
+                        0,0,0,
+                        70,50,
+                        null, 1, DOK.spritesheet.cell.turtle,
+                        0,0,0
+                    );
+                    break;
+                case '>':
+                    cell = DOK.create(DOK.SpriteObject).init(
+                        0,0,0,
+                        70,40,
+                        null, 1, DOK.spritesheet.cell.croco,
+                        0,0,0
+                    );
+                    break;
+                case 'î':
+                    cell = DOK.create(DOK.SpriteObject).init(
+                        0,0,0,
+                        45,75,
+                        null, 1, DOK.spritesheet.cell.tree,
+                        0,0,1
+                    );
+                    break;
+                default:
+                    return null;
+            }
+            return cell;
+        }
+
+        var collection = new DOK.Collection(
+            null,
+            function(x,y) {
+                var tag = map[y][x];
+                var cell = null;
+                if(tag) {
+                    if(tag.charAt(1)==='8') {
+                        cam.x = turtleX = x;
+                        cam.y = turtleY = y;
+                        map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
+                    }else if(tag.charAt(1)==='ô') {
+                        elements.push({
+                            type:'penguin',
+                            x:x,
+                            y:y,
+                            dx:0,
+                            dy:0,
+                            block:true,
+                        });
+                        map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
+                    } else if(tag.charAt(1)==='H') {
+                        elements.push({
+                            type:'hamster',
+                            x:x,
+                            y:y,
+                            dx:0,
+                            dy:0,
+                            block:true,
+                        });
+                        map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
+                    }
+
+                    cell = getCell(tag);
+                    if(cell) {
+                        cell.pos[0] = x*64;
+                        cell.pos[1] = y*64;
+                        cell.pos[2] = 0;
+                    }
+                }
+                return cell;
+            },
+            function(callback) {
+                var lines = map;
+                for(var y=0; y<lines.length; y++) {
+                    var row = lines[y];
+                    for(var x = 0; x < row.length; x++) {
+                        var cell = this.getSprite(x,y);
+                        if(cell) {
+                            callback(cell);
+                        }
+                    }
+                }
+            }
+        );
+        collection.getTag = function(x,y) {
+            var line = map[y];
+            return line && line[x] ? line[x] : blank;
+        }
+        collection.setMap = function(x,y,tag) {
+            if(!map[y]) {
+                map[y] = [];
+            }
+            map[y][x] = tag;
+        }
+        collection.map = map;
+        collection.height = map.length;
+        collection.width = map[0] ? map[0].length : 0;
+        return collection;
+    }
+
+
+    function makeElementCollection(elements) {
+        var collection = new DOK.Collection(
+            {},
+            function(element) {
+                var cell = null;
+                switch(element.type) {
+                    case 'penguin':
+                        cell = DOK.create(DOK.SpriteObject).init(
+                            0,0,0,
+                            45,75,
+                            null, 1, DOK.spritesheet.penguin.normal,
+                            0,5,0
+                        );
+                        break;
+                    case 'hamster':
+                        cell = DOK.create(DOK.SpriteObject).init(
+                            0,0,0,
+                            45,75,
+                            null, 1, DOK.spritesheet.hamster.normal,
+                            0,5,0
+                        );
+                        break;
+                }
+                return cell;
+            },
+            function(callback) {
+                for(var i=0; i<elements.length; i++) {
+                    var cell = this.getSprite(elements[i]);
+                    if(cell) {
+                        cell.pos[0] = elements[i].x*64;
+                        cell.pos[1] = elements[i].y*64;
+                        cell.pos[2] = 1;
+                        callback(cell);
+                    }
+                }
+            }
+        );
+        var nullElem = { type:null };
+        collection.getElem = function (x,y) {
+            for(var i=0; i<elements.length; i++) {
+                var elem = elements[i];
+                if(x===Math.round(elem.x) && y===Math.round(elem.y)) {
+                    return elem;
+                }
+            }
+            return nullElem;
+        };
+        collection.elements = elements;
+        return collection;
+    }
+
+    elementCollection = makeElementCollection(elements);
+    collection = makeCollection(
+        [
+            "[ ]         [ô]   ",
+            "      [ ][ ][ ][ ]",
+            "()o   [8]   ()o[ ][H]",
+            "/ô/   [ ]>^^   [ ]",
+            "[ ][ ][ ][ ]   [ ]",
+            "      [ ]>^^   îîî",
+            "   îîî[ ][ ]   [ ]",
+            "   [ ]///[ ][ ][ ]",
+            "      ///   ///   ",
+            "      [ ][ ][ ]   ",
+        ]
+    );
+
+    var turtleX = 0, turtleY = 0, turtleZ = 0, ride;
+    var turtleSprite = [
+        new DOK.SpriteObject().init(
+            0,0,2,
+            45,80,
+            null, 1,
+            DOK.spritesheet.turtle.normal
+        ),
+        new DOK.SpriteObject().init(
+            0,0,1,
+            45,40,
+            DOK.southQuaternionArray, 1,
+            DOK.spritesheet.turtle.shadow
+        ),
+        ride = new DOK.SpriteObject().init(
+            0,0,1,
+            45,40,
+            null, 1,
+            DOK.spritesheet.cell.turtle
+        ),
+    ];
+    ride.visible = false;
+//    turtleSprite[1].visible = false;
+
+    var dZ = 0;
+    var goal = null, steps = 0, sliding = null, lockTurtle = false, riding = false,
+        jumping = false, waitRest = false;
+    function updateTurtle(camera) {
+        var mov = sliding ? sliding : riding || jumping ? lockTemp : DOK.getMove();
+        var curX = Math.round(turtleX);
+        var curY = Math.round(turtleY);
+        var inMotion;
+
+        if(!goal) {
+            goal = [curX, curY];
+        }
+
+        if(sliding || riding || jumping) {
+            inMotion = true;
+        } else {
+            if(lockTurtle || waitRest) {
+                mov[0] = 0;
+                mov[1] = 0;
+            }
+            inMotion = mov[0] || mov[1];
+            if (canGo(curX + mov[0], curY + mov[1])) {
+            } else if (canGo(curX, curY + mov[1])) {
+                mov[0] = 0;
+            } else if (canGo(curX + mov[0], curY)) {
+                mov[1] = 0;
+            } else {
+                mov[0] = 0;
+                mov[1] = 0;
+            }
+        }
+
+        if(inMotion || steps>=1) {
+            goal[0] = curX + mov[0];
+            goal[1] = curY + mov[1];
+        }
+
+        var preX = turtleX, preY = turtleY;
+        var destX, destY;
+        if (!mov[0] && !mov[1]) {
+            destX = turtleX + (goal[0] - turtleX)/2;
+            destY = turtleY + (goal[1] - turtleY)/2;
+            if(Math.abs(turtleX-curX)<.2) destX = curX;
+            if(Math.abs(turtleY-curY)<.2) destY = curY;
+            if(destX===turtleX && destY===turtleY && (steps || waitRest)) {
+                steps = 0;
+                waitRest = false;
+                sliding = false;
+                lockTurtle = false;
+            }
+        } else {
+            var speed = jumping ? 0.15 : riding ? .15 : sliding ? .2 : .1;
+            destX = turtleX + mov[0]*speed;
+            destY = turtleY + mov[1]*speed;
+        }
+
+        var inTheAir = jumping && steps<1;
+        var newX = Math.round(destX), newY = Math.round(destY);
+        if(newX !== curX || newY !== curY) {
+            if(!inTheAir && !preStep(newX,newY,newX-curX,newY-curY)) {
+                waitRest = true;
+                mov[0] = 0;
+                mov[1] = 0;
+                destX = turtleX + (curX - turtleX)/2;
+                destY = turtleY + (curY - turtleY)/2;
+                newX = curX;
+                newY = curY;
+            }
+        }
+
+        if(turtleX != destX || turtleY != destY) {
+            turtleX = destX;
+            turtleY = destY;
+        } else {
+            var tag = collection.getTag(turtleX,turtleY);
+            if(landFrom[0] || landFrom[1]) {
+                if(tag.charAt(0)==='(' || tag.charAt(0)==='>') {
+                    lockTemp[0] = landFrom[0];
+                    lockTemp[1] = landFrom[1];
+                }
+                landFrom[0] = 0;
+                landFrom[1] = 0;
+            }
+
+            onRest(tag, turtleX, turtleY,
+                lockTemp[0], lockTemp[1]);
+        }
+
+        if(newX !== curX || newY !== curY) {
+            sliding = null;
+            nextStep(collection.getTag(newX, newY), newX, newY, goal[0]-curX, goal[1]-curY);
+        }
+
+        if(jumping) {
+            var dx = turtleX - jumpOffPos[0];
+            var dy = turtleY - jumpOffPos[1];
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            var v = (dist / jumpDist)*2 - 1;
+            turtleZ = Math.max(1 - v*v,0);
+            dZ = 0;
+        } else if(turtleZ > 0) {
+            dZ -=.01;
+            turtleZ += dZ;
+            if(turtleZ <= 0) {
+                turtleZ = 0;
+            }
+        }
+
+        turtleSprite[0].pos[0] = turtleX * 64;
+        turtleSprite[0].pos[1] = turtleY * 64 + turtleZ*100;
+        turtleSprite[1].pos[0] = turtleX * 64;
+        turtleSprite[1].pos[1] = turtleY * 64-5;
+        turtleSprite[1].size[0] = 45 / (1+turtleZ);
+        turtleSprite[1].size[1] = 40 / (1+turtleZ);
+        if(ride.visible) {
+            ride.pos[0] = turtleX * 64;
+            ride.pos[1] = turtleY * 64;
+        }
+
+        cam.x += ((turtleX+mov[0])*64 - cam.x)/20;
+        cam.y += (Math.min(collection.height-6,Math.max(1,turtleY+mov[1]))*64 - cam.y)/20;
+        camera.position.x = cam.x;
+        camera.position.y = cam.y;
+    }
+
+    function updateElement(element) {
+        if(element.dx || element.dy) {
+            var rx = Math.round(element.x);
+            var ry = Math.round(element.y);
+            var tag = collection.getTag(rx, ry);
+            if(tag.charAt(0)==='/') {
+                element.x += element.dx / 10;
+                element.y += element.dy / 10;
+            } else if(tag.charAt(0)==='(') {
+                var destX = rx;
+                var destY = ry;
+                element.x += (destX-element.x)/2;
+                element.y += (destY-element.y)/2;
+
+                if(Math.abs(element.x-destX)<.1 && Math.abs(element.y-destY)<.1) {
+                    element.x = destX;
+                    element.y = destY;
+                    element.dx = 0;
+                    element.dy = 0;
+                }
+            } else if(tag.charAt(0)==='[') {
+                var destX = rx;
+                var destY = ry;
+                element.x += (destX-element.x)/2;
+                element.y += (destY-element.y)/2;
+
+                if(Math.abs(element.x-destX)<.1 && Math.abs(element.y-destY)<.1) {
+                    element.x = destX;
+                    element.y = destY;
+                    element.dx = 0;
+                    element.dy = 0;
+                }
+            }
+        }
+    }
+
+    var lockTemp = [0,0];
+    var slideTemp = [0,0];
+    var landFrom = [0,0];
+    function nextStep(tag, x, y, dx, dy) {
+        steps++;
+        switch(tag.charAt(0)) {
+            case '/':
+                slideTemp[0] = dx;
+                slideTemp[1] = dy;
+                lockTemp[0] = 0;
+                lockTemp[1] = 0;
+                sliding = slideTemp;
+                break;
+            case '(':
+                lockTemp[0] = dx;
+                lockTemp[1] = dy;
+                lockTurtle = true;
+                break;
+            case '>':
+                lockTemp[0] = dx;
+                lockTemp[1] = dy;
+                lockTurtle = true;
+                break;
+        }
+        if(riding && collection.getTag(
+                Math.round(turtleX) + dx,
+                Math.round(turtleY) + dy).charAt(0) !==' ') {
+            lockTemp[0] = 0;
+            lockTemp[1] = 0;
+        }
+        if(jumping && steps===2) {
+            landFrom[0] = lockTemp[0];
+            landFrom[1] = lockTemp[1];
+            lockTemp[0] = 0;
+            lockTemp[1] = 0;
+        }
+    }
+
+    var jumpOffPos = [0,0];
+    var landPos = [0,0];
+    var jumpDist = 0;
+    function onRest(tag, x, y, dx, dy) {
+        if(riding && dx===0 && dy===0) {
+            riding = false;
+            lockTurtle = false;
+            collection.setMap(x, y, turtleCell);
+            ride.visible = false;
+        }
+        if(jumping && dx===0 && dy===0) {
+            lockTurtle = false;
+            jumping = false;
+        }
+
+        switch(tag.charAt(0)) {
+            case '(':
+                if(collection.getTag(x+dx,y+dy).charAt(0)===' ') {
+                    jumping = false;
+                    riding = true;
+                    collection.setMap(x, y, blank);
+                    ride.quaternionArray = null;
+                    ride.size[0] = 70;
+                    ride.size[1] = 50;
+                    ride.visible = true;
+                }
+                break;
+            case '>':
+                jumping = true;
+                jumpOffPos[0] = x;
+                jumpOffPos[1] = y;
+                landPos[0] = x+dx*2;
+                landPos[1] = y+dy*2;
+                var jdx = landPos[0] - jumpOffPos[0];
+                var jdy = landPos[1] - jumpOffPos[1];
+                jumpDist = Math.sqrt(jdx*jdx + jdy*jdy);
+                break;
+        }
+    }
+
+    function preStep(x, y, dx, dy) {
+        var tag = collection.getTag(x, y);
+        if(tag.charAt(0)==='î') {
+            return false;
+        }
+
+        var elemTo = elementCollection.getElem(x,y);
+        if(elemTo.block) {
+            elemTo.dx = dx;
+            elemTo.dy = dy;
+            return false;
+        }
+
+        return true;
+    }
+
+    function canGo(x,y) {
+        var tag = collection.getTag(x, y);
+        if (tag.charAt(0)===' ') {
+            return false;
+        }
+        var curX = Math.round(turtleX);
+        var curY = Math.round(turtleY);
+        if(x!==curX && y!==curY) return false;
+        if(x!==curX) {
+            return turtleY === curY;
+        }
+        if(y!==curY) {
+            return turtleX === curX;
+        }
+        return true;
+    }
+
+    function initialize() {
+        DOK.getLoadingBar();
+        DOK.setOnLoad(gameLoaded);
+    }
+
+
+    var menus = {
+        title: {
+            selection: 0,
+            id: "title",
+            _position: [0,0],
+            get position() {
+                this._position[0] = innerWidth/2-160;
+                this._position[1] = innerHeight/2-150;
+                return this._position;
+            },
+            list: [gameTitle.toUpperCase()],
+        },
+        startMenu: {
+            selection: 0,
+            id: "startMenu",
+            _position: [0,0],
+            get position() {
+                this._position[0] = innerWidth/2-120;
+                this._position[1] = innerHeight/2+20;
+                return this._position;
+            },
+            list: [
+                "NEW GAME",
+                "CREDITS",
+            ],
+            action: function(selection) {
+                if(selection===0) {
+                    DOK.hideMenu(menus.title);
+                    DOK.hideMenu(menus.startMenu);
+                } else if(selection===1) {
+                    DOK.showMenu(menus.credits, false);
+                }
+            },
+            select: function(selection) {
+                DOK.hideMenu(menus.credits);
+            }
+        },
+        credits: {
+            id: "credits",
+            _position: [0,0],
+            get position() {
+                this._position[0] = innerWidth/2-280;
+                this._position[1] = innerHeight-70;
+                return this._position;
+            },
+            list: [
+                "PRODUCED BY JACK LE HAMSTER",
+            ],
+        }
+    };
+    
+    function gameLoaded() {
+        document.body.removeChild(DOK.getLoadingBar());
+        renderer.setClearColor (0xffffff, 1);
+        renderer.render(scene,DOK.getCamera());
+        startGame();
+        
+//        DOK.showMenu(menus.title);
+  //      DOK.showMenu(menus.startMenu, true);
+    }
+
+
+/*    DOK.setCalculateIndexFunction(
+        function (image, quaternion) {
+            return image.position[2]*1000 - image.position[1];
+        }
+    );*/
+
+    var rotationMatrix = new THREE.Matrix4();
+    var angle = Math.PI / 4 / 10;
+    var axis = new THREE.Vector3( 1, 0.5, 0 ).normalize();
+
+    rotationMatrix.makeRotationAxis( axis, angle );
+
+    var plane = new THREE.Plane(new THREE.Vector3(0,0,-1));
+    var aoa = new THREE.Vector3();
+    function startGame() {
+        DOK.fps = 45;
+        var frame = 0;
+        DOK.addLoop(function() {
+            frame++;
+            var camera = DOK.getCamera();
+            updateTurtle(camera);
+            elements.forEach(updateElement);
+            spriteRenderer.display(collection);
+            spriteRenderer.display(elementCollection);
+            spriteRenderer.display(turtleSprite);
+            spriteRenderer.updateGraphics();
+            if(debug.fps && frame%10===0)
+                document.getElementById("fps").textContent = DOK.fps + " fps";
+
+            raycaster.setFromCamera( mouse, camera );
+            raycaster.ray.intersectPlane(plane, aoa);
+            renderer.render(scene, camera);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded",initialize);
+
+    function getMapString(collection, elementCollection) {
+        var cells = [];
+        for(var i=0;i<collection.map.length;i++) {
+            var row = [];
+
+            for(var j=0;j<collection.map[i].length;j++) {
+                var cell = collection.map[i][j];
+                row.push(cell);
+            }
+            cells.push(row);
+        }
+        for(var i=0;i<elementCollection.elements.length;i++) {
+            var element = elementCollection.elements[i];
+            var tag = cells[Math.round(element.y)][Math.round(element.x)];
+            var char = ' ';
+            switch(element.type) {
+                case 'penguin':
+                    char = 'ô';
+                    break;
+                case 'hamster':
+                    char = 'H';
+                    break;
+            }
+            cells[Math.round(element.y)][Math.round(element.x)] =
+                tag.charAt(0) + char + tag.charAt(2);
+        }
+        var tag = cells[Math.round(turtleY)][Math.round(turtleX)];
+        cells[Math.round(turtleY)][Math.round(turtleX)] =
+            tag.charAt(0) + '8' + tag.charAt(2);
+        for(var i=0;i<cells.length;i++) {
+            cells[i] = cells[i].join("");
+        }
+        cells.reverse();
+        cells = cells.join("\n");
+        return cells;
+    }
+
+    setInterval(
+        function() {
+            document.getElementById('mapBox').value =
+                getMapString(collection, elementCollection);
+        },
+        100
+    );
+</script>
+<textarea id="mapBox" style="font-family: Courier; font-size:15px; position:absolute; left:0; top:0; width:200px; height:200px"></textarea>
+</body>
+
+</html>

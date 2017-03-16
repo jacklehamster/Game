@@ -1,0 +1,2951 @@
+<!DOCTYPE html>
+<html>    
+<head>
+    <title>Loading...</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    
+    <!--
+        sound:
+            one sound effect from:
+            http://www.freesound.org/people/TreasureSounds/sounds/332629/
+            
+        music:
+            https://jeremystaceymusic.itch.io/
+    
+    -->
+    
+    
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        uniform sampler2D texture[ 16 ];
+        varying vec2 vUv;
+        varying float vTex;
+        varying float vLight;
+        
+        void main() {
+            vec2 uv = vUv;
+            int iTex = int(vTex);
+            
+            if(iTex==0) {
+                gl_FragColor = texture2D( texture[0],  uv);
+            } else if(iTex==1) {
+                gl_FragColor = texture2D( texture[1],  uv);
+            } else if(iTex==2) {
+                gl_FragColor = texture2D( texture[2],  uv);            
+            } else if(iTex==3) {
+                gl_FragColor = texture2D( texture[3],  uv);            
+            } else if(iTex==4) {
+                gl_FragColor = texture2D( texture[4],  uv);            
+            } else if(iTex==5) {
+                gl_FragColor = texture2D( texture[5],  uv);            
+            } else if(iTex==6) {
+                gl_FragColor = texture2D( texture[6],  uv);            
+            } else if(iTex==7) {
+                gl_FragColor = texture2D( texture[7],  uv);            
+            } else if(iTex==8) {
+                gl_FragColor = texture2D( texture[8],  uv);            
+            } else if(iTex==9) {
+                gl_FragColor = texture2D( texture[9],  uv);            
+            } else if(iTex==10) {
+                gl_FragColor = texture2D( texture[10],  uv);            
+            } else if(iTex==11) {
+                gl_FragColor = texture2D( texture[11],  uv);            
+            } else if(iTex==12) {
+                gl_FragColor = texture2D( texture[12],  uv);            
+            } else if(iTex==13) {
+                gl_FragColor = texture2D( texture[13],  uv);            
+            } else if(iTex==14) {
+                gl_FragColor = texture2D( texture[14],  uv);            
+            } else if(iTex==15) {
+                gl_FragColor = texture2D( texture[15],  uv);            
+            }
+            
+            gl_FragColor.x *= vLight;
+            gl_FragColor.y *= vLight;
+            gl_FragColor.z *= vLight;
+        }
+    </script>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        attribute float tex;
+        attribute float light;
+        varying float vTex;
+        varying float vLight;
+        
+        void main()  {
+            vTex = tex;
+            vUv = uv;
+            vLight = light;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
+            gl_Position = projectionMatrix * mvPosition;
+        }        
+    </script>
+    
+    <style>
+        html, body {
+          overflow: hidden;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+        
+        @font-face {
+            font-family: 'bit';
+            src: url('8-bit.ttf');
+        }
+        
+        div {
+            image-rendering: -moz-crisp-edges;         /* Firefox */
+            image-rendering:   -o-crisp-edges;         /* Opera */
+            image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
+            image-rendering: crisp-edges;
+            -ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
+        }
+        img {
+            image-rendering: -moz-crisp-edges;         /* Firefox */
+            image-rendering:   -o-crisp-edges;         /* Opera */
+            image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
+            image-rendering: crisp-edges;
+            -ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
+        }
+        p {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
+    
+</head>
+<body>
+    <span id="fps" style="display:;position:absolute; color:silver; top:0px; left:0px"></span>
+
+
+
+    <script src="lib/threejs/three.js"></script>
+    <script src="lib/dobuki/setup.js"></script>
+    <script src="lib/dobuki/utils.js"></script>
+    <script src="lib/dobuki/audio.js"></script>
+    <script src="lib/dobuki/packer.js"></script>
+    <script src="lib/dobuki/loop.js"></script>
+    <script src="lib/dobuki/triggerloop.js"></script>
+    <script src="lib/dobuki/imageloader.js"></script>
+    <script src="lib/dobuki/spritesheet.js"></script>
+    <script src="lib/dobuki/spriterenderer.js"></script>
+    <script src="lib/dobuki/collection.js"></script>
+    <script src="lib/dobuki/keyboard.js"></script>
+    <script src="../editor/editor.js"></script>
+
+<script>
+    document.addEventListener("beforeunload",function() {});
+
+
+    var debug = {
+        party: location.search.indexOf("party")>=0,
+        editor: location.search.indexOf("editor")>=0,
+        nokey: location.search.indexOf("nokey")>=0,
+        candle: location.search.indexOf("candle")>=0,
+        speedy: location.search.indexOf("speedy")>=0,
+        skills: location.search.indexOf("skills")>=0,
+        nointro: location.search.indexOf("nointro")>=0,
+        superman: location.search.indexOf("superman")>=0,
+        fps: location.search.indexOf("fps")>=0,
+    };
+    
+    document.getElementById("fps").style.display = debug.fps ? "" : "none";
+
+    var gameWidth = innerWidth, gameHeight = innerHeight;
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.sortObjects = false;
+    renderer.setSize( innerWidth, innerHeight );
+    renderer.setPixelRatio(devicePixelRatio);
+    renderer.setClearColor (0xffffff, 1);
+    document.body.appendChild( renderer.domElement );
+    
+    var camera = new THREE.OrthographicCamera(-innerWidth/2, innerWidth/2, innerHeight/2, -innerHeight/2, 1, 1000 );
+//    var camera = new THREE.PerspectiveCamera( 75, innerWidth / innerHeight, 0.1, 1000 )
+    var scene = new THREE.Scene();
+    renderer.render(scene,camera);
+    
+    camera.position.set(0,0,400);
+    camera.lookAt(scene.position);	
+//    camera.rotation.set(.5,0,0);
+  //  camera.position.set(0,-400,400);
+    
+    window.addEventListener("resize",function() {
+        gameWidth = innerWidth;
+        gameHeight = innerHeight;
+        renderer.setSize( gameWidth, gameHeight );
+        if(camera.isOrthographicCamera) {
+            camera.left = -gameWidth/2;
+            camera.right = gameWidth/2;
+            camera.top = gameHeight/2;
+            camera.bottom = -gameHeight/2;
+        }
+        if(camera.isPerspectiveCamera) {
+            camera.aspect = gameWidth / gameHeight;
+        }
+        camera.updateProjectionMatrix();
+    });
+    
+    var images = {
+        penguin: [
+            "penguin/blue-penguin.png|0,0,32,32",
+            "penguin/blue-penguin.png|32,0,32,32",
+            "penguin/blue-penguin.png|0,32,32,32",
+            "penguin/blue-penguin.png|32,32,32,32",
+        ],
+        penguinTalk: [
+            "penguin/blue-penguin-talk.png|0,0,32,32",
+            "penguin/blue-penguin-talk.png|32,0,32,32",
+            "penguin/blue-penguin-talk.png|0,32,32,32",
+            "penguin/blue-penguin-talk.png|32,32,32,32",
+        ],
+        squid: [
+            "squid.png|0,0,32,32|scale:2",
+            "squid.png|32,0,32,32|scale:2",
+            "squid.png|0,32,32,32|scale:2",
+            "squid.png|32,32,32,32|scale:2",
+        ],
+        doctor: [
+            "doctor.png|0,0,32,32|scale:2",
+            "doctor.png|0,0,32,32|scale:-2,2",
+        ],
+        walrus: {
+            nono: [
+                "walrus.png|0,0,32,32|scale:2",
+                "walrus.png|0,0,32,32|scale:-2,2",
+            ],
+            opening: [
+                "walrus.png|0,0,32,32|scale:2",
+                "walrus.png|32,0,32,32|scale:2",
+                "walrus.png|0,32,32,32|scale:2",
+                "walrus.png|32,32,32,32|scale:2",
+            ],
+        },
+        snowman: [
+            "foes/snowman.png|0,0,64,64|scale:2",
+            "foes/snowman.png|64,0,64,64|scale:2",
+            "foes/snowman.png|0,64,64,64|scale:2",
+            "foes/snowman.png|64,64,64,64|scale:2",
+        ],
+        wolf: [
+            "foes/wolf.png|0,0,32,32|scale:3",
+            "foes/wolf.png|32,0,32,32|scale:3",
+            "foes/wolf.png|0,32,32,32|scale:3",
+            "foes/wolf.png|32,32,32,32|scale:3",
+        ],
+        snow: [
+            "snow.png|0,0,32,32|scale:2",
+            "snow.png|32,0,32,32|scale:2",
+            "snow.png|0,32,32,32|scale:2",
+            "snow.png|32,32,32,32|scale:2",
+        ],
+        water: [
+            "water.png|0,0,32,32|scale:2",
+            "water.png|32,0,32,32|scale:2",
+            "water.png|0,32,32,32|scale:2",
+            "water.png|32,32,32,32|scale:2",
+        ],
+        wall: [
+            "wall.png|0,0,32,96|scale:2,2",
+        ],
+        door: [
+            "door.png|0,0,32,96|scale:2,1.5",
+            "door.png|32,0,32,96|scale:2,1.5",
+            "door.png|64,0,32,96|scale:2,1.5",
+        ],
+        rock: [
+            "mountain.png|0,0,32,96|scale:2,1.5",
+            "mountain.png|32,0,32,96|scale:2,1.5",
+            "mountain.png|64,0,32,96|scale:2,1.5",
+            "mountain.png|96,0,32,96|scale:2,1.5",
+        ],
+        ice: "ice.png|scale:2",
+        bunny: {
+            still: {
+                left: [
+                    "bunny.png|0,0,32,32|scale:-2,2",
+                    "bunny.png|32,0,32,32|scale:-2,2",
+                ],
+                right: [
+                    "bunny.png|0,0,32,32|scale:2",
+                    "bunny.png|32,0,32,32|scale:2",
+                ],
+            },
+            move: {
+                left: [
+                    "bunny.png|0,32,32,32|scale:-2,2",
+                    "bunny.png|32,32,32,32|scale:-2,2",
+                ],
+                right: [
+                    "bunny.png|0,32,32,32|scale:2",
+                    "bunny.png|32,32,32,32|scale:2",
+                ],
+            },
+        },
+        bigface: {
+            still: {
+                left: [
+                    "bigface.png|0,0,64,64|scale:2",
+                    "bigface.png|64,64,64,64|scale:2",
+                    "bigface.png|0,0,64,64|scale:2",
+                    "bigface.png|0,0,64,64|scale:2",
+                ],
+                right: [
+                    "bigface.png|0,0,64,64|scale:-2,2",
+                    "bigface.png|64,64,64,64|scale:-2,2",
+                    "bigface.png|0,0,64,64|scale:-2,2",
+                    "bigface.png|0,0,64,64|scale:-2,2",
+                ],
+            },
+            move: [
+                "bigface.png|0,0,64,64|scale:-2,2",
+                "bigface.png|64,0,64,64|scale:-2,2",
+                "bigface.png|0,0,64,64|scale:2",
+                "bigface.png|64,0,64,64|scale:2",
+            ],
+            talk: [
+                "bigface.png|0,0,64,64|scale:-2,2",
+                "bigface.png|0,64,64,64|scale:-2,2",
+            ],
+        },
+        fish: {
+            left: [
+                "fish.png|0,0,16,16|scale:-2,2",
+                "fish.png|0,16,16,16|scale:-2,2",
+            ],
+            right: [
+                "fish.png|0,0,16,16|scale:2",
+                "fish.png|0,16,16,16|scale:2",
+            ],
+        },
+        items: {
+            key: "items.png|0,0,32,32|scale:1.5",
+            carrot: "items.png|32,0,32,32|scale:1.5",
+            icecream: "items.png|0,32,32,32|scale:1.5",
+            candle: "items.png|32,32,32,32|scale:1.5",
+            cake: [
+                "cake.png|0,0,64,64|scale:3",
+                "cake.png|64,0,64,64|scale:3",
+                "cake.png|0,64,64,64|scale:3",
+                "cake.png|64,64,64,64|scale:3",
+            ],
+        },
+        chest: [
+            "chest.png|0,0,32,32",
+            "chest.png|32,0,32,32",
+            "chest.png|0,32,32,32",
+        ],
+        hero: {
+            stand: {
+                right: "penguin/penguin.png|0,0,32,32|scale:2",
+                left: "penguin/penguin.png|0,0,32,32|scale:-2,2",
+            },
+            walk: {
+                up: [
+                    "penguin/penguin-up.png|0,0,32,32|scale:2",
+                    "penguin/penguin-up.png|32,0,32,32|scale:2",
+                    "penguin/penguin-up.png|0,32,32,32|scale:2",
+                    "penguin/penguin-up.png|32,32,32,32|scale:2",
+                ],
+                down: [
+                    "penguin/penguin.png|0,0,32,32|scale:2",
+                    "penguin/penguin.png|32,0,32,32|scale:2",
+                    "penguin/penguin.png|0,32,32,32|scale:2",
+                    "penguin/penguin.png|32,32,32,32|scale:2",
+                ],
+                left: [
+                    "penguin/penguin-right.png|0,0,32,32|scale:-2,2",
+                    "penguin/penguin-right.png|32,0,32,32|scale:-2,2",
+                    "penguin/penguin-right.png|0,32,32,32|scale:-2,2",
+                    "penguin/penguin-right.png|32,32,32,32|scale:-2,2",
+                ],
+                right: [
+                    "penguin/penguin-right.png|0,0,32,32|scale:2",
+                    "penguin/penguin-right.png|32,0,32,32|scale:2",
+                    "penguin/penguin-right.png|0,32,32,32|scale:2",
+                    "penguin/penguin-right.png|32,32,32,32|scale:2",
+                ],
+            },
+            slide: {
+                up: "penguin/slide-up-down.png|0,32,32,32|scale:2",
+                down: "penguin/slide-up-down.png|0,0,32,32|scale:2",
+                left: "penguin/slide-right.png|0,0,32,32|scale:-2,2",
+                right: "penguin/slide-right.png|0,0,32,32|scale:2",
+            },
+            swim: {
+                up: [
+                    "penguin/penguin-swim.png|0,32,32,32|scale:2",
+                    "penguin/penguin-swim.png|32,32,32,32|scale:2",
+                ],
+                down: [
+                    "penguin/penguin-swim.png|0,0,32,32|scale:2",
+                    "penguin/penguin-swim.png|32,0,32,32|scale:2",
+                ],
+                left: [
+                    "penguin/penguin-swim-right.png|0,0,32,32|scale:-2,2",
+                    "penguin/penguin-swim-right.png|32,0,32,32|scale:-2,2",
+                    "penguin/penguin-swim-right.png|0,32,32,32|scale:-2,2",
+                    "penguin/penguin-swim-right.png|32,32,32,32|scale:-2,2",
+                ],
+                right: [
+                    "penguin/penguin-swim-right.png|0,0,32,32|scale:2",
+                    "penguin/penguin-swim-right.png|32,0,32,32|scale:2",
+                    "penguin/penguin-swim-right.png|0,32,32,32|scale:2",
+                    "penguin/penguin-swim-right.png|32,32,32,32|scale:2",
+                ]
+            },
+        },
+    };
+    DOK.preLoad(images);
+    
+    
+    var enemyPos = {x:0,y:3}, exitPos = {x:0,y:-1};
+    
+    var cachedSpace = {};
+    var fromScene = {};
+    var roomInfo = null;
+    
+    function defaultLight(dark,limit_light) {
+        if(this===selectedCell || this.parent===selectedCell) {
+            return Math.random();
+        }
+        var dx = (this.parent ? this.parent.x : this.x)-boy.pos[0]+.5;
+        var dy = (this.parent ? this.parent.y : this.y)-boy.pos[1]+.5;
+        var dist = Math.sqrt(dx*dx+dy*dy);
+        var brightness = !dark
+            ?Math.max(1,dist*.4)
+            :inventory.candle || debug.candle
+            ?1/Math.max(.1,Math.sqrt(dist*.8))
+            :1/Math.max(3,dist*dist*dist*dist*dist);
+        if(limit_light) {
+            brightness = Math.min(1,brightness);
+        }
+        return brightness;
+    }
+    
+    function createSnowCell(x,y,dark,cellInfo) {
+        var snowCell = {
+            pos: [x,y,0],
+            offset: [0,-64],
+            url: images.snow[Math.abs(x%2)*2 + Math.abs(y%2)],
+            get light () {
+                return defaultLight.call(this,dark);
+            },
+        };
+    
+        return cellInfo && (cellInfo.fish||cellInfo.item)? {
+            sprites: [
+                cellInfo.fish?createFishCell(x,y,dark,cellInfo):createItemCell(x,y,dark,cellInfo),
+                snowCell
+            ],
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+        }
+        : snowCell;
+         
+    }
+    
+    function createWaterCell(x,y,dark,cellInfo) {
+        var waterCell = { pos: [x,y,0],
+            offset: [0,-64],
+            get url() {
+                return images.water[Math.floor(Math.abs(x^y) + DOK.time/200)%4];
+            },
+            get light () {
+                return defaultLight.call(this,dark);
+            },
+            water: true,
+            get block() {
+                return this.water && !boy.skills.swim && !debug.skills;
+            },
+            enter: function(cell, formerCell) {
+                boy.action = "swim";
+            },
+            quit: function(cell, newCell) {
+                if(!newCell.water) {
+                    boy.action = null;
+                }
+            },
+        }
+        
+        return cellInfo && (cellInfo.fish||cellInfo.item)? {
+            sprites: [
+                cellInfo.fish?createFishCell(x,y,dark,cellInfo,true):createItemCell(x,y,dark,cellInfo),
+                waterCell,
+            ],
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+            water: true,
+            get block() {
+                return this.water && !boy.skills.swim && !debug.skills;
+            },
+            enter: function(cell, formerCell) {
+                boy.action = "swim";
+            },
+            quit: function(cell, newCell) {
+                if(!newCell.water) {
+                    boy.action = null;
+                }
+                if(cellInfo.fish && getPickedUp(x,y,roomInfo) && DOK.time - getPickedUp(x,y,roomInfo) > 30000) {
+                    setPickedUp(x,y,roomInfo,0);
+                }
+            },
+        }
+        : waterCell;        
+    }
+    
+    function updateVisionMap() {
+        // x***O
+        //  O****
+        // x*** *
+        //    ***
+        //
+        
+    }
+    
+    
+    function getPickedUp(x,y,room) {
+        var cacheId = x+"_"+y;
+        var mapId = room?"room|"+cacheId:cacheId;
+        return pickedUp[mapId];
+    }
+    
+    function setPickedUp(x,y,room,value) {
+        var cacheId = x+"_"+y;
+        var mapId = room?"room|"+cacheId:cacheId;
+        pickedUp[mapId] = value;
+    }
+    
+    function createItemCell(x,y,dark,cellInfo) {
+        return {
+            pos: [x+.2,y-.2,.5],
+            offset: [0,-32],
+            get url() {
+                var animation = images.items[cellInfo.item];
+                if(!Array.isArray(animation)) {
+                    return animation;
+                }
+                return animation[Math.floor(DOK.time/200)%animation.length];
+            },
+            get light () {
+                return defaultLight.call(this,dark);
+            },
+            item:cellInfo.item,
+            get visible() {
+                return  cellInfo.item==="cake"? bigface.party && bunny.party : !getPickedUp(x,y,roomInfo);
+            }
+        };
+    }
+    
+    function createFishCell(x,y,dark,cellInfo,canMove) {
+        var pos = [x+.2,y-.2,.5];
+    
+    
+        return {
+            get pos() {
+                if(canMove) {
+                    pos[0] = x+.2 + Math.sin(DOK.time/2000)*.3;
+                    pos[1] = y-.2 + Math.cos(DOK.time/2000)*.3;
+                }
+                return pos;
+            },
+            offset: [0,-32],
+            get url() {
+                return images.fish[x%2===0?"left":"right"][Math.floor(DOK.time/200+Math.abs(x))%2];
+            },
+            get light () {
+                return defaultLight.call(this,dark);
+            },
+            item:"fish",
+            get visible() {
+                return !getPickedUp(x,y,roomInfo);
+            }
+        };
+    }
+        
+    function createDoorCell(x,y,dark) {
+        return { 
+            sprites:[
+                {   
+                    pos: [x,y,1],
+                    offset: [0,-64],
+                    get url() {
+                        return images.door[this.parent.openstate];
+                    },
+                    get light () {
+                        return defaultLight.call(this,dark);
+                    },
+                },
+                createSnowCell(x,y,dark),
+            ],
+            block: true,
+            door: 1,
+            opening : 0,
+            get opened() {
+                return this.openstate===2;
+            },
+            get openstate() {
+                return !this.opening ? 0 : Math.min(Math.floor((DOK.time-this.opening)/100),2);
+            },
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            quit: function(cell,newCell) {
+                if(newCell.y - cell.y==1) {
+                    roomInfo = {
+                        x: newCell.x,
+                        y: newCell.y,
+                        id: newCell.x+"_"+newCell.y,
+                    };
+                    exitPos.x = newCell.x;
+                    exitPos.y = newCell.y-1;
+                    fromScene = {
+                        sprites: spritesToDisplay,
+                        grid: grid,
+                    };
+                    spritesToDisplay = room;
+                    grid = grid2;
+                    renderer.setClearColor (0x000000, 1);
+
+                    //camera = camera3d;
+                    boy.action = null;
+                    boy.dx = boy.dy = 0;
+                    cachedSpace = {};
+                    DOK.clearTriggers();
+                    discussion = null;
+                    getMenu(menus.inventoryMenu).style.display = "none";
+                    if(menuCache.pengStatMenu)
+                        menuCache.pengStatMenu.style.display = "none";
+                    if(menuCache.buniStatMenu)
+                        menuCache.buniStatMenu.style.display = "none";
+                    if(menuCache.biffStatMenu)
+                        menuCache.biffStatMenu.style.display = "none";
+                }
+            },
+            get length() { return this.sprites.length; },
+            require: ["key"],
+            lockMessage: ["It's locked."],
+        }
+    }
+    
+    function createDoorCellBack(x,y,dark) {
+        return {
+            sprites:[
+                {   pos: [x,y,1],
+                    offset: [0,-64],
+                    get url() {
+                        return images.door[this.parent.openstate];
+                    },
+                    get light () {
+                        return defaultLight.call(this,dark);
+                    },
+                },
+                {   pos: [x,y,0],
+                    offset: [0,-64],
+                    url: images.snow[0],
+                    get light () { 
+                        return defaultLight.call(this,dark);
+                    },
+                },
+            ],
+            block: true,
+            door: -1,
+            opening : 0,
+            get opened() {
+                return this.openstate===2;
+            },
+            get openstate() {
+                return !this.opening ? 0 : Math.min(Math.floor((DOK.time-this.opening)/100),2);
+            },
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+            quit: function(cell,newCell) {
+                if(newCell.y - cell.y==-1) {
+                    roomInfo = null;
+                    spritesToDisplay = fromScene.sprites;
+                    grid = fromScene.grid;
+                    renderer.setClearColor (0xffffff, 1);
+                    //camera = camera2d;
+                    boy.action = null;
+                    boy.dx = 0;
+                    boy.dy = 0;
+                    cachedSpace = {};
+                    DOK.clearTriggers();
+                    discussion = null;
+                    getMenu(menus.inventoryMenu).style.display = "none";
+                    if(menuCache.pengStatMenu)
+                        menuCache.pengStatMenu.style.display = "none";
+                    if(menuCache.buniStatMenu)
+                        menuCache.buniStatMenu.style.display = "none";
+                    if(menuCache.biffStatMenu)
+                        menuCache.biffStatMenu.style.display = "none";
+                }
+            },
+            require: ["key"],
+            lockMessage: ["It's locked."],
+        }
+    }
+    
+    function createPenguinCell(x,y,dark,cellInfo) {
+        return {
+            sprites:[ 
+                {
+                    pos:[x,(y+.4),1], 
+                    offset: [0,-64],
+                    get url() {
+                        if(dialog.text && dialog.talker===this.parent.x+","+this.parent.y) {
+                            return images.penguinTalk[
+                                Math.floor(2+DOK.time/100)%4
+                            ] + (boy.pos[0]<this.parent.x?"|scale:2,2":"|scale:-2,2");
+                        }
+                        return images.penguin[Math.floor(2+DOK.time/500)%4] + "|scale:2";
+                    },
+                    get light () {
+                        return defaultLight.call(this,dark,true);
+                    },
+                },
+                createSnowCell(x,y,dark),
+            ],
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+            enter: function(cell, formerCell) {
+                if(!dialog.text || dialog.talker !== cell.x + "," + cell.y) {
+                    discussion = cellInfo && cellInfo.message?cellInfo.message.split("|"): [
+                        "Hello"
+                      ];
+                    dialog.start = DOK.time;
+                    dialog.talker = cell.x + "," + cell.y;
+                }
+            },
+        }
+    }
+    
+    var npcs = [
+        "doctor",
+        "squid",
+    ];
+    
+    npcs.next = function(npc) {
+        return !npc?this[0]:this[this.indexOf(npc)+1 % this.length];
+    }
+    
+    function performNPC(npc,cell) {
+        switch(npc) {
+            case "doctor":
+                var increase = false;
+                if(!getPickedUp(cell.x,cell.y,roomInfo)) {
+                    setPickedUp(cell.x,cell.y,roomInfo,DOK.time);
+                    increase = true;
+                }
+                for(var i=0;i<attackers.length;i++) {
+                    if(attackers[i].hp) {
+                        if(increase) {
+                            attackers[i].maxhp = Math.ceil(attackers[i].maxhp*1.2);
+                        }
+                        attackers[i].hp = attackers[i].maxhp;
+                    }
+                }
+                showStats();
+                if(inventory.fish) {
+                    delete inventory.fish;
+                    showInventory();
+                }                    
+                break;
+            case "squid":
+                boy.skills.swim = true;
+                break;
+        }
+    }
+    
+    function createDoctorCell(x,y,dark,cellInfo) {
+        var npc = cellInfo.npc ? cellInfo.npc : "doctor";
+        return {
+            sprites:[ 
+                {
+                    pos:[x,(y+.4),1], 
+                    offset: [0,-64],
+                    get url() {
+                        var animation = images[npc];
+                        if(dialog.text && dialog.talker===this.parent.x+","+this.parent.y) {
+                            return animation[
+                                Math.floor(DOK.time/100)%animation.length
+                            ];
+                        }
+                        return animation[Math.floor(2+DOK.time/2000)%animation.length];
+                    },
+                    get light () {
+                        return defaultLight.call(this,dark,true);
+                    },
+                },
+                createSnowCell(x,y,dark),
+            ],
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+            enter: function(cell, formerCell) {
+                if(!dialog.text || dialog.talker !== cell.x + "," + cell.y) {
+                    discussion = cellInfo && cellInfo.message?cellInfo.message.split("|"): [
+                        "Hello"
+                      ];
+                    dialog.start = DOK.time;
+                    dialog.talker = cell.x + "," + cell.y;
+                    
+                    performNPC(npc,cell);
+                }
+            },
+        }
+    }
+        
+    function createWallCell(x,y,dark) {
+        return { 
+            sprites:[
+                {   pos: [x,y,1],
+                    offset: [0,-64],
+                    url: images.wall[Math.abs(x^y)%images.wall.length],
+                    get light () { 
+                        return defaultLight.call(this,dark);
+                    },
+                },
+                createSnowCell(x,y,dark),
+            ],
+            block: true,
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            length:2
+        }
+    }
+    
+    function createRockCell(x,y,dark) {
+        return { 
+            sprites:[
+                {   pos: [x,y,1],
+                    offset: [0,-64],
+                    url: images.rock[Math.abs(x^y)%images.rock.length],
+                    get light () { 
+                        return defaultLight.call(this,dark);
+                    },
+                },
+                createSnowCell(x,y,dark),
+            ],
+            block: true,
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            length:2
+        }
+    }
+    
+    function createNoPassCell(x,y,dark) {
+        return { 
+            sprites:[
+                {   
+                    pos: [x,y,.5],
+                    offset: [0,-50],
+                    get url() {
+                        if(this.parent.openstate) {
+                            return images.walrus.opening[this.parent.openstate===3?Math.floor(DOK.time/400)%2+2:this.parent.openstate];
+                        }
+                        if(dialog.text && dialog.talker===this.parent.x+","+this.parent.y) {
+                            return images.walrus.nono[
+                                Math.floor(2+DOK.time/100)%2
+                            ];
+                        }
+                        return images.walrus.opening[0];
+                    },
+                    get light () {
+                        return defaultLight.call(this,dark);
+                    },
+                },
+                createSnowCell(x,y,dark),
+            ],
+            block: true,
+            door: 1,
+            twoways: true,
+            opening : 0,
+            get opened() {
+                return this.openstate===3;
+            },
+            get openstate() {
+                return !this.opening ? 0 : Math.min(Math.floor((DOK.time-this.opening)/100),3);
+            },
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+            require: ["fish","fish","fish"],
+            lockMessage: ["You shall not pass","Not unless you give me three fish"],
+            openingMessage: ["Thanks for all the fish!"],
+        }
+    }        
+    function createIceCell(x,y,dark,cellInfo) {
+        var iceCell = {
+            pos: [x,y,0],
+            offset: [0,-64],
+            url:images.ice,
+            get light () { 
+                return defaultLight.call(this,dark);
+            },
+            slippery:true,
+            enter: function(cell, formerCell) {
+                boy.action = "slide";
+            },
+            quit: function(cell, newCell) {
+                if(!newCell.slippery) {
+                    boy.action = null;
+                }
+            },
+        };
+        return cellInfo && (cellInfo.fish||cellInfo.item)? {
+            slippery:true,
+            enter: function(cell, formerCell) {
+                boy.action = "slide";
+            },
+            quit: function(cell, newCell) {
+                if(!newCell.slippery) {
+                    boy.action = null;
+                }
+            },
+            sprites: [
+                cellInfo.fish?createFishCell(x,y,dark,cellInfo):createItemCell(x,y,dark,cellInfo),
+                iceCell,
+            ],
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+        }
+        : iceCell;
+    }
+    
+    var creatures = [
+        {
+            image:images.snowman,
+            hp: 50,
+            attack: 8,
+        },
+        {
+            image:images.wolf,
+            hp: 30,
+            attack: 8,
+        }
+    ];
+    
+    function createFoeAt(x,y,dark) {
+        return {
+            creature: creatures[Math.abs(x)%creatures.length],
+            sprites:[
+                {
+                    pos: [x,y,1],
+                    offset: [0,-64],
+                    get url() {
+                        var index = this.parent.attacking ? Math.floor(2+DOK.time/200)%4 : 0;
+                        var cuts = this.parent.creature.image;                        
+                        return cuts[index];
+                    },
+                    get light () { 
+                        return defaultLight.call(this,dark);
+                    },
+                    restore : function() {
+                        this.visible = true;
+                        this.pos[0] = x;
+                        this.pos[1] = y;
+                    },
+                },
+                {   pos: [x,y,0],
+                    offset: [0,-64],
+                    url: images.snow[0],
+                    get light () { 
+                        return defaultLight.call(this,dark);
+                    },
+                },
+            ],
+            at: function(index) {
+                this.sprites[index].parent = this;
+                return this.sprites[index];
+            },
+            get length() { return this.sprites.length; },
+            onDistance: function(dist) {
+                if(dist<=3 && this.sprites[0].visible!==false) {
+                    DOK.trigger(this);
+                }
+            },
+            get attacking() {
+                return DOK.triggered(this);
+            },
+            loop: function() {
+                var dx = boy.pos[0]-1 - this.sprites[0].pos[0];
+                var dy = boy.pos[1] - this.sprites[0].pos[1];
+                this.sprites[0].pos[0] += dx/10;
+                this.sprites[0].pos[1] += dy/10;
+                if(dx*dx + dy*dy<.5) {
+                    DOK.untrigger(this);
+                    enterBattle(this);
+                    this.sprites[0].visible = false;
+                }
+            },
+        }
+    }
+    
+    function foeAttack() {
+        var target = foe.target;
+        if(this.action === "attack") {
+            var dx = target.pos[0] - this.pos[0];
+            var dy = target.pos[1] - this.pos[1];
+            this.pos[0] += dx/7;
+            this.pos[1] += dy/7;
+            if(dx*dx + dy*dy < .01) {
+                target.hp = Math.max(0, target.hp - Math.ceil(Math.random()*foe.attack));
+                
+                menus.nameMenu.list = [foe.target.id.toUpperCase(),
+                    foe.target.hp
+                ];
+                getMenu(menus.nameMenu);
+                
+                this.action = "return";
+                shake();
+            }
+        } else if(this.action==="return") {
+            var dx = this.orgpos[0] - this.pos[0];
+            var dy = this.orgpos[1] - this.pos[1];
+            this.pos[0] += dx/10;
+            this.pos[1] += dy/10;                
+            if(dx*dx + dy*dy < .001) {
+                this.pos[0] = this.orgpos[0];
+                this.pos[1] = this.orgpos[1];
+                this.action = null;
+                battleMode.character  = nextAttacker(-1);
+                if(battleMode.character<attackers.length) {
+                    battleMode.menuSelection = "battleMenu";
+                    menus.monsterMenu.list = [foe.name,foe.hp];
+                    menus.nameMenu.list = [attackers[battleMode.character].id.toUpperCase(),
+                        attackers[battleMode.character].hp];
+                    getMenu(menus.monsterMenu).style.display = "";
+                    getMenu(menus.monsterMenu);
+                    getMenu(menus.battleMenu).style.display = "";
+                    getMenu(menus.nameMenu).style.display = "";
+                    DOK.trigger(menus.battleMenu.arrowLooper);                
+                } else {
+                    gameOver();
+                }
+                DOK.untrigger(this);
+            }
+        }
+    }
+    
+    function gameOver() {
+        foe = {action:"return"};
+        attackers.forEach(a => a.hp = 0);
+        battleMode.active= true;
+        battleMode.menuSelection = "restart";
+        getMenu(menus.battleMenu).style.display = "none";
+        getMenu(menus.nameMenu).style.display = "none";
+        getMenu(menus.monsterMenu).style.display = "none";
+        getMenu(menus.gameOver).style.display = "";
+        getMenu(menus.restart).style.display = "";
+        DOK.trigger(menus.restart.arrowLooper);
+    }
+//    setTimeout(gameOver,3000);
+    
+    function attackersLoop() {
+        if(this.action === "attack" || this.action==="run" || this.action==="failescape") {
+            var dx = foe.pos[0] + 1 - this.pos[0];
+            var dy = foe.pos[1] - 1 - this.pos[1];
+            this.pos[0] += dx/7 * (this.action==="attack"?1:-1);
+            this.pos[1] += dy/7 * (this.action==="attack"?1:-1);
+            if(dx*dx + dy*dy < .01) {
+                foe.hp = Math.max(foe.hp - Math.ceil(Math.random()*this.attack), 0);
+                menus.monsterMenu.list = [foe.name,foe.hp];
+                getMenu(menus.monsterMenu);
+                this.action = "return";
+                shake();
+            } else if(dx*dx+dy*dy>10000) {
+                if(this.action==="failescape") {
+                    this.action = "failreturn";
+                    discussion = [
+                        "I could not find a way out.",
+                      ];
+                    dialog.start = DOK.time;
+                } else {
+                    this.action = null;
+                    DOK.untrigger(this);
+                    if(spritesToDisplay===battleScene) {
+                        battleMode.active = false;
+                        spritesToDisplay = room;
+                        DOK.stopAllMusic();
+                        DOK.playMusic("music/main.ogg",100000);
+                        
+                        foe.cell.sprites[0].restore();
+
+                        discussion = [
+                            "That was a close one.",
+                          ];
+                        dialog.start = DOK.time;
+                    }
+                }
+            }
+        } else if(this.action==="return" || this.action==="failreturn" || this.action==="item" || this.action==="talk") {
+            if(this.wait) {
+                if(this.wait>DOK.time) {
+                    return;
+                }
+            }
+            var dx = this.orgpos[0] - this.pos[0];
+            var dy = this.orgpos[1] - this.pos[1];
+            this.pos[0] += dx/10;
+            this.pos[1] += dy/10;                
+            if(dx*dx + dy*dy < .001) {
+                discussion = null;
+                this.pos[0] = this.orgpos[0];
+                this.pos[1] = this.orgpos[1];
+                this.action = null;
+                
+                if(foe.hp) {
+                    battleMode.character = nextAttacker(battleMode.character);
+                    if(battleMode.character < attackers.length) {
+                        battleMode.menuSelection = "battleMenu";
+                        menus.monsterMenu.list = [foe.name,foe.hp];
+                        menus.nameMenu.list = [attackers[battleMode.character].id.toUpperCase(),
+                            attackers[battleMode.character].hp
+                        ];
+                        getMenu(menus.monsterMenu).style.display = "";
+                        getMenu(menus.monsterMenu);
+                        getMenu(menus.battleMenu).style.display = "";
+                        getMenu(menus.nameMenu).style.display = "";
+                        DOK.trigger(menus.battleMenu.arrowLooper);
+                    } else {
+                        foe.action = "attack";
+                        var array = [];
+                        for(var i=0;i<attackers.length;i++) {
+                            if(attackers[i].visible!==false) {
+                                array.push(attackers[i]);
+                            }
+                        }
+                        
+                        foe.target = array[Math.floor(Math.random()*array.length)];
+                            
+                        menus.nameMenu.list = [foe.target.id.toUpperCase(),
+                            foe.target.hp
+                        ];
+                        getMenu(menus.nameMenu).style.display = "";
+                        getMenu(menus.monsterMenu).style.display = "none";
+    
+    
+                        DOK.trigger(foe);
+                    }
+                } else {
+                    battleMode.character = attackers.length;
+                    getMenu(menus.monsterMenu).style.display = "none";
+                    chest.visible = true;
+                    discussion = [
+                        foe.name + " has been defeated!"
+                      ];
+                    dialog.start = DOK.time;
+                    DOK.stopAllMusic();
+                    DOK.playMusic("music/main.ogg",100000);
+                    
+                }
+                DOK.untrigger(this);
+            }
+        }
+    }
+    
+    var attackers = [
+        {
+            id:"Boni",
+            pos:[-2,0,1],
+            orgpos:[-2,0,1],
+            offset:[-64,0],
+            get url() {
+                if(this.action==="attack" || this.action==="failreturn") {
+                    return images.bunny.move.right[Math.floor(DOK.time/100) % 2];
+                } else if(this.action==="return" || this.action==="run" || this.action==="failescape") {
+                    return images.bunny.move.left[Math.floor(DOK.time/100) % 2];
+                } else {
+                    return images.bunny.still.right[Math.floor(DOK.time/2000) % 2];
+                }
+            },
+            get light () { return battleMode.active && this.action===null && battleMode.character===0?Math.random()*2:1; },
+            loop: attackersLoop,
+            action: null,
+            get visible() {
+                return bunny.visible && bunny.party && this.hp > 0;
+            },
+        },
+        {
+            id:"Peng",
+            pos:[0,0,1],
+            orgpos:[0,0,1],
+            offset:[-64,0],
+            get url() {
+                if(this.action==="attack" || this.action==="failreturn") {
+                    return images.hero.walk.up[Math.floor(DOK.time/100) % 4] + "|scale:1.5";
+                } else if(this.action==="return" || this.action==="run" || this.action==="failescape") {
+                    return images.hero.walk.down[Math.floor(DOK.time/100) % 4] + "|scale:1.5";
+                } else {
+                    return images.hero.walk.up[0] + "|scale:1.5";
+                }
+            },
+            loop: attackersLoop,
+            action: null,
+            get visible() {
+                return this.hp === 0 ? false : battleMode.active && this.action===null && battleMode.character===1? Math.random() >.5:true;
+            },
+        },
+        {
+            id:"Bigf",
+            pos:[2,0,1],
+            orgpos:[2,0,1],
+            offset:[-128,0],
+            url: "bigface.png|0,0,64,64|scale:3",
+            get url() {
+                if(this.action==="talk") {
+                    var animation = images.bigface.talk;
+                    return animation[Math.floor(DOK.time/200) % animation.length] + "|scale:1.5";
+                } else if(this.action==="attack" || this.action==="failreturn") {
+                    return images.bigface.move[Math.floor(DOK.time/100) % 4] + "|scale:1.5";
+                } else if(this.action==="return" || this.action==="run" || this.action==="failescape") {
+                    return images.bigface.move[Math.floor(DOK.time/100) % 4] + "|scale:1.5";
+                } else {
+                    return images.bigface.still.left[Math.floor(DOK.time/300) % 4]+"|scale:1.5";                
+                }
+            },
+            
+            get light () { return battleMode.active && this.action===null && battleMode.character===2?Math.random()*2:1; },
+            loop: attackersLoop,
+            action: null,
+            get visible() {
+                return bigface.visible && bigface.party && this.hp > 0;
+            },
+        },
+    ];
+    
+    function enterBattle(cell) {
+        DOK.untrigger(cell);
+        foe = {
+            id:"foe",
+            pos: cell.sprites[0].pos,
+            offset: [
+                cell.sprites[0].offset[0]-64,
+                cell.sprites[0].offset[1],
+            ],
+            get url() { 
+                if(this.action!==null) {
+                    var animation = images[this.name.toLowerCase()];
+                    return animation[Math.floor(DOK.time/100)%animation.length] + "|scale:2";
+                }
+                return cell.sprites[0].url + "|scale:2"
+            },
+            creature: cell.creature,
+            hp: cell.creature.hp,
+            attack: cell.creature.attack,
+            loop: foeAttack,
+            action: null,
+            get visible() { return this.hp>0; },
+            cell: cell,
+        };
+        foe.name = foe.url.split(".")[0].split("/").pop().toUpperCase();
+        foe.orgpos = foe.pos.concat([]);
+        attackers[0].orgpos[0] = attackers[0].pos[0] = cell.sprites[0].pos[0]-3;
+        attackers[0].orgpos[1] = attackers[0].pos[1] = cell.sprites[0].pos[1]-3;
+        attackers[1].orgpos[0] = attackers[1].pos[0] = cell.sprites[0].pos[0]+1;
+        attackers[1].orgpos[1] = attackers[1].pos[1] = cell.sprites[0].pos[1]-3;
+        attackers[2].orgpos[0] = attackers[2].pos[0] = cell.sprites[0].pos[0]+6;
+        attackers[2].orgpos[1] = attackers[2].pos[1] = cell.sprites[0].pos[1]-3;
+        attackers[0].attack = 10  * (debug.superman?10:1);
+        attackers[1].attack = 15 * (debug.superman?10:1);
+        attackers[2].attack = 10 * (debug.superman?10:1);
+        
+        
+        darkness.pos[0] = boy.pos[0];
+        darkness.pos[1] = boy.pos[1];
+        chest.pos[0] = boy.pos[0];
+        chest.pos[1] = boy.pos[1];
+        spritesToDisplay = battleScene;
+        battleMode.active = true;
+    }
+        
+    var creators = [
+        createDoctorCell,   //0
+        createSnowCell,     //1
+        createDoor,         //2
+        createPenguinCell,  //3
+        createRockCell,     //4
+        createIceCell,      //5
+        createWaterCell,    //6
+        createFoeAt,        //7
+        createWallCell,     //8
+        createNoPassCell,   //9
+    ];
+    
+    function createDoor(x,y,dark) {
+        return spritesToDisplay===room ? createDoorCellBack(x,y,dark) : createDoorCell(x,y,dark);
+    }
+    
+    function createAt(x,y) {
+        var obj;
+        var cacheId = x+"_"+y;
+        var cell = map[cacheId];
+        if(cell) {
+            var index = cell.creator;
+            if(index===7) {
+                index = 1;
+            }
+            if(creators[index]) {
+                obj = creators[index].call(null,x,y,false,cell);
+            }
+        }
+    
+        if(!obj) {
+            obj = x===0 && y===0 
+            ? createSnowCell(x,y,false,cell)
+            : Math.abs(x)%5===0 && Math.abs(y)%5===0
+            ? createDoorCell(x,y,false,cell) 
+            : Math.abs(x^y+123)%13===2 && Math.abs(y^x)%15===2 
+            ? createPenguinCell(x,y,false,cell)
+            : Math.abs(x^y) % 11 === 0 || Math.abs(y^x) % 23 ===3
+            ? createRockCell(x,y,false,cell)
+            : Math.abs((x*2)^y) % 3 !== 0 && Math.abs(x)%3===0
+            ? createIceCell(x,y,false,cell)
+            : Math.abs((x*3)^y) % 3 !== 2 && Math.abs(y^x)%4===0
+            ? createWaterCell(x,y,false,cell)
+            : createSnowCell(x,y,false,cell);
+        }
+        
+        if(obj) {
+            obj.x = x;
+            obj.y = y;
+        }
+        cache(obj,x,y);
+        return obj;
+    }
+    
+    var walkspeed =1;
+    var grid = null;
+    var spriteCollection = new DOK.FlatCollection(grid = new DOK.GridCollection(
+        { 
+            get x() { return Math.floor(DOK.shift.x-5) },
+            get y() { return Math.floor(DOK.shift.y-5) }, 
+            width:10, 
+            height:10 ,
+        },
+        (x,y) => {
+            x = Math.floor(x);
+            y = Math.floor(y);
+            var cacheId = x+"_"+y;
+            var obj = cachedSpace[cacheId] !== undefined
+                ? cachedSpace[cacheId] 
+                : createAt(x,y);
+            return obj;
+        }
+    ), {
+        dynamic: true,
+    });
+    
+    function cache(obj,x,y) {
+        cachedSpace[x+"_"+y] = obj;
+        return obj;
+    }
+    
+    var ra = [];
+    function getMove() {
+        var dx = 0, dy=0;
+        if (!battleMode.active && gameOn) {
+            var mov = DOK.getMove();
+            dx = mov[0];
+            dy = mov[1];
+            
+            if(boy.action==="slide" && (boy.dx||boy.dy) && (!boy.skills.slide && !debug.skills || !dx && !dy)) {
+                dx = boy.dx;
+                dy = boy.dy;
+            }
+        }
+        ra[0] = dx;
+        ra[1] = dy;
+        return ra;
+    }
+    
+    function bigfaceLoop() {
+        if(bigface.visible && bigface.party) {
+            var follow = bunny.visible ? bunny : boy;
+            var dx = follow.pos[0] - bigface.pos[0];
+            var dy = follow.pos[1] - bigface.pos[1];
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if(dist > 1) {
+                bigface.action = "move";
+                bigface.pos[0] += dx/dist/25;
+                bigface.pos[1] += dy/dist/25;
+            } else {
+                bigface.action = "still";
+            }
+        }
+    }
+    
+    var bigface = {
+        hp: 30,
+        action: "still",
+        get visible() {
+            return attackers[2].hp > 0;
+        },
+        party: debug.party,
+        offset:[-32,-64],
+        pos:[15,41,1],
+        get url() {
+            var dx = boy.pos[0] - this.pos[0];
+            var dy = boy.pos[1] - this.pos[1];
+            var dir = dx<0?'left':'right';
+            if(this.action==='still') {
+                return images.bigface.still[dir][Math.floor(DOK.time/300) % 4];                
+            } else if(this.action==='move') {
+                return images.bigface.move[Math.floor(DOK.time/100) % 4];
+            }
+        },
+        meeting: 0,
+        enter: function() {
+            if(!this.meeting) {
+                discussion = [
+                    "Me Bigface",
+                    "Bigface friend with Boni",
+                    "You friend too?",
+                    "Bigface want icecream",
+                    "Bring Bigface ten icecream",
+                ];
+                this.meeting = true;
+                if(!dialog.text || dialog.talker !== "bigface") {
+                    dialog.start = DOK.time;
+                    dialog.talker = "bigface";
+                }
+                
+            } else if(!inventory.icecream || inventory.icecream<10) {
+                discussion = [
+                    "Bigface loves icecream",
+                    "Wish so",
+                    "Icecream love bigface too",
+                ];
+                if(!dialog.text || dialog.talker !== "bigface") {
+                    dialog.start = DOK.time;
+                    dialog.talker = "bigface";
+                }
+            } else {
+                discussion = [
+                    "Bigface love icecream",
+                    "Bigface becomes Peng friend",
+                    "Bigface and Boni both Peng friend",
+                    "Party? Bigface loves party",
+                    "Let's go find cake",
+                ];
+                bigface.party = true;
+                if(!dialog.text || dialog.talker !== "bigface") {
+                    dialog.start = DOK.time;
+                    dialog.talker = "bigface";
+                }
+            }
+        },        
+    };
+    
+    function bunnyLoop() {
+        if(bunny.visible && bunny.party) {
+            var dx = boy.pos[0] - bunny.pos[0];
+            var dy = boy.pos[1] - bunny.pos[1];
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if(dist > .7) {
+                bunny.action = "move";
+                bunny.pos[0] += dx/dist/25;
+                bunny.pos[1] += dy/dist/25;
+            } else {
+                bunny.action = "still";
+            }
+        }
+    }
+    
+    var x=0,y=0,lastDX,lastDY;
+    var bunny = {
+        hp: 10,
+        action:"still",
+        get visible() {
+            return attackers[0].hp > 0;
+        },
+        party: debug.party,
+        offset:[-32,-64],
+        pos:[-36,15,1],
+        get url() {
+            var dx = boy.pos[0] - this.pos[0];
+            var dy = boy.pos[1] - this.pos[1];
+        
+            var dir = dx<0 ? 'left' : 'right';
+            return images.bunny[this.action][dir][this.action==='move'?Math.floor(DOK.time/100) % 2:Math.floor(DOK.time/2000) % 2];
+        },
+        meeting: 0,
+        enter: function() {
+            if(!this.meeting) {
+                discussion = [
+                    "Hum, a party",
+                    "I suppose I could join you",
+                    "You seem kind",
+                    "Oh, but I'm so so hungry",
+                    "If only you could bring me one carrot",
+                    "that's all I need",
+                ];
+                this.meeting = true;
+                if(dialog.talker !== "bunny" || !dialog.text) {
+                    dialog.start = DOK.time;
+                    dialog.talker = "bunny";
+                }
+                
+            } else if(!inventory.carrot) {
+                boy.skills.slide = true;
+                discussion = [
+                    "Hum, I do not know how to fly",
+                    "But I know how to slide",
+                    "I'm a skating champion",
+                    "Would you like to learn?",
+                    "Just go with the flow",
+                    "That's what I always do",
+                ];
+                if(dialog.talker !== "bunny" || !dialog.text) {
+                    dialog.start = DOK.time;
+                    dialog.talker = "bunny";
+                }
+            } else if(inventory.carrot) {
+                discussion = [
+                    "Oh my, so many carrots",
+                    "I'm so impressed",
+                    "Are you flirting with me?",
+                    "I already have a boyfriend you know",
+                    "Hum... actually I lied.",
+                    "I don't really have one",
+                    "I'm just not interested",
+                    "I suppose, I could be your friend",
+                    "Let's find Bigface, a friend of mine",
+                    "He lives in a very cold place",
+                ];
+                bunny.party = true;
+                if(dialog.talker !== "bunny" || !dialog.text) {
+                    dialog.start = DOK.time;
+                    dialog.talker = "bunny";
+                }
+            }
+        },
+    };
+    
+    
+    
+    
+    var boy = {
+        get visible() {
+            return attackers[1].hp > 0;
+        },
+        hp: 16,
+        skills: {
+        },
+        offset: [-32,-64],
+        boyPos: [0,0,1],
+        get pos() {
+            this.boyPos[0]=x;
+            this.boyPos[1]=y;
+            return this.boyPos;
+        },
+        get url() {
+            var mov = getMove();
+            var dx=mov[0],dy=mov[1];
+            if(dx!=0) {
+                lastDX = dx;
+            }
+            if(dy!=0) {
+                lastDY = dy;
+            }
+            
+            var url = null;
+            var sliding = boy.action==="slide" && (boy.dx || boy.dy);
+            var swimming = boy.action==="swim";
+            if(swimming && !dx && !dy) {
+                dx = lastDX; dy = lastDY;
+            }
+            if(dy>0) {
+                url = swimming ? images.hero.swim.up[Math.floor(DOK.time/100) % 2] : sliding ? images.hero.slide.up: images.hero.walk.up[Math.floor(DOK.time/100) % 4];
+            } else if(dy<0) {
+                url = swimming ? images.hero.swim.down[Math.floor(DOK.time/100) % 2] : sliding ? images.hero.slide.down: images.hero.walk.down[Math.floor(DOK.time/100) % 4];
+            } else if(dx<0) {
+                url = swimming ? images.hero.swim.left[Math.floor(DOK.time/100) % 4] : sliding ? images.hero.slide.left: images.hero.walk.left[Math.floor(DOK.time/100) % 4];
+            } else if(dx>0) {
+                url = swimming ? images.hero.swim.right[Math.floor(DOK.time/100) % 4] : sliding ? images.hero.slide.right: images.hero.walk.right[Math.floor(DOK.time/100) % 4];
+            } else {
+                url = swimming ? images.hero.swim.down[Math.floor(DOK.time/100) % 2] : lastDX <=0 ? images.hero.stand.left : images.hero.stand.right;
+            }
+        
+            return url;
+        }
+    };
+    
+    
+    if(!attackers[0].maxhp) {
+        attackers[0].maxhp = attackers[0].hp = bunny.hp * (debug.superman?10:1);
+    }
+    if(!attackers[1].maxhp) {
+        attackers[1].maxhp = attackers[1].hp = boy.hp * (debug.superman?10:1);
+    }
+    if(!attackers[2].maxhp) {
+        attackers[2].maxhp = attackers[2].hp = bigface.hp * (debug.superman?10:1);
+    }
+    
+    
+    
+    
+    function isBlock(x,y) {
+        var cell = grid.cell(x,y);
+        return cell && cell.block ? cell : null;
+    }
+    
+    var req = {};
+    
+    function boyLoop() {
+        if(battleMode.active || !gameOn) {
+            return;
+        }
+        var mov = getMove();
+        var dx=mov[0],dy=mov[1];
+        var dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist) {
+            var dd = .35;
+            boy.dx = dx;
+            boy.dy = dy;
+            var formerCell = grid.cell(x,y);
+            var speed = (walkspeed /20) * (debug.speedy?2.5:boy.action==="slide"?2.5:1);
+            var goalX = x + dx/dist *speed;
+            var goalY = y + dy/dist *speed;
+            
+            var blockXY = isBlock(goalX,goalY);
+            var blockX = isBlock(goalX-dd,y) || isBlock(goalX+dd,y);
+            var blockY = isBlock(x-dd,goalY) || isBlock(x+dd,goalY);
+            
+            var blocked = true;
+            if(!blockX && !blockY && !blockXY) {
+                x = goalX;
+                y = goalY;
+                blocked = false;
+            } else if(blockY && (blockY.door * dy>0 || blockY.twoways || blockY===formerCell)) {
+                if(grid.cell(goalX-dd,goalY)===blockY && grid.cell(goalX+dd,goalY)===blockY) {
+                    if(blockY.opened) {
+                        x = goalX;
+                        y = goalY;
+                        blocked = false;
+                    } else if(!blockY.opening) {
+                        var hasRequirement = unlocked[blockY.x + "_" + blockY.y] || debug.nokey;
+                        if(!hasRequirement) {
+                            for(var i in req) {
+                                delete req[i];
+                            }
+                            for(var i=0;i<blockY.require.length;i++) {
+                                var item = blockY.require[i];
+                                req[item] = req[item]?req[item]+1:1;
+                            }
+                            hasRequirement = true;
+                            for(var i in req) {
+                                if(!inventory[i] || inventory[i] < req[i]) {
+                                    hasRequirement = false;
+                                }
+                            }
+                        }
+                    
+                        if(!unlocked[blockY.x + "_" + blockY.y] && hasRequirement) {
+                            unlocked[blockY.x + "_" + blockY.y] = true;
+                            var removedItem = false;
+                            if(blockY.require) {
+                                for(var i=0;i<blockY.require.length;i++) {
+                                    removedItem = true;
+                                    dispose(blockY.require[i]);
+                                }
+                            }
+                            if(removedItem) {
+                                showInventory();
+                            }
+                        }
+                        if(unlocked[blockY.x + "_" + blockY.y]) {
+                            blockY.opening = DOK.time;
+                            if(blockY.openingMessage) {
+                                discussion = blockY.openingMessage;
+                                dialog.start = DOK.time;
+                                dialog.talker = blockY.x + "," + blockY.y;
+                            }
+                        } else {
+                            if(blockY.lockMessage) {
+                                discussion = blockY.lockMessage;
+                                dialog.start = DOK.time;
+                                dialog.talker = blockY.x + "," + blockY.y;
+                            }
+                        }
+                    }
+                }
+            } else if(!blockX && goalX !== x) {
+                boy.dy = 0;
+                x = goalX;
+                blocked = false;
+            } else if(!blockY && goalY !== y) {
+                boy.dx = 0;
+                y = goalY;
+                blocked = false;
+            } 
+            
+            if(blocked) {
+                boy.dx = boy.dy = 0;
+            }
+            var newCell = grid.cell(x,y);
+            if(formerCell !== newCell) {
+                if(formerCell && formerCell.quit) {
+                    formerCell.quit(formerCell,newCell);
+                }
+                newCell = grid.cell(x,y);
+                if(newCell && newCell.enter) {
+                    newCell.enter(newCell,formerCell);
+                }
+                checkSurrounding(x,y);
+                if(newCell) {
+                    checkItems(newCell.x,newCell.y,newCell);
+                    if(newCell.x===bunny.pos[0] && newCell.y===bunny.pos[1]) {
+                        bunny.enter();
+                    }
+                    if(newCell.x===bigface.pos[0] && newCell.y===bigface.pos[1]) {
+                        bigface.enter();
+                    }
+                }
+            }
+        }
+    }
+    
+    function checkItems(x,y,cell) {
+        if(getPickedUp(x,y,roomInfo)) {
+            return;
+        }
+        if(typeof(cell.length)==='number') {
+            for(var i=0;i<cell.length;i++) {
+                checkItems(x,y,cell.at(i));
+            }
+        } else {
+            if(cell.item && cell.visible) {
+                if(!getPickedUp(x,y,roomInfo)) {
+                    setPickedUp(x,y,roomInfo,DOK.time);
+                    DOK.playMusic("music/pickup.ogg",1);
+                    if(cell.item==="cake") {
+                        youWin();
+                    }
+                }
+                pickUp(cell.item, 1);
+            }
+        }
+    }
+    
+    function youWin() {
+        console.log("YOU WIN");
+        location.href = "youwin.html";
+    }
+    
+    function pickUp(item, count) {
+        inventory[item] = inventory[item]?inventory[item]+count:count;
+        showInventory();
+    }
+    
+    function checkSurrounding(x,y) {
+        for(var yy=-3;yy<=6;yy++) {
+            for(var xx=-3;xx<=6;xx++) {
+                var cell = grid.cell(x+xx,y+yy);
+                if(cell.onDistance) {
+                    var dist = Math.sqrt(xx*xx + yy*yy)
+                    cell.onDistance(dist);
+                }
+            }
+        }
+    }
+    
+    function cameraFollow() {
+        var dx = boy.pos[0] - DOK.shift.x;
+        var dy = boy.pos[1] - DOK.shift.y;
+        DOK.shift.x += dx/10;
+        DOK.shift.y += dy/10;
+    }
+    
+    var shaking = false;
+    function shake() {
+        if(shaking) {
+            DOK.shift.x = shaking.x;
+            DOK.shift.y = shaking.y;
+            DOK.untrigger(shaking);
+        }
+        var quake = 2;
+        shaking = {
+            x: DOK.shift.x,
+            y: DOK.shift.y,
+            loop: function() {
+                DOK.shift.x = this.x + (Math.random()-.5) * quake;
+                DOK.shift.y = this.y + (Math.random()-.5) * quake;
+                quake *= .92;
+                if(quake<.1) {
+                    DOK.shift.x = shaking.x;
+                    DOK.shift.y = shaking.y;                    
+                    DOK.untrigger(this);
+                    shaking = false;
+                }
+            },
+        };
+        DOK.trigger(shaking);
+    }
+    
+    var spriteCollection = new DOK.FlatCollection(
+        [
+            spriteCollection,
+            boy,
+            bunny,
+            bigface,
+        ],
+        {
+            dynamic: true,
+        }
+    );    
+    
+    scene.add(DOK.getMesh());
+    
+    
+    
+    var spritesToDisplay = [
+    ];
+    renderer.setClearColor (0xffffff, 1);
+    
+//    var spritesToDisplay = spriteCollection;
+    
+    
+    function roomAt(x,y) {
+        var cacheId = x+"_"+y;
+        var obj = null;
+        var cell = map["room|"+cacheId];
+        if(cell) {
+            var index = cell.creator;
+            if(creators[index]) {
+                obj = creators[index].call(null,x,y,true,cell);
+            }
+        }
+        if(!obj) {
+            var obj = x===exitPos.x && y===exitPos.y 
+            ? createDoorCellBack(x,y,true,cell) 
+            : createSnowCell(x,y,true,cell);
+        }
+        if(obj) {
+            obj.x = x;
+            obj.y = y;
+        }
+        cache(obj,x,y);
+        return obj;
+    }
+    
+    var room = grid2 = new DOK.GridCollection(
+        { 
+            get x() { return Math.floor(DOK.shift.x-5) },
+            get y() { return Math.floor(DOK.shift.y-5) }, 
+            width:10, 
+            height:10 ,
+        },
+        (x,y) => {
+            x = Math.floor(x);
+            y = Math.floor(y);
+            var cacheId = x+"_"+y;
+            var obj = cachedSpace[cacheId] !== undefined
+                ? cachedSpace[cacheId] 
+                : roomAt(x,y);
+            return obj;
+        }
+    , {
+        dynamic: true,
+    });   
+    var room = new DOK.FlatCollection(
+        [
+            room,
+            boy,
+            bunny,
+            bigface,
+        ],
+        {
+            dynamic: true,
+        }
+    );
+        
+        
+    var darkness = {
+        offset:[-64*8,-256],
+        pos:[0,0,0],
+        url: "darkness.png|scale:8,5",
+    };
+    
+    var chest = {
+        opening: 0,
+//        offset:[-440,300],
+        offset:[-128,0],
+        pos:[0,0,.5],
+        get openstate() {
+            return this.opening ? Math.min(images.chest.length-1,Math.floor((DOK.time-this.opening)/200)) : 0;
+        },
+        get opened() {
+            return this.openstate===2;
+        },
+        get url() {
+            return images.chest[this.openstate] + "|scale:5";
+        },
+        visible: false,
+        amount: 0,
+        loop: function() {
+            if(this.opened && this.amount) {
+                DOK.untrigger(this);
+                var item = foe.name==="WOLF" ? "fish" : "icecream";
+                discussion = ["You found "+this.amount+" " + item],
+                pickUp(item, this.amount);
+                DOK.untrigger(this);
+            }
+        }
+    };
+
+    var foe = null;
+    var battleScene = new DOK.FlatCollection(
+        [
+            {
+                length:1,
+                at: function() {return foe;}
+            },
+            attackers,
+            chest,
+            darkness,
+        ],
+        {
+            dynamic: true,
+        }
+    );    
+    
+        
+     
+    function initialize() {
+        DOK.getLoadingBar();
+        renderer.setClearColor (0, 1);
+        renderer.render(scene,camera);
+        DOK.setOnLoad(gameLoaded);
+    }
+    
+    function gameLoaded() {
+        document.title = "Penguin Quest";
+        document.body.removeChild(DOK.getLoadingBar());
+        renderer.setClearColor (0xffffff, 1);
+        renderer.render(scene,camera);
+        startGame();
+//        beginGame();
+//        return;
+        
+        foe = {action:"return"};
+//        attackers.forEach(a => a.hp = 0);
+        battleMode.active= true;
+        battleMode.menuSelection = "startMenu";
+        getMenu(menus.battleMenu).style.display = "none";
+        getMenu(menus.nameMenu).style.display = "none";
+        getMenu(menus.monsterMenu).style.display = "none";
+        getMenu(menus.gameOver).style.display = "none";
+        getMenu(menus.restart).style.display = "none";
+        getMenu(menus.title).style.display = "";
+        getMenu(menus.startMenu).style.display = "";
+        menus.startMenu.shown = DOK.time;
+        DOK.trigger(menus.startMenu.arrowLooper);        
+        
+    }    
+    
+    var gameOn = false;
+    function intro() {
+        DOK.playMusic("music/pickup.ogg",1);
+        
+        spritesToDisplay = [
+            boy,
+        ];
+        discussion = [
+            "...",
+            "My name",
+            "is PENG",
+            "Today... it is my birthday",
+            "Every year,",
+            "I celebrate my birthday",
+            "By myself",
+            "But not this year.",
+            "I've had enough of this!",
+            "That's right!",
+            "I don't need no present",
+            "I don't need no cake",
+            "I just want damn friends to show up",
+            "And watch me blow some candles",
+            "I will go out in this world,",
+            "and make some friends",
+            "And I will have a freaking birthday party!",
+        ];
+        dialog.start = Math.max(DOK.time,1);
+        dialog.onEnd = beginGame;
+        DOK.trigger(dialog);
+    }
+    
+    function beginGame() {
+        spritesToDisplay = [];
+        DOK.loadAsync("map.json?time="+Date.now(),
+            function(result) {
+                gameOn = true;
+                spritesToDisplay = spriteCollection;
+                map = JSON.parse(result);
+                cachedSpace = {};
+                DOK.stopAllMusic();
+                DOK.playMusic("music/main.ogg",100000);
+                renderer.setClearColor (0xffffff, 1);
+            },
+            false
+        );
+        
+        DOK.playMusic("music/click.ogg",1)  
+    }
+    
+
+     
+    function startGame() {
+        DOK.fps = 45;
+        DOK.addLoop(function() {
+            boyLoop();
+            bunnyLoop();
+            bigfaceLoop();
+            cameraFollow();
+            findSelectedCell();
+            DOK.displaySprites(spritesToDisplay);
+            renderer.render(scene, camera);
+            refreshText(dialog);
+            if(debug.fps)
+                document.getElementById("fps").textContent = DOK.fps;
+        });
+    }
+    
+    var discussion = null;
+    
+    var dialog = {
+      "align": "center",
+      "size": "30px",
+      "font": "bit",
+      "color": "#FFFFFF",
+      get text() { return getDiscussion(discussion) },
+      "position": {
+        get x() { return innerWidth/2; },
+        get y() { return 35; },
+      },
+      "start": 0,
+      loop: function() {
+         if(this.text===null && this.onEnd) {
+            var callback = this.onEnd;
+            this.onEnd = null;
+            DOK.untrigger(this);
+            callback();
+         }
+      },
+      onEnd:null,
+    };
+    
+    function getDiscussion(discussion) {
+        var dur = DOK.time - dialog.start;
+        
+        var speed = 50;
+        var pause = 1500;
+        var text = null;
+        
+        if(discussion) {
+            for(var i=0; i<discussion.length; i++) {
+                if(dur < discussion[i].length*speed) {
+                    text = (i>0?discussion[i-1]+"\n":"") + discussion[i].substr(0,Math.floor(dur/speed));
+                    return text.toUpperCase();
+                } else if(dur < discussion[i].length*speed + pause) {
+                    text = (i>0?discussion[i-1]+"\n":"") + discussion[i];
+                    return text.toUpperCase();
+                }
+                dur -= pause + discussion[i].length*speed;
+            }
+            if (dur < pause*1.5) {
+               text = (discussion.length>1?discussion[discussion.length-2]+"\n":"") + discussion[discussion.length-1];
+                return text.toUpperCase();
+            }
+            else
+                text = null;
+        }
+        return text;
+    }
+
+
+
+    var overlay = document.createElement("canvas");
+    overlay.style.position = "absolute";
+    overlay.style.left = "0px";
+    overlay.width = window.innerWidth;
+    overlay.height = 100;
+    overlay.style.top = (window.innerHeight - overlay.height) + "px";
+    overlay.style.backgroundColor = "black";
+    overlay.style.opacity = .7;
+    overlay.style.display = "none";
+    document.body.appendChild(overlay);
+    
+    window.addEventListener("resize",function() {
+        var width = innerWidth;
+        var height = innerHeight;
+        overlay.style.top = (height - overlay.height) + "px";
+        overlay.width = width;
+    });
+    
+    function refreshText(text) {
+        if(!text.text || !text.text.length) {
+            overlay.style.display = "none";
+        } else {
+            overlay.style.display = "";
+            var ctx = overlay.getContext("2d");
+            ctx.clearRect(0,0,overlay.width, overlay.height);
+            var textArray = text.text.split("\n");
+            for(var i=0; i<textArray.length; i++) {
+                var string = textArray[i];
+                if (text.size || text.font) {
+                    ctx.font = [ (text.size||""), '"'+(text.font||"")+'"' ].join(" ");
+                }
+                if (text.align) {
+                    ctx.textAlign = text.align;
+                }
+                if (text.color) {
+                    ctx.fillStyle = text.color;
+                }
+                ctx.fillText(string, text.position.x, text.position.y + i*40);
+            }
+        }
+    }
+    
+    var selectedCell = null;
+    function findSelectedCell() {
+        if(!debug.editor) {
+            return;
+        }
+        var length = grid.length;
+        
+        var minSprite = null;
+        var minDist = Number.MAX_VALUE;
+        for(var i=0;i<length;i++) {
+            var cell = grid.at(i);
+            var dx = window.innerWidth/2 + (cell.x - DOK.shift.x+.5)*64 - mouseX;
+            var dy = window.innerHeight/2 - (cell.y - DOK.shift.y-.5)*64 - mouseY;
+            var dist = dx*dx + dy*dy;
+            if(dist < minDist) {
+                minDist = dist;
+                minSprite = cell;
+            }
+        }
+        selectedCell = minSprite;
+    }
+    
+    
+    var mouseX=0, mouseY=0;
+    if(debug.editor) {
+        document.addEventListener("mousemove",
+            function(e) {
+                mouseX = e.pageX;
+                mouseY = e.pageY;
+            });
+        document.addEventListener("keydown",
+            function(e) {
+                var n = e.keyCode-48;
+                if(creators[n]) {
+                    if(selectedCell) {
+                        var cacheId = selectedCell.x+"_"+selectedCell.y;
+                        if(roomInfo || n===2) {
+                            getMap(selectedCell.x,selectedCell.y,true,true).creator = n;
+                        }
+                        if(!roomInfo || n===2) {    //  door
+                            getMap(selectedCell.x,selectedCell.y,false,true).creator = n;
+                        }
+                        delete cachedSpace[cacheId];
+                        checkMap(map);
+                    }
+                }
+                if(e.keyCode===78) {
+                    if(selectedCell) {
+                        var cacheId = selectedCell.x+"_"+selectedCell.y;
+                        getMap(selectedCell.x,selectedCell.y,roomInfo).npc = 
+                            npcs.next(getMap(selectedCell.x,selectedCell.y,roomInfo).npc);
+                        delete cachedSpace[cacheId];
+                        checkMap(map);
+                    }
+                }
+                if(e.keyCode===70) {    //  f
+                    if(selectedCell) {
+                        var cacheId = selectedCell.x+"_"+selectedCell.y;
+                        getMap(selectedCell.x,selectedCell.y,roomInfo).fish = 
+                            !getMap(selectedCell.x,selectedCell.y,roomInfo).fish;
+                        delete cachedSpace[cacheId];
+                        checkMap(map);
+                    }
+                }
+                if(e.keyCode===73) {    // i
+                    if(selectedCell) {
+                        var cacheId = selectedCell.x+"_"+selectedCell.y;
+                        getMap(selectedCell.x,selectedCell.y,roomInfo).item = 
+                            nextItem(getMap(selectedCell.x,selectedCell.y,roomInfo).item);
+                        delete cachedSpace[cacheId];
+                        checkMap(map);
+                    }
+                }
+                if(e.keyCode===13) {    //  return
+                    if(selectedCell) {
+                        var cacheId = selectedCell.x+"_"+selectedCell.y;
+                        var cell = getMap(selectedCell.x,selectedCell.y,roomInfo);
+                        var msg = prompt("Enter message", cell.message?cell.message:"");
+                        if(msg) {
+                            cell.message = msg;
+                        }
+                        delete cachedSpace[cacheId];
+                        checkMap(map);
+                    }
+                }
+                if(e.keyCode===32 && !battleMode.active) {
+//                    console.log(selectedCell);
+                    var cacheId = selectedCell.x+"_"+selectedCell.y;
+                    var cell = getMap(selectedCell.x,selectedCell.y,roomInfo);
+                    console.log(cacheId,cell);
+                }
+            });
+    }
+
+    function nextItem(item) {
+        var returnedItem = null;
+        var returnNext = !item;
+        for(var it in images.items) {
+            if(returnNext) {
+                returnedItem = it;
+                break;
+            }
+            if(it===item) {
+                returnNext = true;
+            }
+        }
+        return returnedItem;
+    }
+
+        
+    function getMap(x,y,room,reset) {
+        var cacheId = x+"_"+y;
+        var mapId = room?"room|"+cacheId:cacheId;
+        if(!map[mapId] || reset) {
+            map[mapId] = {};
+        }
+        return map[mapId];
+    }
+    
+    function showStats() {
+        if(attackers[0].hp && bunny.visible && bunny.party) {
+            getMenu(menus.buniStatMenu).style.display = "";
+            menus.buniStatMenu.shown = DOK.time;
+            DOK.trigger(menus.buniStatMenu);            
+        }
+        if(attackers[1].hp) {
+            getMenu(menus.pengStatMenu).style.display = "";        
+            menus.pengStatMenu.shown = DOK.time;
+            DOK.trigger(menus.pengStatMenu);            
+        }
+        if(attackers[2].hp && bigface.visible && bigface.party) {
+            getMenu(menus.biffStatMenu).style.display = "";
+            menus.biffStatMenu.shown = DOK.time;
+            DOK.trigger(menus.biffStatMenu);            
+        }
+    }
+    
+    function showInventory() {
+        getMenu(menus.inventoryMenu).style.display = "";
+        getMenu(menus.inventoryMenu);
+        menus.inventoryMenu.shown = DOK.time;
+        DOK.trigger(menus.inventoryMenu);
+    }
+        
+    document.addEventListener("firstPress",
+        function(e) {
+            var dx = 0, dy=0, act = false, cancel;
+            switch(e.detail.keyCode) {
+                case 27:
+                    cancel = true;
+                    break;
+                case 32:
+                    act = true;
+                    break;
+                case 87: case 38:
+                    dy++;
+                    break;
+                case 83: case 40:
+                    dy--;
+                    break;
+                case 65: case 37:
+                    dx--;
+                    break;
+                case 68: case 39:
+                    dx++;
+                    break;
+            }
+                
+            if(battleMode.active) {
+                var activeMenu = menus[battleMode.menuSelection];
+                if(battleMode.active && menuCache[activeMenu.id].style.display==="") {
+                    if(dy) {
+                        activeMenu.selection = (activeMenu.selection-dy+activeMenu.list.length) % activeMenu.list.length;
+                    }
+                    if(activeMenu.id==="battleMenu") {
+                        switch(activeMenu.list[activeMenu.selection]) {
+                            case "ATTK": 
+                                if(act || dx>0) {
+                                    attack();
+                                }
+                                break;
+                            case "ITEM":
+                                if(act || dx>0) {
+                                    useItem();
+                                }
+                                break;
+                            case "TALK":
+                                if(act) {
+                                    talk();
+                                }
+                                break;
+                            case "RUN":
+                                if(act) {
+                                    run();
+                                }
+                                break;
+                        }
+                    }
+                    
+                    if(act) {
+                        if(activeMenu.id==="attackMenu") {
+                            performAttack();
+                        } else if(activeMenu.id==="itemMenu") {
+                            performItem(activeMenu.list[activeMenu.selection]);
+                        } else if(activeMenu.id==="restart") {
+                            switch(activeMenu.list[activeMenu.selection]) {
+                                case "PLAY AGAIN":
+                                case "  I'LL SHOW YOU  ":
+                                    document.body.style.display = "none";
+                                    location.reload();
+                                    break;
+                                default:
+                                    bug();
+                            }
+                        } else if(activeMenu.id==="startMenu") {
+                            switch(activeMenu.list[activeMenu.selection]) {
+                                case "CREDITS":
+                                    discussion = [
+                                        "CODING AND ART BY JACKLEHAMSTER",
+                                        "MUSIC BY JEREMY STACEY",
+                                    ];
+                                    dialog.start = DOK.time;
+                                    break;
+                                case "NEW GAME":
+                                    getMenu(menus.title).style.display = "none";
+                                    getMenu(menus.startMenu).style.display = "none";
+                                    battleMode.active = false;
+                                    renderer.setClearColor (0x333333, 1);
+                                    if(debug.nointro) {
+                                        beginGame();
+                                    } else {
+                                        intro();
+                                    }
+                                    break;
+                                default:
+                                    bug();
+                            }
+                        }
+                    }
+                    if(cancel || dx<0) {
+                        if(activeMenu.id==="attackMenu" || activeMenu.id==="itemMenu") {
+                            getMenu(menus.attackMenu).style.display = "none";
+                            getMenu(menus.itemMenu).style.display = "none";
+                            battleMode.menuSelection = "battleMenu";
+                            DOK.trigger(menus.battleMenu.arrowLooper);
+                        }
+                    }
+                }
+                if(chest.visible && battleMode.active) {
+                    if(act) {
+                        if(chest.openstate===0) {
+                            chest.opening = DOK.time;
+                            DOK.trigger(chest);
+                        } else if(chest.opened) {
+                            if(spritesToDisplay===battleScene) {
+                                battleMode.active = false;
+                                spritesToDisplay = roomInfo?room:spriteCollection;
+                            }
+                        }
+                    }
+                }
+            } else  {
+                if(act || cancel) {
+                    if(!cancel && getMenu(menus.inventoryMenu).style.display === "none" && gameOn) {
+                        showStats();
+                        showInventory();
+                    } else {
+                        menus.inventoryMenu.shown = 0;
+                        menus.pengStatMenu.shown = 0;
+                        menus.buniStatMenu.shown = 0;
+                        menus.biffStatMenu.shown = 0;
+                    }
+                }
+            }
+        }
+    );
+    
+    var bugList = [
+        " GAME OVER ",
+        "    QUIT GAME    ",
+        "  REALLY?  ",
+        "FOR REAL. NO MORE",
+        " ONE MORE? ",
+        "PLEASE NO MORE!!!",
+        "OH COME ON!",
+        "REALLY! I'M DONE!",
+        "ONE MORE ? ",
+        "NO, SICK OF THIS!",
+        "  CHICKEN? ",
+        "WAIT WAIT WHAT?!?",
+        "YOU CHICKEN",
+        "NOBODY CALLS ME..",
+        "CHICKEN!!!!",
+        "  I'LL SHOW YOU  ",
+    ];
+    var bugIndex = 0;
+    
+    function bug() {
+        bugIndex = (bugIndex + 2) % bugList.length;
+        getMenu(menus.gameOver);
+        getMenu(menus.restart);
+    }
+
+    var map = {
+    };
+    
+    document.addEventListener("DOMContentLoaded",initialize);
+    
+    var menuCache = {};
+    
+    function getMenu(menu) {
+        var div = menuCache[menu.id];
+        var d;
+        if(!div) {
+            div = document.createElement("div");
+            menuCache[menu.id] = div;
+            div.id = menu.id;
+            div.innerHTML = "";
+            div.style.display = "none";
+            div.style.position = "absolute";
+            div.style.border = "10px double #DDDDDD";
+        //    div.style.borderImage = "url(frame.png) round";
+            div.style.borderImageSlice = "30%";
+            div.style.borderImageWidth = "40px";
+        //    div.style.margin = "-5px";
+            div.style.boxShadow = "10px 10px rgba(0, 0, 0, 0.5)";
+            d = document.createElement("div");
+            menu.d = d;
+            d.style.position = "absolute";
+            d.style.backgroundColor = "black";
+            d.style.width = "100%";
+            d.style.height= "100%";
+            d.style.color = "white";
+            d.style.textAlign = "center";
+            d.style.fontFamily = '"bit", Courier';
+            d.style.fontSize = "28px";
+            d.style.top = "0px";
+            div.appendChild(d);
+            var arrow = document.createElement("img");
+            menu.arrow = arrow;
+            arrow.src = "arrow.png";
+            arrow.style.position = "absolute";
+            arrow.style.left = "10px";
+            arrow.style.top = "15px";
+            arrow.style.display = "none";
+            var arrowLooper = {
+                id:"arrow",
+                loop:function() {
+                    arrow.style.display = menu.selection>=0?"":"none";
+                    arrow.style.left = Math.floor(
+                        (battleMode.menuSelection==menu.id
+                        ?Math.sin(DOK.time/100)*6
+                        :0)                        
+                        +10) + "px";
+                    arrow.style.top = (15 + menu.selection * 36) + "px";
+                }
+            };
+            menu.arrowLooper = arrowLooper;
+        }
+        menu.selection = 0;
+        menu.d.innerHTML = "";
+        var maxLength = 0;
+        for(var i=0;i<menu.list.length;i++) {
+            var p = document.createElement("p");
+            p.textContent = menu.list[i];
+            menu.d.appendChild(p);
+            maxLength = Math.max((menu.list[i]+"").length,maxLength);
+        }
+        menu.d.appendChild(menu.arrow);
+        div.style.width = (17*maxLength + 74)+"px";
+        div.style.height = menu.list.length*40 + "px";
+        //console.log(maxLength,menu.list.length,div);
+        document.body.appendChild(div);
+        var position = menu.position;
+        div.style.left = position[0] + "px";
+        div.style.top = position[1] + "px";
+        
+        return div;    
+    }
+    
+    var menus = {
+    
+        title: {
+            selection: 0,
+            id: "title",
+            _position: [0,0],
+            get position() {
+                this._position[0] = gameWidth/2-160;
+                this._position[1] = gameHeight/2-150;
+                return this._position;
+            },
+            list: ["PENGUIN QUEST"],
+        },
+        startMenu: {
+            selection: 0,
+            id: "startMenu",
+            _position: [0,0],
+            get position() {
+                this._position[0] = gameWidth/2-120;
+                this._position[1] = gameHeight/2-30;
+                return this._position;
+            },
+            list: [
+                "NEW GAME",
+                "CREDITS",
+            ],
+        },
+            
+        gameOver: {
+            selection: 0,
+            id: "gameOver",
+            _position: [0,0],
+            get position() {
+                this._position[0] = gameWidth/2-150;
+                this._position[1] = gameHeight/2-100;
+                return this._position;
+            },
+            _list: ["GAME OVER"],
+            get list() {
+                this._list[0] = bugList[bugIndex];
+                return this._list;
+            },
+        },
+        restart: {
+            selection: 0,
+            id: "restart",
+            _position: [0,0],
+            get position() {
+                this._position[0] = gameWidth/2-200;
+                this._position[1] = gameHeight/2-30;
+                return this._position;
+            },
+            _list: [
+                "PLAY AGAIN",
+                "PLEASE NO MORE!",
+            ],
+            get list() {
+                this._list[1] = bugList[bugIndex+1];
+                return this._list;
+            },
+        },
+        battleMenu: {
+            selection: 0,
+            id: "battleMenu",
+            position: [10,10],
+            list: [
+                "ATTK",
+                "ITEM",
+                "TALK",
+                "RUN",
+            ],
+        },
+        monsterMenu: {
+            selection: -1,
+            id: "monsterMenu",
+            _position: [0,10],
+            get position() {
+                this._position[0] = gameWidth - menuCache[this.id].clientWidth - 30;
+                return this._position;
+            },
+            list: [
+            ],
+        },
+        attackMenu: {
+            parent: "battleMenu",
+            selection: -1,
+            id: "attackMenu",
+            position: [40,60],
+            list: [
+            ],
+        },
+        nameMenu: {
+            selection: -1,
+            id: "nameMenu",
+            position: [10,200],
+            list: [],
+        },
+        inventoryMenu: {
+            selection: -1,
+            id: "inventoryMenu",
+            _position: [0,10],
+            get position() {
+                this._position[0] = gameWidth - menuCache[this.id].clientWidth - 40;
+                return this._position;
+            },
+            _list: ["INVENTORY","----"],
+            get list()  { 
+                this._list.length = 2;
+                for(var item in inventory) {
+                    this._list.push((inventory[item]>1?inventory[item]+" ":"") + item.toUpperCase());
+                }
+                if(this._list.length===2) {
+                    this._list.push("NO ITEMS");
+                }
+                return this._list; 
+            },
+            shown: 0,
+            loop: function() {
+                if(!this.shown || DOK.time - this.shown>2500) {
+                    DOK.untrigger(this);
+                    menuCache[this.id].style.display = "none";
+                }
+            },
+        },
+        itemMenu: {
+            selection: -1,
+            id: "itemMenu",
+            position: [40,80],
+            _list: [],
+            get list()  { 
+                this._list.length = 0;
+                for(var item in inventory) {
+                    this._list.push(item.toUpperCase());
+                }
+                return this._list; 
+            },
+        },
+        pengStatMenu: {
+            selection: -1,
+            id: "pengStatMenu",
+            position: [10,10],
+            _list: ["PENG",0],
+            get list() {
+                this._list[1] = attackers[1].hp;
+                return this._list;
+            },
+            shown: 0,
+            loop: function() {
+                if(!this.shown || DOK.time - this.shown>2500) {
+                    DOK.untrigger(this);
+                    menuCache[this.id].style.display = "none";
+                }
+            },
+        },
+        buniStatMenu: {
+            selection: -1,
+            id: "buniStatMenu",
+            position: [10,120],
+            _list: ["BONI",0],
+            get list() {
+                this._list[1] = attackers[0].hp;
+                return this._list;
+            },
+            shown: 0,
+            loop: function() {
+                if(!this.shown || DOK.time - this.shown>2500) {
+                    DOK.untrigger(this);
+                    menuCache[this.id].style.display = "none";
+                }
+            },
+        },
+        biffStatMenu: {
+            selection: -1,
+            id: "biffStatMenu",
+            position: [10,230],
+            _list: ["BIGF",0],
+            get list() {
+                this._list[1] = attackers[1].hp;
+                return this._list;
+            },
+            shown: 0,
+            loop: function() {
+                if(!this.shown || DOK.time - this.shown>2500) {
+                    DOK.untrigger(this);
+                    menuCache[this.id].style.display = "none";
+                }
+            },
+        },
+    }
+    
+    function performAttack() {
+        var attacker = attackers[battleMode.character];
+        if(attacker) {
+            DOK.trigger(attacker);
+            attacker.action = "attack";
+            getMenu(menus.attackMenu).style.display = "none";
+            getMenu(menus.battleMenu).style.display = "none";
+            getMenu(menus.nameMenu).style.display = "none";
+        }
+    }
+    
+    function talk() {
+        var attacker = attackers[battleMode.character];
+        switch(attacker.id) {
+            case "Peng":
+                discussion = [
+                    "Oh, I know a funny joke.",
+                    "What's black, white and red all over?",
+                    "....",
+                    "Oh wait... I forgot the punch line",
+                ];
+                attacker.wait = DOK.time + 10000;
+                break;
+            case "Bigf":
+                discussion = [
+                    "Bigface is hungry.",
+                    "You won't like Bigface when he's hungry",
+                    "....",
+                    "Nobody like Bigface :-(",
+                ];
+                attacker.wait = DOK.time + 10000;
+                break;
+            case "Boni":
+                discussion = [
+                    "If I wait here quietly",
+                    "Nobody will notice me.",
+                    "I'll just take nap.",
+                ];
+                attacker.wait = DOK.time + 8000;
+                break;
+        }        
+        getMenu(menus.itemMenu).style.display = "none";
+        getMenu(menus.nameMenu).style.display = "none";
+        getMenu(menus.battleMenu).style.display = "none";
+        DOK.trigger(attacker);
+        attacker.action = "talk";
+        dialog.start = DOK.time;
+    }
+    
+    function performItem(item) {
+        var attacker = attackers[battleMode.character];
+        if(attacker) {
+            DOK.trigger(attacker);
+            attacker.action = "item";
+            attacker.wait = DOK.time + 4000;
+            getMenu(menus.itemMenu).style.display = "none";
+            getMenu(menus.battleMenu).style.display = "none";
+            
+            discussion = [
+                "You use " + item,
+            ];
+            var msg = messageForItem(item);
+            if(msg) {
+                discussion.push(msg);
+            }
+            applyItem(item);
+            dialog.start = DOK.time;
+        }
+    }
+    
+    function dispose(item) {
+        for(var i in inventory) {
+            if(i.toLowerCase()===item.toLowerCase()) {
+                if(inventory[i]===1) {
+                    delete inventory[i];
+                } else {
+                    inventory[i]--;
+                }
+                return;
+            }
+        }
+    }
+    
+    function applyItem(item) {
+        switch(item) {
+            case "FISH":
+                var attacker = attackers[battleMode.character];
+                attacker.hp = Math.min(attacker.maxhp, attacker.hp + 10);
+                menus.nameMenu.list = [
+                    attacker.id.toUpperCase(),
+                    attacker.hp
+                ];
+                getMenu(menus.nameMenu).style.display = "";
+                dispose(item);
+                break;
+            case "ICECREAM":
+                var attacker = attackers[battleMode.character];
+                attacker.hp = Math.min(attacker.maxhp, attacker.hp + 20);
+                menus.nameMenu.list = [
+                    attacker.id.toUpperCase(),
+                    attacker.hp
+                ];
+                getMenu(menus.nameMenu).style.display = "";
+                dispose(item);
+                break;
+        }
+    }
+    
+    function messageForItem(item) {
+        switch(item) {
+            case "FISH":
+                return "Restored 10 HP";
+                break;
+            case "ICECREAM":
+                return "Restored 20 HP";
+                break;
+            default:
+                return "Nothing happens";
+                break;
+        }
+    }
+    
+    function attack() {
+        menus.attackMenu.list = [foe.name];
+        menus.attackMenu.selection = 0;
+        battleMode.menuSelection = "attackMenu";
+        getMenu(menus.attackMenu).style.display = "";
+        DOK.trigger(menus.attackMenu.arrowLooper);
+    }
+    
+    function useItem() {
+        var hasItem = false;
+        for(var i in inventory) {
+            hasItem = true;
+            break;
+        }
+        if(hasItem) {
+            menus.itemMenu.selection = 0;
+            battleMode.menuSelection = "itemMenu";
+            getMenu(menus.itemMenu).style.display = "";
+            DOK.trigger(menus.itemMenu.arrowLooper);
+        }
+    }
+    
+    function run() {
+        if(Math.random()<.4) {
+            for(var i=0;i<attackers.length;i++) {
+                attacker = attackers[i];
+                attacker.action = "failescape";
+                DOK.trigger(attacker);
+            }
+        } else {
+            for(var i=0;i<attackers.length;i++) {
+                attacker = attackers[i];
+                attacker.action = "run";
+                DOK.trigger(attacker);
+            }
+        }
+        getMenu(menus.attackMenu).style.display = "none";
+        getMenu(menus.battleMenu).style.display = "none";
+        getMenu(menus.nameMenu).style.display = "none";
+        getMenu(menus.monsterMenu).style.display = "none";
+    }
+    
+    function nextAttacker(character) {
+        do {
+            character++;
+        } while(character<attackers.length && attackers[character].visible===false);
+        return character;
+    }
+    
+    var battleMode = {
+        _active: false,
+        character: 0,
+        menuSelection: menus.battleMenu.id,
+        get active() { return this._active; },
+        set active(value) { 
+            if(this._active != value) {
+                chest.visible = false;
+                chest.amount = Math.ceil(Math.random()*3);
+                chest.opening = 0;
+                battleMode.menuSelection = "battleMenu";
+
+                this._active = value; 
+                this.character = 0;
+                this.character = nextAttacker(-1);
+                getMenu(menus.battleMenu).style.display = value?"":"none"; 
+                if(value && attackers[this.character]) {
+                    menus.monsterMenu.list = [foe.name , foe.hp];
+                    menus.nameMenu.list = [
+                        attackers[this.character].id.toUpperCase(),
+                        attackers[this.character].hp
+                    ];
+                }
+                
+                getMenu(menus.inventoryMenu).style.display = "none";
+                if(menuCache.pengStatMenu)
+                    menuCache.pengStatMenu.style.display = "none";
+                if(menuCache.buniStatMenu)
+                    menuCache.buniStatMenu.style.display = "none";
+                if(menuCache.biffStatMenu)
+                    menuCache.biffStatMenu.style.display = "none";
+                
+                
+                getMenu(menus.monsterMenu).style.display = value?"":"none";
+                getMenu(menus.monsterMenu);
+                getMenu(menus.nameMenu).style.display = value?"":"none";
+                if(value) {
+                    DOK.trigger(menus.battleMenu.arrowLooper);
+                }
+                if(value && gameOn) {
+                    DOK.stopAllMusic();
+                    DOK.playMusic("music/battle.ogg",100000);
+                }
+            }
+        },
+    };
+//    battleMode.active = true;
+
+    var pickedUp = {};
+    var unlocked = {};
+    var inventory = {};
+
+</script>
+</body>
+
+</html>
