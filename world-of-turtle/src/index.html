@@ -332,9 +332,9 @@
 
                     cell = getCell(tag);
                     if(cell) {
-                        cell.pos[0] = x*64;
-                        cell.pos[1] = y*64;
-                        cell.pos[2] = 0;
+                        cell.position.x = x*64;
+                        cell.position.y = y*64;
+                        cell.position.z = 0;
                     }
                 }
                 return cell;
@@ -398,9 +398,9 @@
                 for(var i=0; i<elements.length; i++) {
                     var cell = this.getSprite(elements[i]);
                     if(cell) {
-                        cell.pos[0] = elements[i].x*64;
-                        cell.pos[1] = elements[i].y*64;
-                        cell.pos[2] = 1;
+                        cell.position.x = elements[i].x*64;
+                        cell.position.y = elements[i].y*64;
+                        cell.position.z = 1;
                         callback(cell);
                     }
                 }
@@ -568,15 +568,15 @@
             }
         }
 
-        turtleSprite[0].pos[0] = turtleX * 64;
-        turtleSprite[0].pos[1] = turtleY * 64 + turtleZ*100;
-        turtleSprite[1].pos[0] = turtleX * 64;
-        turtleSprite[1].pos[1] = turtleY * 64-5;
+        turtleSprite[0].position.x = turtleX * 64;
+        turtleSprite[0].position.y = turtleY * 64 + turtleZ*100;
+        turtleSprite[1].position.x = turtleX * 64;
+        turtleSprite[1].position.y = turtleY * 64-5;
         turtleSprite[1].size[0] = 45 / (1+turtleZ);
         turtleSprite[1].size[1] = 40 / (1+turtleZ);
         if(ride.visible) {
-            ride.pos[0] = turtleX * 64;
-            ride.pos[1] = turtleY * 64;
+            ride.position.x = turtleX * 64;
+            ride.position.y = turtleY * 64;
         }
 
         cam.x += ((turtleX+mov[0])*64 - cam.x)/20;
@@ -822,9 +822,9 @@
             var camera = DOK.getCamera();
             updateTurtle(camera);
             elements.forEach(updateElement);
-            spriteRenderer.display(collection);
-            spriteRenderer.display(elementCollection);
-            spriteRenderer.display(turtleSprite);
+            collection.forEach(spriteRenderer.display);
+            elementCollection.forEach(spriteRenderer.display);
+            turtleSprite.forEach(spriteRenderer.display);
             spriteRenderer.updateGraphics();
             if(debug.fps && frame%10===0)
                 document.getElementById("fps").textContent = DOK.fps + " fps";

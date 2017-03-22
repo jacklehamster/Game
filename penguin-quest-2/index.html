@@ -40,7 +40,10 @@
 <script>
     var debug = {
         fps: location.search.indexOf("fps")>=0,
-        control: location.search.indexOf("constrol")>=0,
+        control: location.search.indexOf("control")>=0,
+        a:0,
+        b:0,
+        c:0,
     };
 
     document.getElementById("fps").style.display = debug.fps ? "" : "none";
@@ -59,7 +62,7 @@
     renderer.setClearColor (0xffffff, 1);
     document.body.appendChild( renderer.domElement );
 
-    if(debug.conrol) {
+    if(debug.control) {
         DOK.addControlBall();
         DOK.addControlBox();
     }
@@ -79,12 +82,21 @@
                 "lib/dobuki/images/squid.png|32,32,32,32|shadow",
             ]
         },
-/*        floor: [
-            "assets/img/floor.png",
-            "assets/img/floor.png|scale:-1,1",
-            "assets/img/floor.png|scale:1,-1",
-            "assets/img/floor.png|scale:-1,-1",
-        ],*/
+//*
+        floor: [
+            "assets/img/snow.png|0,0,32,32",
+            "assets/img/snow.png|32,0,32,32",
+            "assets/img/snow.png|0,32,32,32",
+            "assets/img/snow.png|32,32,32,32",
+        ],
+        wall: [
+            "assets/img/ice.png",
+            "assets/img/ice.png|scale:-1",
+        ],
+        picture_frame: [
+            "assets/img/penguin-quest.jpg",
+        ],
+        /*/
         floor: [
             "assets/img/ice.png|scale:-1,-1",
             "assets/img/ice.png",
@@ -97,11 +109,153 @@
             "assets/img/snow.png|0,32,32,32",
             "assets/img/snow.png|32,32,32,32",
         ],
+        //*/
         water: [
             "lib/dobuki/images/water.gif",
-        ]
+        ],
+        door: [
+            "assets/img/wooddoor.png|cross",
+        ],
+        bunny: {
+            normal: {
+                still: {
+                    left: [
+                        "assets/img/bunny.png|0,0,32,32|scale:-1,1",
+                        "assets/img/bunny.png|32,0,32,32|scale:-1,1",
+                    ],
+                    right: [
+                        "assets/img/bunny.png|0,0,32,32",
+                        "assets/img/bunny.png|32,0,32,32",
+                    ],
+                },
+                walk: {
+                    left: [
+                        "assets/img/bunny.png|0,32,32,32|scale:-1,1",
+                        "assets/img/bunny.png|32,32,32,32|scale:-1,1",
+                    ],
+                    right: [
+                        "assets/img/bunny.png|0,32,32,32",
+                        "assets/img/bunny.png|32,32,32,32",
+                    ],
+                }
+            },
+            shadow: {
+                still: {
+                    left: [
+                        "assets/img/bunny.png|0,0,32,32|scale:-1,1|shadow",
+                        "assets/img/bunny.png|32,0,32,32|scale:-1,1|shadow",
+                    ],
+                    right: [
+                        "assets/img/bunny.png|0,0,32,32|shadow",
+                        "assets/img/bunny.png|32,0,32,32|shadow",
+                    ],
+                },
+                walk: {
+                    left: [
+                        "assets/img/bunny.png|0,32,32,32|scale:-1,1|shadow",
+                        "assets/img/bunny.png|32,32,32,32|scale:-1,1|shadow",
+                    ],
+                    right: [
+                        "assets/img/bunny.png|0,32,32,32|shadow",
+                        "assets/img/bunny.png|32,32,32,32|shadow",
+                    ],
+                }
+            }
+        },
+        penguin: {
+            normal: {
+                front: [
+                    "assets/img/penguin.png|0,0,32,32",
+                    "assets/img/penguin.png|32,0,32,32",
+                    "assets/img/penguin.png|0,32,32,32",
+                    "assets/img/penguin.png|32,32,32,32",
+                ],
+                right: [
+                    "assets/img/penguin-right.png|0,0,32,32",
+                    "assets/img/penguin-right.png|32,0,32,32",
+                    "assets/img/penguin-right.png|0,32,32,32",
+                    "assets/img/penguin-right.png|32,32,32,32",
+                ],
+                left: [
+                    "assets/img/penguin-right.png|0,0,32,32|scale:-1,1",
+                    "assets/img/penguin-right.png|32,0,32,32|scale:-1,1",
+                    "assets/img/penguin-right.png|0,32,32,32|scale:-1,1",
+                    "assets/img/penguin-right.png|32,32,32,32|scale:-1,1",
+                ],
+                back: [
+                    "assets/img/penguin-up.png|0,0,32,32",
+                    "assets/img/penguin-up.png|32,0,32,32",
+                    "assets/img/penguin-up.png|0,32,32,32",
+                    "assets/img/penguin-up.png|32,32,32,32",
+                ],
+            },
+            shadow: {
+                front: [
+                    "assets/img/penguin.png|0,0,32,32|shadow",
+                    "assets/img/penguin.png|32,0,32,32|shadow",
+                    "assets/img/penguin.png|0,32,32,32|shadow",
+                    "assets/img/penguin.png|32,32,32,32|shadow",
+                ],
+                right: [
+                    "assets/img/penguin-right.png|0,0,32,32|shadow",
+                    "assets/img/penguin-right.png|32,0,32,32|shadow",
+                    "assets/img/penguin-right.png|0,32,32,32|shadow",
+                    "assets/img/penguin-right.png|32,32,32,32|shadow",
+                ],
+                left: [
+                    "assets/img/penguin-right.png|0,0,32,32|scale:-1,1|shadow",
+                    "assets/img/penguin-right.png|32,0,32,32|scale:-1,1|shadow",
+                    "assets/img/penguin-right.png|0,32,32,32|scale:-1,1|shadow",
+                    "assets/img/penguin-right.png|32,32,32,32|scale:-1,1|shadow",
+                ],
+                back: [
+                    "assets/img/penguin-up.png|0,0,32,32|shadow",
+                    "assets/img/penguin-up.png|32,0,32,32|shadow",
+                    "assets/img/penguin-up.png|0,32,32,32|shadow",
+                    "assets/img/penguin-up.png|32,32,32,32|shadow",
+                ],
+            }
+        },
+        bigface: {
+            normal: {
+                still: [
+                    "assets/img/bigface.png|0,0,64,64",
+                    "assets/img/bigface.png|64,64,64,64",
+                ],
+                walk: [
+                    "assets/img/bigface.png|0,0,64,64",
+                    "assets/img/bigface.png|64,0,64,64",
+                    "assets/img/bigface.png|0,0,64,64|scale:-1,1",
+                    "assets/img/bigface.png|64,0,64,64|scale:-1,1",
+                ],
+            },
+            shadow: {
+                still: [
+                    "assets/img/bigface.png|0,0,64,64|shadow",
+                    "assets/img/bigface.png|64,64,64,64|shadow",
+                ],
+                walk: [
+                    "assets/img/bigface.png|0,0,64,64|shadow",
+                    "assets/img/bigface.png|64,0,64,64|shadow",
+                    "assets/img/bigface.png|0,0,64,64|scale:-1,1|shadow",
+                    "assets/img/bigface.png|64,0,64,64|scale:-1,1|shadow",
+                ],
+            },
+        },
     };
     DOK.preLoad(images);
+
+    var orientations = ['front', 'right', 'back', 'left'];
+    var biOrientations = ['front', 'back'];
+    function getOrientation(angle, bi) {
+        var orient = bi?biOrientations:orientations;
+        var angleSplit = Math.PI * 2 / orient.length;
+        var index = Math.round(angle / angleSplit) % orient.length;
+        if(index<0) {
+            index += orient.length;
+        }
+        return orient[index];
+    }
 
     var spriteRenderer = new DOK.SpriteRenderer();
     scene.add(spriteRenderer.mesh);
@@ -121,8 +275,34 @@
         ground: 3,
     };
 
+    var ObjectType = {
+        none: 0,
+        squid: 1,
+        picture_frame: 2,
+        door: 3,
+    };
+
+    var cellMap = {
+
+    };
+
+    var objectMap = {
+
+    };
+
+    var gameData = {
+        map: {
+            cells: cellMap,
+            objects: objectMap,
+        },
+    };
+
     function getCellType(x,y) {
         x = Math.round(x); y = Math.round(y);
+        if ( cellMap[x+"_"+y] !== undefined) {
+            return cellMap[x+"_"+y];
+        }
+
         var hasCell = random(x,y,0)<.6 || random((y/3)|0,(x/3)|0,1) < .1;
         var hasWater = x%10===5 || y%20===10;
         if(!hasCell) {
@@ -132,6 +312,29 @@
         } else {
             return CellType.ground;
         }
+    }
+
+    function setCellType(x,y,value) {
+        cellMap[x+"_"+y] = value;
+    }
+
+
+    function getObjectType(x,y) {
+        x = Math.round(x); y = Math.round(y);
+        if ( objectMap[x+"_"+y] !== undefined) {
+            return objectMap[x+"_"+y];
+        }
+
+        var hasCreature = random(x,y,3)<.05;
+        if(hasCreature) {
+            return ObjectType.squid;
+        } else {
+            return ObjectType.none;
+        }
+    }
+
+    function setObjectType(x,y,value) {
+        objectMap[x+"_"+y] = value;
     }
 
     var margin = .4;
@@ -144,7 +347,7 @@
             && getCellType(x+margin,y+margin) !== CellType.wall;
     }
 
-    var overallLight = .7;
+    var overallLight = 1;
     var cells = [];
     var collection = new DOK.Collection(
         {
@@ -159,94 +362,265 @@
             height: range,
         },
         function(x,y) {
+            cells.length = 0;
             var cellType = getCellType(x,y);
+            var objectType = getObjectType(x,y);
             var size = 257;
             var cycle = (random(x,y,100)*1000) | 0;
             var timeCycle = cycle+(DOK.time/100)|0;
 
+            var forwardCell = getForwardCell();
+            var light = overallLight;
+            if(forwardCell.x === x && forwardCell.z === y) {
+                light = .5;
+            }
+
             if(cellType === CellType.water) {
-                cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64-20,y*256,
                     size,size,
                     DOK.groundQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.water.getFrame(cycle)
                 ));
-                return cells;
             } else if(cellType === CellType.ground) {
-                cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64,y*256,
                     size,size,
                     DOK.groundQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.floor.getFrame(cycle)
                 ));
-                if(random(x,y,3)<.05) {
-                    cells.push(DOK.create(DOK.SpriteObject).init(
-                        x*256,-64+128,y*256,
-                        size,size,
-                        null,
-                        overallLight,
-                        DOK.spritesheet.squid.normal.getFrame(timeCycle)
-                    ));
-                    cells.push(DOK.create(DOK.SpriteObject).init(
-                        x*256,-64+1,y*256,
-                        size,size,
-                        DOK.shadowQuatArray(x*256,y*256),
-                        overallLight,
-                        DOK.spritesheet.squid.shadow.getFrame(timeCycle)
-                    ));
-                }
-                return cells;
             } else {
-                cells.length = 0;
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+128,y*256+128,
                     size,size,
                     DOK.southQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+128,y*256-128,
                     size,size,
                     DOK.northQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256-128,-64+128,y*256,
                     size,size,
                     DOK.westQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256+128,-64+128,y*256,
                     size,size,
                     DOK.eastQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+256,y*256,
                     size,size,
                     DOK.groundQuaternionArray,
-                    overallLight,
+                    light,
                     DOK.spritesheet.wall.getFrame(cycle)
                 ));
-                return cells;
             }
+
+            if(objectType===ObjectType.picture_frame) {
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x * 256, -64 + 128, y * 256 + 128 + 1,
+                    200, 150,
+                    DOK.southQuaternionArray,
+                    light,
+                    DOK.spritesheet.picture_frame.getFrame(cycle)
+                ));
+            } else if(objectType===ObjectType.door) {
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x * 256, -64 + 102, y * 256 + 128,
+                    150,200,
+                    DOK.southQuaternionArray,
+                    light,
+                    DOK.spritesheet.door.getFrame(cycle)
+                ));
+            } else if(objectType === ObjectType.squid) {
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64+128,y*256,
+                    size,size,
+                    null,
+                    light,
+                    DOK.spritesheet.squid.normal.getFrame(timeCycle)
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64+1,y*256,
+                    size,size,
+                    DOK.shadowQuatArray(x*256,y*256),
+                    overallLight,
+                    DOK.spritesheet.squid.shadow.getFrame(timeCycle)
+                ));
+            }
+
+            return cells;
         }
     );
 
-    var penguinOverlay = {
+    var bunnyOverlay = {
+        state: 'still',
+        direction: 'left',
+        orientation: orientations[0],
+        position: new THREE.Vector3(),
+        predx: 0, predz: 0,
+        cycle: 0,
+        moving: false,
         get sprite() {
+            return DOK.create(DOK.SpriteObject).init(
+                this.position.x,this.position.y-35,this.position.z,
+                30,30,
+                null,
+                pLight,
+                DOK.spritesheet.bunny.normal[this.state][this.direction].getFrame(this.cycle)
+            );
+        },
+        get shadow() {
+            return DOK.create(DOK.SpriteObject).init(
+                this.position.x,this.position.y-40,this.position.z,
+                30,30,
+                DOK.shadowQuatArray(this.position.x,this.position.z),
+                pLight,
+                DOK.spritesheet.bunny.shadow[this.state][this.direction].getFrame(this.cycle)
+            );
+        },
+        loop: function() {
+            moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
+            moveVector.setLength(-100);
+            moveVector.add(penguinOverlay.position);
 
+
+            var dx = (moveVector.x - this.position.x)*.05;
+            var dz = (moveVector.z - this.position.z)*.05;
+            var dist = dx*dx + dz*dz;
+            if(dist > 100) {
+                this.moving = true;
+            } else if(dist < .5) {
+                this.moving = false;
+            }
+
+            if(this.moving) {
+                this.position.x += dx;
+                this.position.z += dz;
+                this.predx = dx; this.predz = dz;
+            }
+            this.cycle = !this.moving?DOK.time/2000|0:DOK.time/100|0;
+            var orientation = !this.moving
+                ? getOrientation(Math.atan2(this.predx,this.predz)-rotA)
+                : getOrientation(Math.atan2(dx,dz)-rotA);
+            this.state = !this.moving?'still':'walk';
+            this.direction = orientation === "front"
+                ? "left"
+                : orientation === "back"
+                ? "right" : orientation;
+///            return false;
         }
     };
+    DOK.trigger(bunnyOverlay);
+
+
+    var bigfaceOverlay = {
+        state: 'still',
+        position: new THREE.Vector3(),
+        predx: 0, predz: 0,
+        cycle: 0,
+        moving: false,
+        get sprite() {
+            return DOK.create(DOK.SpriteObject).init(
+                this.position.x,this.position.y-35,this.position.z,
+                70,70,
+                null,
+                pLight,
+                DOK.spritesheet.bigface.normal[this.state].getFrame(this.cycle)
+            );
+        },
+        get shadow() {
+            return DOK.create(DOK.SpriteObject).init(
+                this.position.x,this.position.y-40,this.position.z,
+                70,70,
+                DOK.shadowQuatArray(this.position.x,this.position.z),
+                pLight,
+                DOK.spritesheet.bigface.shadow[this.state].getFrame(this.cycle)
+            );
+        },
+        loop: function() {
+            var dx = (bunnyOverlay.position.x + 100 - this.position.x)*.02;
+            var dz = (bunnyOverlay.position.z + 100 - this.position.z)*.02;
+            var dist = dx*dx + dz*dz;
+            if(dist > 10) {
+                this.moving = true;
+            } else if(dist < .5) {
+                this.moving = false;
+            }
+
+            if(this.moving) {
+                this.position.x += dx;
+                this.position.z += dz;
+                this.predx = dx; this.predz = dz;
+            }
+            this.cycle = !this.moving?DOK.time/2000|0:DOK.time/100|0;
+            this.state = !this.moving?'still':'walk';
+///            return false;
+        }
+    };
+    DOK.trigger(bigfaceOverlay);
+
+
+
+    var pLight = 1.8;
+    var penguinOverlay = {
+        predx: 0, predz: 0,
+        orientation: orientations[0],
+        position: new THREE.Vector3(),
+        cycle: 0,
+        get sprite() {
+            return DOK.create(DOK.SpriteObject).init(
+                this.position.x,this.position.y-35,this.position.z,
+                30,30,
+                null,
+                pLight,
+                DOK.spritesheet.penguin.normal[this.orientation].getFrame(this.cycle)
+            );
+        },
+        get shadow() {
+            return DOK.create(DOK.SpriteObject).init(
+                this.position.x,this.position.y-40,this.position.z,
+                30,30,
+                DOK.shadowQuatArray(this.position.x,this.position.z),
+                pLight,
+                DOK.spritesheet.penguin.shadow[this.orientation].getFrame(this.cycle)
+            );
+        },
+        loop: function() {
+            moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
+            moveVector.setLength(-80);
+            moveVector.add(camera.position);
+//            moveVector.x += debug.a;
+//            moveVector.z += debug.c;
+
+            var dx = (moveVector.x - this.position.x)*.8;
+            var dz = (moveVector.z - this.position.z)*.8;
+            var dist = dx*dx + dz*dz;
+            var s = .01;
+            this.cycle = dist<s?0:DOK.time/100|0;
+            this.position.x += dx;
+            this.position.z += dz;
+            this.orientation = dist<s
+                ? getOrientation(Math.atan2(this.predx,this.predz)-rotA, true)
+                : getOrientation(Math.atan2(dx,dz)-rotA);
+            this.predx = dx; this.predz = dz;
+///            return false;
+        }
+    };
+    DOK.trigger(penguinOverlay);
 
     function initialize() {
         DOK.getLoadingBar();
@@ -274,12 +648,6 @@
         }
     );
 
-    DOK.addLoop(function() {
-        var mov = DOK.getMove();
-        rot = THREE.Math.clamp(rot - mov[0]*.05, -10, 10);
-        mz = THREE.Math.clamp(mz - mov[1], -50, 20);
-    });
-
 /*
         var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
         var material = new THREE.MeshNormalMaterial();
@@ -288,6 +656,62 @@
         egg.geometry.scale(8,10,8);
         scene.add(egg);
 */
+
+    function getForwardCell() {
+        moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
+        moveVector.setLength(-400);
+        moveVector.add(camera.position);
+        moveVector.x = Math.round(moveVector.x/256);
+        moveVector.z = Math.round(moveVector.z/256);
+        return moveVector;
+    }
+
+
+    document.addEventListener("keydown",
+        function(e) {
+            var forwardCell = getForwardCell();
+            switch(e.keyCode) {
+                case 32:
+                    console.log(
+                        getCellType(forwardCell.x,forwardCell.z),
+                        getObjectType(forwardCell.x,forwardCell.z)
+                    );
+                    break;
+                case 67:
+                    var objType = getObjectType(forwardCell.x,forwardCell.z);
+                    setObjectType(forwardCell.x,forwardCell.z,
+                        objType===ObjectType.squid ? ObjectType.none : ObjectType.squid
+                    );
+                    break;
+                case 79:
+                    var objType = getObjectType(forwardCell.x,forwardCell.z);
+                    setObjectType(forwardCell.x,forwardCell.z,
+                        objType===ObjectType.picture_frame ? ObjectType.none : ObjectType.picture_frame
+                    );
+                    break;
+                case 49:
+                    var cellType = getCellType(forwardCell.x,forwardCell.z);
+                    setCellType(forwardCell.x,forwardCell.z,
+                        cellType===CellType.wall ? CellType.ground : CellType.wall
+                    );
+                    break;
+                case 49:
+                    var cellType = getCellType(forwardCell.x,forwardCell.z);
+                    setCellType(forwardCell.x,forwardCell.z,
+                        cellType===CellType.wall ? CellType.ground : CellType.wall
+                    );
+                    break;
+                case 71:
+                    var objType = getObjectType(forwardCell.x,forwardCell.z);
+                    setObjectType(forwardCell.x,forwardCell.z,
+                        objType===ObjectType.door ? ObjectType.none : ObjectType.door
+                    );
+                    break;
+            }
+        }
+    );
+
+
 
     var forwardVector = new THREE.Vector3(0,1,0);
     var moveVector = new THREE.Vector3(0,0,0);
@@ -301,19 +725,22 @@
                 document.getElementById("fps").textContent = DOK.fps + " fps";
         });
         DOK.addLoop(function() {
-            if(debug.conrol)
+            if(debug.control)
                 return;
             var camera = DOK.getCamera();
+            var mov = DOK.getMove();
+            rot = THREE.Math.clamp(rot - mov[0]*.05, -10, 10);
+            mz = THREE.Math.clamp(mz - mov[1], -50, 20);
+            moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
             if(Math.abs(mz)>0) {
-                moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
-                moveVector.setLength(mz);
                 mz *= .9;
             } else {
                 mz = 0;
             }
+            moveVector.setLength(mz);
 
             if(Math.abs(rot)>.01) {
-                rotA += rot;
+                rotA = (rotA + rot) % (Math.PI*2);
                 rot *= .5;
             }
 
@@ -333,8 +760,17 @@
             }
             camera.position.add(moveVector);
         });
+
+
+
         DOK.addLoop(function() {
             collection.forEach(spriteRenderer.display);
+            spriteRenderer.display(penguinOverlay.sprite);
+            spriteRenderer.display(penguinOverlay.shadow);
+            spriteRenderer.display(bunnyOverlay.sprite);
+            spriteRenderer.display(bunnyOverlay.shadow);
+            spriteRenderer.display(bigfaceOverlay.sprite);
+            spriteRenderer.display(bigfaceOverlay.shadow);
             spriteRenderer.updateGraphics();
             renderer.render(scene, camera);
         });

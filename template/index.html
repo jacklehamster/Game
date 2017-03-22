@@ -144,8 +144,7 @@
             camera.rotateY(rot);
             mz *= .8;
             rot *= .8;
-            spriteRenderer.display(collection);
-            spriteRenderer.render(camera);
+            collection.forEach(spriteRenderer.display);
             spriteRenderer.updateGraphics();
             if(debug.fps && frame%10===0)
                 document.getElementById("fps").textContent = DOK.fps + " fps";
