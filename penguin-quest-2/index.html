@@ -282,25 +282,43 @@
         door: 3,
     };
 
-    var cellMap = {
-
-    };
-
-    var objectMap = {
-
-    };
-
     var gameData = {
         map: {
-            cells: cellMap,
-            objects: objectMap,
+            cells: {},
+            objects: {},
+            dialogs: {},
         },
     };
 
+    DOK.loadFile('map.json', function(result) {
+        gameData = JSON.parse(result);
+        gameData.map = gameData.map || {};
+        gameData.map.cells = gameData.map.cells || {};
+        gameData.map.objects = gameData.map.objects || {};
+        gameData.map.dialogs = gameData.map.dialogs || {};
+    });
+
+    function saveGame(gameData) {
+//        console.log(JSON.stringify(gameData));
+        var url = "php/save.php?file=../map.json";
+        var request = new XMLHttpRequest();
+        var params = JSON.stringify(gameData);
+        request.open("POST", url, true);
+
+        request.setRequestHeader("Content-type", "application/json; charset=utf-8");
+
+        request.onreadystatechange = function() {
+            if(request.readyState == 4 && request.status == 200) {
+//                alert(request.responseText);
+            }
+        };
+        request.send(params);
+    }
+
     function getCellType(x,y) {
         x = Math.round(x); y = Math.round(y);
-        if ( cellMap[x+"_"+y] !== undefined) {
-            return cellMap[x+"_"+y];
+        if ( gameData.map.cells[x+"_"+y] !== undefined) {
+            return gameData.map.cells[x+"_"+y];
         }
 
         var hasCell = random(x,y,0)<.6 || random((y/3)|0,(x/3)|0,1) < .1;
@@ -315,14 +333,15 @@
     }
 
     function setCellType(x,y,value) {
-        cellMap[x+"_"+y] = value;
+        gameData.map.cells[x+"_"+y] = value;
+        saveGame(gameData);
     }
 
 
     function getObjectType(x,y) {
         x = Math.round(x); y = Math.round(y);
-        if ( objectMap[x+"_"+y] !== undefined) {
-            return objectMap[x+"_"+y];
+        if ( gameData.map.objects[x+"_"+y] !== undefined) {
+            return gameData.map.objects[x+"_"+y];
         }
 
         var hasCreature = random(x,y,3)<.05;
@@ -334,7 +353,34 @@
     }
 
     function setObjectType(x,y,value) {
-        objectMap[x+"_"+y] = value;
+        gameData.map.objects[x+"_"+y] = value;
+        saveGame(gameData);
+    }
+
+    function getMessage(x,y) {
+        x = Math.round(x); y = Math.round(y);
+        var msg = gameData.map.dialogs[x+"_"+y];
+        if(!msg) {
+            return "";
+        }
+        return msg;
+    }
+
+    function setMessage(x,y,value) {
+        gameData.map.dialogs[x+"_"+y] = value;
+        saveGame(gameData);
+    }
+
+    function showText(txt) {
+        console.log(txt);
+        var show = txt && txt.length;
+        var dlg = document.getElementById('dlg');
+        if(show && dlg.style.display==='none') {
+            dlg.style.display = '';
+        } else if(!show && dlg.style.display!=='none') {
+            dlg.style.display = 'none';
+        }
+        document.getElementById('msg').innerText = txt;
     }
 
     var margin = .4;
@@ -429,23 +475,52 @@
                 ));
             }
 
+            var overlaySprite = null;
+            var sizeX, sizeY;
+            var yOffset;
+
             if(objectType===ObjectType.picture_frame) {
-                cells.push(DOK.create(DOK.SpriteObject).init(
-                    x * 256, -64 + 128, y * 256 + 128 + 1,
-                    200, 150,
-                    DOK.southQuaternionArray,
-                    light,
-                    DOK.spritesheet.picture_frame.getFrame(cycle)
-                ));
+                overlaySprite = DOK.spritesheet.picture_frame.getFrame(cycle);
+                sizeX = 200; sizeY = 150;
+                yOffset = 128;
             } else if(objectType===ObjectType.door) {
+                overlaySprite = DOK.spritesheet.door.getFrame(cycle);
+                sizeX = 150; sizeY = 250;
+                yOffset = 128;
+            }
+
+            if (overlaySprite) {
                 cells.push(DOK.create(DOK.SpriteObject).init(
-                    x * 256, -64 + 102, y * 256 + 128,
-                    150,200,
+                    x * 256, -64 + yOffset, y * 256 + 128 + 1,
+                    sizeX, sizeY,
                     DOK.southQuaternionArray,
                     light,
-                    DOK.spritesheet.door.getFrame(cycle)
+                    overlaySprite
                 ));
-            } else if(objectType === ObjectType.squid) {
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256,-64+yOffset,y*256-128-1,
+                    sizeX,sizeY,
+                    DOK.northQuaternionArray,
+                    light,
+                    overlaySprite
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256-128-1,-64+yOffset,y*256,
+                    sizeX,sizeY,
+                    DOK.westQuaternionArray,
+                    light,
+                    overlaySprite
+                ));
+                cells.push(DOK.create(DOK.SpriteObject).init(
+                    x*256+128+1,-64+yOffset,y*256,
+                    sizeX,sizeY,
+                    DOK.eastQuaternionArray,
+                    light,
+                    overlaySprite
+                ));
+            }
+
+            if(objectType === ObjectType.squid) {
                 cells.push(DOK.create(DOK.SpriteObject).init(
                     x*256,-64+128,y*256,
                     size,size,
@@ -657,15 +732,23 @@
         scene.add(egg);
 */
 
+    var forwardCellVector = new THREE.Vector3(), fcDirty = true;
     function getForwardCell() {
-        moveVector.copy(DOK.getCameraQuaternionData().forwardMovement);
-        moveVector.setLength(-400);
-        moveVector.add(camera.position);
-        moveVector.x = Math.round(moveVector.x/256);
-        moveVector.z = Math.round(moveVector.z/256);
-        return moveVector;
+        if(fcDirty) {
+            forwardCellVector.copy(DOK.getCameraQuaternionData().forwardMovement);
+            forwardCellVector.setLength(-400);
+            forwardCellVector.add(camera.position);
+            forwardCellVector.x = Math.round(forwardCellVector.x/256);
+            forwardCellVector.z = Math.round(forwardCellVector.z/256);
+            fcDirty = false;
+        }
+        return forwardCellVector;
     }
 
+    function onChangeForwardCell() {
+        var dlg = getMessage(getForwardCell().x, getForwardCell().z);
+        showText(dlg);
+    }
 
     document.addEventListener("keydown",
         function(e) {
@@ -707,6 +790,10 @@
                         objType===ObjectType.door ? ObjectType.none : ObjectType.door
                     );
                     break;
+                case 13:
+                    var message = prompt("test");
+                    setMessage(forwardCell.x,forwardCell.z,message);
+                    break;
             }
         }
     );
@@ -727,6 +814,8 @@
         DOK.addLoop(function() {
             if(debug.control)
                 return;
+            var oldX = getForwardCell().x;
+            var oldZ = getForwardCell().z;
             var camera = DOK.getCamera();
             var mov = DOK.getMove();
             rot = THREE.Math.clamp(rot - mov[0]*.05, -10, 10);
@@ -759,9 +848,11 @@
                 moveVector.z = 0;
             }
             camera.position.add(moveVector);
+            fcDirty = true;
+            if(getForwardCell().x !== oldX || getForwardCell().z !== oldZ) {
+                onChangeForwardCell();
+            }
         });
-
-
 
         DOK.addLoop(function() {
             collection.forEach(spriteRenderer.display);
@@ -778,6 +869,12 @@
 
     document.addEventListener("DOMContentLoaded",initialize);
 </script>
+<div id="dlg" style="display:none;height:100px; width:100%; position:absolute; top:100%; left:0; margin-top:-100px">
+    <div style="width:100%; height:100%; background-color: #000000; opacity:.5; position:absolute"></div>
+    <div id="msg" style="cursor:default; width:100%; text-align:center; opacity: 1; color: white; font-weight: bold; font-size:30px; position:absolute; margin-top: 15px">
+
+    </div>
+</div>
 </body>
 <div style="position:absolute; top:0; left:0; color:black" id="log"></div>
 
