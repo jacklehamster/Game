@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>A Spy Never Give Up</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#000000" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<script src="main.js"></script>
+<img src="spy.png" alt="Game logo" style="width:100%">
+    <span id="text" style="color: white; font-weight: bold; font-size:30px; position:absolute; top:80%; left:0">
+
+    </span>
+<img id="button" src="button.gif" style="display:none;width:100px; height: 100px; position:absolute;left:80%; top:65%">
+<script>
+//    setTimeout(init,3000);
+    function finalscene() {
+//        document.getElementById("button").style.display = "";
+        document.addEventListener("click",
+            function() {
+                location.replace("scene2.html");
+            }
+        );
+        document.addEventListener("keyup",
+            function() {
+                location.replace("scene2.html");
+            }
+        );
+    }
+
+    document.addEventListener("click",
+        function() {
+            if(document.getElementById("button").style.display==="") {
+                nextDialog();
+            }
+        }
+    );
+    document.addEventListener("keyup",
+        function() {
+            if(document.getElementById("button").style.display==="") {
+                nextDialog();
+            }
+        }
+    );
+
+    function nextDialog() {
+        txt = "";
+        index++;
+    }
+
+    var index = 0;
+    var msgs = [
+        "Greetings, Mr Banderson. I am your your secret contact.",
+        "We have a very important mission for you.",
+        "Should you choose to accept this mission, you must keep the unmost secret about it.",
+        "Do you accept this mission? If so, press the button.",
+        "Very well. Listen carefully to what I'm about to say.",
+        "Your first mission is to press one button to press.",
+        "To find the right button to press.",
+        "The purple button will activate Danny and Carlie.",
+        "The green button will deactivate Carlie but make way to Basil",
+        "The blue button will deactivate all spies who are currently activated.",
+        "And finally, the red button will deactivate Ennio and activate Rickie.",
+        "Should you be ready to start your mission, press the button to continue.",
+        "",
+        '-'
+    ];
+
+
+    function uninit() {
+        document.getElementById("button").style.display = "";
+    }
+//    var msg = "Greetings, Mr Banderson. I am your your secret contact.";
+//var pok = new Audio("bip.ogg");
+    var txt = "";
+    setInterval(
+        function() {
+            var msg = msgs[index] + "       ";
+            if(msg==="       ") {
+                location.replace("http://jacklehamster.github.io/youpi/?videoID=oHg5SJYRHA0");
+                nextDialog();
+            } else if(msg==="-       ") {
+                return;
+            }
+            if(txt !== msg) {
+                txt = msg.substr(0,txt.length+1);
+                if(txt.charAt(txt.length-1)!==" ") {
+                    new Audio("bip.ogg").play();
+                }
+                document.getElementById("text").textContent = txt;
+                document.getElementById("button").style.display = "none";
+            } else {
+                document.getElementById("button").style.display = "";
+            }
+        },
+        80
+    );
+
+
+</script>
+</body>
+</html>
