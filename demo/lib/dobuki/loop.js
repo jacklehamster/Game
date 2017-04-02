@@ -15,7 +15,7 @@
         if(coreLoops) {
             core.time = time;
             coreLoops.forEach(
-                process => {
+                function(process) {
                     if(process.time <= core.time) {
                         processAllCallbacks(process);
                     }

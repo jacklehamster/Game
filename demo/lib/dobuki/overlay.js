@@ -119,7 +119,7 @@
             object.position.y + object.polygon.path[0][1]
         );
         object.polygon.path.forEach(
-            p => ctx.lineTo(object.position.x + p[0], object.position.y + p[1])
+            function(p) { ctx.lineTo(object.position.x + p[0], object.position.y + p[1]); }
         );
         ctx.closePath();
         if(object.polygon.color) {

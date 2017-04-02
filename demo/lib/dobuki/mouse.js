@@ -142,7 +142,7 @@
             document.addEventListener("mousedown",
                 function(e) {
                     array.forEach(
-                        obj => {
+                        function(obj) {
                             if(core.isMouseOver(obj)) {
                                 obj.mouseDown();
                             }
