@@ -1317,6 +1317,16 @@
         lastThrow = DOK.time;
     }
 
+    DOK.setIndexProcessor(function(images, count) {
+        for (var i = 0; i < count; i++) {
+            images[i].zIndex += -Math.abs(images[i].position.y) * 10
+        }
+    });
+
+    function processImageIndex(image) {
+        image.zIndex -= Math.abs(image.position.y) * 10;
+    }
+
 
     var geometry = new THREE.SphereGeometry(3, 20, 20, 0, Math.PI * 2, 0, Math.PI * 2);
     //    var material = new THREE.MeshNormalMaterial();
