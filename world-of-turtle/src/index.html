@@ -179,6 +179,11 @@
             turtle: "turtle2.png",
             croco: "croco.png",
             tree: "tree.png",
+            crack: [
+                "crack.png|0,0,32,32",
+                "crack.png|32,0,32,32",
+                "crack.png|0,32,32,32",
+            ]
         },
         turtle: {
             normal: "turtle.png|40,100,310,500",
@@ -316,6 +321,7 @@
                             dx:0,
                             dy:0,
                             block:true,
+                            index:elements.length,
                         });
                         map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
                     } else if(tag.charAt(1)==='H') {
@@ -326,6 +332,19 @@
                             dx:0,
                             dy:0,
                             block:true,
+                            index:elements.length,
+                        });
+                        map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
+                    } else if(tag.charAt(1)==='X') {
+                        elements.push({
+                            type: 'crack',
+                            x:x,
+                            y:y,
+                            dx:0,
+                            dy:0,
+                            block:false,
+                            index:elements.length,
+                            breakable:true,
                         });
                         map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
                     }
@@ -355,13 +374,13 @@
         collection.getTag = function(x,y) {
             var line = map[y];
             return line && line[x] ? line[x] : blank;
-        }
+        };
         collection.setMap = function(x,y,tag) {
             if(!map[y]) {
                 map[y] = [];
             }
             map[y][x] = tag;
-        }
+        };
         collection.map = map;
         collection.height = map.length;
         collection.width = map[0] ? map[0].length : 0;
@@ -374,21 +393,27 @@
             {},
             function(element) {
                 var cell = null;
+                var cycle = element.index;
                 switch(element.type) {
                     case 'penguin':
                         cell = DOK.create(DOK.SpriteObject).init(
                             0,0,0,
                             45,75,
-                            null, 1, DOK.spritesheet.penguin.normal,
-                            0,5,0
+                            null, 1, DOK.spritesheet.penguin.normal
                         );
                         break;
                     case 'hamster':
                         cell = DOK.create(DOK.SpriteObject).init(
                             0,0,0,
                             45,75,
-                            null, 1, DOK.spritesheet.hamster.normal,
-                            0,5,0
+                            null, 1, DOK.spritesheet.hamster.normal
+                        );
+                        break;
+                    case 'crack':
+                        cell = DOK.create(DOK.SpriteObject).init(
+                            0,0,0,
+                            64,64,
+                            DOK.southQuaternionArray, 1, DOK.spritesheet.cell.crack.getFrame(cycle)
                         );
                         break;
                 }
@@ -396,12 +421,14 @@
             },
             function(callback) {
                 for(var i=0; i<elements.length; i++) {
-                    var cell = this.getSprite(elements[i]);
-                    if(cell) {
-                        cell.position.x = elements[i].x*64;
-                        cell.position.y = elements[i].y*64;
-                        cell.position.z = 1;
-                        callback(cell);
+                    if(!elements[i].destroyed) {
+                        var cell = this.getSprite(elements[i]);
+                        if(cell) {
+                            cell.position.x = elements[i].x*64;
+                            cell.position.y = elements[i].y*64;
+                            cell.position.z = 1;
+                            callback(cell);
+                        }
                     }
                 }
             }
@@ -410,7 +437,7 @@
         collection.getElem = function (x,y) {
             for(var i=0; i<elements.length; i++) {
                 var elem = elements[i];
-                if(x===Math.round(elem.x) && y===Math.round(elem.y)) {
+                if(x===Math.round(elem.x) && y===Math.round(elem.y) && !elem.destroyed) {
                     return elem;
                 }
             }
@@ -426,11 +453,11 @@
             "[ ]         [ô]   ",
             "      [ ][ ][ ][ ]",
             "()o   [8]   ()o[ ][H]",
-            "/ô/   [ ]>^^   [ ]",
-            "[ ][ ][ ][ ]   [ ]",
+            "/ô/   [ ]>^^   [X]",
+            "[ ][ ][ ][ ]   [X]",
             "      [ ]>^^   îîî",
             "   îîî[ ][ ]   [ ]",
-            "   [ ]///[ ][ ][ ]",
+            "   [ ]/X/[ ][ ][X]",
             "      ///   ///   ",
             "      [ ][ ][ ]   ",
         ]
@@ -462,9 +489,9 @@
 
     var dZ = 0;
     var goal = null, steps = 0, sliding = null, lockTurtle = false, riding = false,
-        jumping = false, waitRest = false;
-    function updateTurtle(camera) {
-        var mov = sliding ? sliding : riding || jumping ? lockTemp : DOK.getMove();
+        jumping = false, waitRest = false, mov = noMove;
+    function updateTurtle() {
+        mov = sliding || riding || jumping ? lockTemp : DOK.getMove();
         var curX = Math.round(turtleX);
         var curY = Math.round(turtleY);
         var inMotion;
@@ -519,7 +546,7 @@
         var inTheAir = jumping && steps<1;
         var newX = Math.round(destX), newY = Math.round(destY);
         if(newX !== curX || newY !== curY) {
-            if(!inTheAir && !preStep(newX,newY,newX-curX,newY-curY)) {
+            if(!inTheAir && !preStep(newX,newY,curX,curY)) {
                 waitRest = true;
                 mov[0] = 0;
                 mov[1] = 0;
@@ -530,7 +557,7 @@
             }
         }
 
-        if(turtleX != destX || turtleY != destY) {
+        if(turtleX !== destX || turtleY !== destY) {
             turtleX = destX;
             turtleY = destY;
         } else {
@@ -578,7 +605,10 @@
             ride.position.x = turtleX * 64;
             ride.position.y = turtleY * 64;
         }
+    }
 
+    function updateCamera() {
+        var camera = DOK.getCamera();
         cam.x += ((turtleX+mov[0])*64 - cam.x)/20;
         cam.y += (Math.min(collection.height-6,Math.max(1,turtleY+mov[1]))*64 - cam.y)/20;
         camera.position.x = cam.x;
@@ -586,6 +616,9 @@
     }
 
     function updateElement(element) {
+        if(element.destroyed) {
+            return;
+        }
         if(element.dx || element.dy) {
             var rx = Math.round(element.x);
             var ry = Math.round(element.y);
@@ -621,18 +654,16 @@
         }
     }
 
+    var noMove = [0,0];
     var lockTemp = [0,0];
-    var slideTemp = [0,0];
     var landFrom = [0,0];
     function nextStep(tag, x, y, dx, dy) {
         steps++;
         switch(tag.charAt(0)) {
             case '/':
-                slideTemp[0] = dx;
-                slideTemp[1] = dy;
-                lockTemp[0] = 0;
-                lockTemp[1] = 0;
-                sliding = slideTemp;
+                lockTemp[0] = dx;
+                lockTemp[1] = dy;
+                sliding = true;
                 break;
             case '(':
                 lockTemp[0] = dx;
@@ -699,7 +730,7 @@
         }
     }
 
-    function preStep(x, y, dx, dy) {
+    function preStep(x, y, oldX, oldY) {
         var tag = collection.getTag(x, y);
         if(tag.charAt(0)==='î') {
             return false;
@@ -707,11 +738,16 @@
 
         var elemTo = elementCollection.getElem(x,y);
         if(elemTo.block) {
-            elemTo.dx = dx;
-            elemTo.dy = dy;
+            elemTo.dx = x-oldX;
+            elemTo.dy = y-oldY;
             return false;
         }
-
+        //  destroy old cell
+        var elemFrom = elementCollection.getElem(oldX,oldY);
+        if(elemFrom.breakable) {
+            collection.setMap(oldX, oldY, blank);
+            elemFrom.destroyed = DOK.time;
+        }
         return true;
     }
 
@@ -806,33 +842,51 @@
         }
     );*/
 
-    var rotationMatrix = new THREE.Matrix4();
-    var angle = Math.PI / 4 / 10;
-    var axis = new THREE.Vector3( 1, 0.5, 0 ).normalize();
+    DOK.setIndexProcessor(function(images, count) {
+        for (var i = 0; i < count; i++) {
+            images[i].zIndex = (images[i].position.z) * 1000 - images[i].position.y;
+        }
+    });
 
-    rotationMatrix.makeRotationAxis( axis, angle );
 
-    var plane = new THREE.Plane(new THREE.Vector3(0,0,-1));
-    var aoa = new THREE.Vector3();
+//    var rotationMatrix = new THREE.Matrix4();
+  //  var angle = Math.PI / 4 / 10;
+   // var axis = new THREE.Vector3( 1, 0.5, 0 ).normalize();
+
+    //rotationMatrix.makeRotationAxis( axis, angle );
+
+    //var plane = new THREE.Plane(new THREE.Vector3(0,0,-1));
+    //var aoa = new THREE.Vector3();
     function startGame() {
         DOK.fps = 45;
-        var frame = 0;
+
         DOK.addLoop(function() {
-            frame++;
-            var camera = DOK.getCamera();
-            updateTurtle(camera);
+            handleLogic();
+            updateCamera();
+            updateDisplay();
+            updateFPS();
+        });
+
+
+        var frame = 0;
+        function updateFPS() {
+            if(debug.fps && (frame++)%10===0) {
+                document.getElementById("fps").textContent = DOK.fps + " fps";
+            }
+        }
+
+        function handleLogic() {
+            updateTurtle();
             elements.forEach(updateElement);
+        }
+
+        function updateDisplay() {
             collection.forEach(spriteRenderer.display);
             elementCollection.forEach(spriteRenderer.display);
             turtleSprite.forEach(spriteRenderer.display);
             spriteRenderer.updateGraphics();
-            if(debug.fps && frame%10===0)
-                document.getElementById("fps").textContent = DOK.fps + " fps";
-
-            raycaster.setFromCamera( mouse, camera );
-            raycaster.ray.intersectPlane(plane, aoa);
-            renderer.render(scene, camera);
-        });
+            renderer.render(scene, DOK.getCamera());
+        }
     }
 
     document.addEventListener("DOMContentLoaded",initialize);
@@ -858,6 +912,9 @@
                     break;
                 case 'hamster':
                     char = 'H';
+                    break;
+                case 'crack':
+                    char = 'X';
                     break;
             }
             cells[Math.round(element.y)][Math.round(element.x)] =
