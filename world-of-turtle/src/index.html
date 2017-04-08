@@ -464,6 +464,14 @@
     );
 
     var turtleX = 0, turtleY = 0, turtleZ = 0, ride;
+    var dZ = 0;
+    var goal = null, steps = 0, sliding = null, lockTurtle = false,
+        riding = false,
+        jumping = false,
+        waitRest = false,
+        mov = noMove;
+
+
     var turtleSprite = [
         new DOK.SpriteObject().init(
             0,0,2,
@@ -487,9 +495,6 @@
     ride.visible = false;
 //    turtleSprite[1].visible = false;
 
-    var dZ = 0;
-    var goal = null, steps = 0, sliding = null, lockTurtle = false, riding = false,
-        jumping = false, waitRest = false, mov = noMove;
     function updateTurtle() {
         mov = sliding || riding || jumping ? lockTemp : DOK.getMove();
         var curX = Math.round(turtleX);
