@@ -21,6 +21,8 @@
     }
 
     .cup {
+        width:10%;
+        height:10%;
         flex: 1;
         border-top: 10px black solid;
     }
@@ -50,7 +52,7 @@
 <p></p>
 
 <!--img id="button" src="button.gif" style="display:none;width:100px; height: 100px; position:absolute;left:80%; top:65%"-->
-<div style="display: flex; flex-direction: row">
+<div style="display: inline-flex; flex-direction: row; width:100%">
     <img src="cup.png" class="cup hilight">
     <img src="cup.png" class="cup hilight">
     <img src="cup.png" class="cup hilight">
@@ -64,7 +66,12 @@
 </div>
 <script>
     var start = 0, size = 3, score = 0, deadLine = 0, gameStarted = 0, paused = false;
+    var canRestart = false;
     document.addEventListener("keydown", function(e) {
+        if(e.keyCode===32 && canRestart) {
+            location.reload();
+            return;
+        }
         var cups = getCups();
         if(gameOver()) {
             return;
@@ -72,9 +79,11 @@
         switch(e.keyCode) {
             case 37:
                 start = Math.max(0,start-1);
+                e.preventDefault();
                 break;
             case 39:
                 start = Math.min(cups.length-size,start+1);
+                e.preventDefault();
                 break;
             case 32:
                 if(paused) {
@@ -85,6 +94,7 @@
                     deadLine = Date.now() + 20000;
                 }
                 flip(start, size);
+                e.preventDefault();
                 break;
         }
 
@@ -195,6 +205,19 @@
                     if(score>=8) {
                         document.body.style.background = "url(title.jpg)";
                         new Audio("assets/1_hour_game_jam_game_jam.ogg").play();
+                        setTimeout(
+                            function() {
+                                document.getElementById("text").innerText = "SPACE to RESTART";
+                                canRestart = true;
+                            },10000
+                        );
+                    } else {
+                        setTimeout(
+                            function() {
+                                document.getElementById("text").innerText = "SPACE to RESTART";
+                                canRestart = true;
+                            },1000
+                        );
                     }
                     setTimeout(
                         function() {
