@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flipping Cup</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#000000" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body style="">
+
+<style>
+    .rotated {
+        -ms-transform: rotate(180deg); /* IE 9 */
+        -webkit-transform: rotate(180deg); /* Safari */
+        transform: rotate(180deg);
+    }
+
+    .cup {
+        flex: 1;
+        border-top: 10px black solid;
+    }
+
+    .hilight {
+        border-top: 10px red solid;
+    }
+
+    .solved {
+        background-color: yellow;
+    }
+</style>
+<script src="main.js"></script>
+<h1 style="color: silver">Cup Flipper</h1>
+<!--img src="spy.png" alt="Game logo" style="width:100%"-->
+    <span id="text" style="color: white; font-weight: bold; font-size:20px; position:absolute; top:70%; left:0">
+        Controls: Left-Right Arrows + SPACE. Flip cups, each line solved give you +1 sec. Try to score 8 for the special prize
+    </span>
+<span id="score" style="color: white; font-weight: bold; font-size:30px; position:absolute; top:80%; left:0">
+        Score: 0
+    </span>
+<span id="time" style="color: white; font-weight: bold; font-size:30px; position:absolute; top:90%; left:0">
+        Time Left: 20sec
+    </span>
+<p></p>
+
+<p></p>
+
+<!--img id="button" src="button.gif" style="display:none;width:100px; height: 100px; position:absolute;left:80%; top:65%"-->
+<div style="display: flex; flex-direction: row">
+    <img src="cup.png" class="cup hilight">
+    <img src="cup.png" class="cup hilight">
+    <img src="cup.png" class="cup hilight">
+    <img src="cup.png" class="cup">
+    <img src="cup.png" class="cup">
+    <img src="cup.png" class="cup">
+    <img src="cup.png" class="cup">
+    <img src="cup.png" class="cup">
+    <img src="cup.png" class="cup">
+    <img src="cup.png" class="cup">
+</div>
+<script>
+    var start = 0, size = 3, score = 0, deadLine = 0, gameStarted = 0, paused = false;
+    document.addEventListener("keydown", function(e) {
+        var cups = getCups();
+        if(gameOver()) {
+            return;
+        }
+        switch(e.keyCode) {
+            case 37:
+                start = Math.max(0,start-1);
+                break;
+            case 39:
+                start = Math.min(cups.length-size,start+1);
+                break;
+            case 32:
+                if(paused) {
+                    return;
+                }
+                if(!gameStarted) {
+                    gameStarted = true;
+                    deadLine = Date.now() + 20000;
+                }
+                flip(start, size);
+                break;
+        }
+
+        refresh();
+    });
+
+    function getCups() {
+        var cups = Array.prototype.slice.apply(document.getElementsByClassName('cup'));
+        return cups;
+    }
+
+    function flip(start, length, scramble) {
+        var cups = getCups();
+        for(var i=0;i<length;i++) {
+            if(cups[i+start].classList.contains("rotated")) {
+                cups[i+start].classList.remove("rotated");
+            } else {
+                cups[i+start].classList.add("rotated");
+            }
+        }
+
+        if(!scramble) {
+            new Audio("bip.ogg").play();
+            checkSolved();
+        }
+    }
+
+    function markSolved(solved) {
+        var cups = getCups();
+        for(var i=0;i<cups.length;i++) {
+            if(solved===false) {
+                cups[i].classList.remove("solved");
+                cups[i].classList.remove("hilight");
+            } else {
+                cups[i].classList.add("solved");
+            }
+        }
+    }
+
+    function checkSolved() {
+        if(solved()) {
+            markSolved();
+            paused = true;
+            score++;
+            deadLine += 1000;
+            setTimeout(reset,200);
+            setTimeout(
+                function() {
+                    new Audio("bip.ogg").play();
+                },50
+            );
+            setTimeout(
+                function() {
+                    new Audio("bip.ogg").play();
+                },100
+            );
+        }
+    }
+
+    function solved() {
+        var cups = getCups();
+        for(var i=0;i<cups.length;i++) {
+            if(cups[i].classList.contains("rotated")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function refresh() {
+        var cups = getCups();
+        for(var i=0;i<cups.length;i++) {
+            var hilight = i>=start && i<start+size;
+            if(!hilight || paused || gameOver())
+                cups[i].classList.remove("hilight");
+            else
+                cups[i].classList.add("hilight");
+        }
+    }
+
+    function reset() {
+        paused = false;
+        markSolved(false);
+        var cups = getCups();
+        for(var i=0;i<1000;i++) {
+            var index = Math.floor(Math.random()*(cups.length+1-size));
+            flip(index, size, true);
+        }
+        refresh();
+    }
+
+    document.addEventListener("DOMContentLoaded",
+        function(e) {
+            reset();
+        }
+    );
+
+    var over = false;
+    function gameOver() {
+        return gameStarted && Date.now() > deadLine;
+    }
+
+    setInterval(
+        function() {
+            if(gameOver()) {
+                if(!over) {
+                    over = true;
+                    if(score>=8) {
+                        document.body.style.background = "url(title.jpg)";
+                        new Audio("assets/1_hour_game_jam_game_jam.ogg").play();
+                    }
+                    setTimeout(
+                        function() {
+                            new Audio("bip.ogg").play();
+                        },100
+                    );
+                    setTimeout(
+                        function() {
+                            new Audio("bip.ogg").play();
+                        },200
+                    );
+                    setTimeout(
+                        function() {
+                            new Audio("bip.ogg").play();
+                        },300
+                    );
+                }
+                document.getElementById("score").innerText = "Final Score: " +  score;
+                document.getElementById("time").innerText = "Time Left: 0";
+                return;
+            }
+            document.getElementById("score").innerText = "Score: " +  score;
+            document.getElementById("time").innerText = "Time Left: " +
+                Math.ceil(gameStarted?(deadLine - Date.now())/100:200)/10 + "sec";
+        }
+    ,500);
+</script>
+</body>
+</html>
