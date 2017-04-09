@@ -1,0 +1,288 @@
+<head>
+    <title>maze</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        uniform sampler2D texture[ 16 ];
+        varying vec2 vUv;
+        varying float vTex;
+        
+        void main() {
+            vec2 uv = vUv;
+            int iTex = int(vTex);
+            
+            if(iTex==0) {
+                gl_FragColor = texture2D( texture[0],  uv);
+            } else if(iTex==1) {
+                gl_FragColor = texture2D( texture[1],  uv);
+            } else if(iTex==2) {
+                gl_FragColor = texture2D( texture[2],  uv);            
+            } else if(iTex==3) {
+                gl_FragColor = texture2D( texture[3],  uv);            
+            } else if(iTex==4) {
+                gl_FragColor = texture2D( texture[4],  uv);            
+            } else if(iTex==5) {
+                gl_FragColor = texture2D( texture[5],  uv);            
+            } else if(iTex==6) {
+                gl_FragColor = texture2D( texture[6],  uv);            
+            } else if(iTex==7) {
+                gl_FragColor = texture2D( texture[7],  uv);            
+            } else if(iTex==8) {
+                gl_FragColor = texture2D( texture[8],  uv);            
+            } else if(iTex==9) {
+                gl_FragColor = texture2D( texture[9],  uv);            
+            } else if(iTex==10) {
+                gl_FragColor = texture2D( texture[10],  uv);            
+            } else if(iTex==11) {
+                gl_FragColor = texture2D( texture[11],  uv);            
+            } else if(iTex==12) {
+                gl_FragColor = texture2D( texture[12],  uv);            
+            } else if(iTex==13) {
+                gl_FragColor = texture2D( texture[13],  uv);            
+            } else if(iTex==14) {
+                gl_FragColor = texture2D( texture[14],  uv);            
+            } else if(iTex==15) {
+                gl_FragColor = texture2D( texture[15],  uv);            
+            }
+        }
+    </script>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+        attribute float tex;
+        varying float vTex;
+        
+        void main()  {
+            vTex = tex;
+            vUv = uv;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
+            gl_Position = projectionMatrix * mvPosition;
+        }        
+    </script>
+    
+    <style>
+        html, body {
+          overflow: hidden;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+        @font-face {
+            font-family: '8-bit';
+            src: url('8-bit.ttf');
+        }
+    </style>
+    <script src="lib/threejs/three.js"></script>
+    <script src="lib/dobuki/setup.js"></script>
+    <script src="lib/dobuki/utils.js"></script>
+    <script src="lib/dobuki/packer.js"></script>
+    <script src="lib/dobuki/spritesheet.js"></script>
+    <script src="lib/dobuki/loop.js"></script>
+    <script src="lib/dobuki/spriterenderer.js"></script>
+    <script src="lib/dobuki/collection.js"></script>
+    <script src="lib/dobuki/keyboard.js"></script>
+    
+</head>
+<body>
+    <span id="fps" style="position:absolute; color:white; top:0px; left:0px">FPS</span>
+
+
+</body>
+
+
+<script>
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize( innerWidth, innerHeight );
+    renderer.setPixelRatio(devicePixelRatio);
+    document.body.appendChild( renderer.domElement );
+    
+    var camera = new THREE.OrthographicCamera(-innerWidth/2, innerWidth/2, innerHeight/2, -innerHeight/2, 1, 1000 );
+    var scene = new THREE.Scene();
+    
+    camera.position.set(0,0,400);
+//    camera.lookAt(scene.position);	
+    
+    window.addEventListener("resize",function() {
+        var width = innerWidth;
+        var height = innerHeight;
+        renderer.setSize( width, height );
+        camera.left = -width/2;
+        camera.right = width/2;
+        camera.top = height/2;
+        camera.bottom = -height/2;
+        camera.updateProjectionMatrix();
+    });
+    
+    var frameCuts = [
+        "squid.png|0,0,32,32|scale:2",
+        "squid.png|32,0,32,32|scale:2",
+        "squid.png|0,32,32,32|scale:2",
+        "squid.png|32,32,32,32|scale:2",
+    ];
+    
+    var numSprites = 1000;
+    var lastUpdate = 0;
+    var grid = null;
+    var spriteCollection = new DOK.FlatCollection(grid = new DOK.GridCollection(
+        30,30,
+        (x,y) => {
+            return x===0 && y===0 
+                ? { pos: [x,y,0],
+                    offset: [0,-64,0],
+                    url: "floor.png|scale:2",
+                }
+                : x%5===0 && y%5===0
+                ? null 
+                : x%5===2 && y%5===2 
+                ? [ 
+                    {
+                        pos:[(x-.2),(y-.2),0], 
+                        offset: [0,-64,0],
+                        url:frameCuts[Math.floor(DOK.time/100)%4]
+                    },
+                    {
+                        pos:[(x+.2),(y+.2),0], 
+                        offset: [0,-64,0],
+                        url:frameCuts[Math.floor(2+DOK.time/100)%4]
+                    },
+                ] 
+                : (x^y) % 11 === 0
+                ? { pos: [x,y,0],
+                    offset: [0,-64,0],
+                    url: "wall.png|scale:2",
+                    block: true,
+                } 
+                : { pos: [x,y,0],
+                    offset: [0,-64,0],
+                    url: "floor.png|scale:2",
+                };
+        }
+    ), {
+        dynamic: true,
+    });
+    
+    function getMove() {
+        var dx = 0, dy=0;
+        if(DOK.anyKeyPressed([87,38])) {
+            dy++;
+        }
+        if(DOK.anyKeyPressed([83,40])) {
+            dy--;
+        }
+        if(DOK.anyKeyPressed([65,37])) {
+            dx--;
+        }
+        if(DOK.anyKeyPressed([68,39])) {
+            dx++;
+        }
+        return [dx,dy];
+    }
+    
+    var boyframes = [
+        "0,0,128,128",
+        "128,0,128,128",
+        "0,128,128,128",
+        "128,128,128,128",
+    ];
+    var x=0,y=0,lastDX;
+    var boy = {
+        offset: [-32,-64,0],
+        get pos() {
+            return [x,y,0];
+        },
+        get url() {
+            var mov = getMove();
+            var dx=mov[0],dy=mov[1];
+            if(dx!=0) {
+                lastDX = dx;
+            }
+            
+            var url = null;
+            if(dy>0) {
+                url = 'boy/boy-walk-up.png|' + boyframes[Math.floor(DOK.time/100) % 4]+"|scale:.5";
+            } else if(dy<0) {
+                url = 'boy/boy-walk-down.png|' + boyframes[Math.floor(DOK.time/100) % 4]+"|scale:.5";
+            } else if(dx<0) {
+                url = 'boy/boy-walk-left.png|' + boyframes[Math.floor(DOK.time/100) % 4]+"|scale:.5";
+            } else if(dx>0) {
+                url = 'boy/boy-walk-right.png|' + boyframes[Math.floor(DOK.time/100) % 4]+"|scale:.5";
+            } else {
+                url = lastDX <=0 ? 'boy/boy.png|scale:.5' : 'boy/boy-still-right.png|scale:.5';
+            }
+        
+            return url;
+        }
+    };
+    
+    function isBlock(x,y) {
+        var xp = Math.floor(x);
+        var yp = Math.floor(y);
+        var cell = grid.cell(xp,yp);
+        return cell && cell.block;
+    }
+    
+    function boyLoop() {
+        var mov = getMove();
+        var dx=mov[0],dy=mov[1];
+        var dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist) {
+            var goalX = x + dx/dist * 1/10;
+            var goalY = y + dy/dist * 1/10;
+            if(!isBlock(goalX,goalY)) {
+                x = goalX;
+                y = goalY;
+            }
+        }
+    }
+    
+    var camX = 0, camY = 0;
+    function cameraFollow() {
+        var dx = boy.pos[0]*64 - camX;
+        var dy = boy.pos[1]*64 - camY;
+        camX += dx/10;
+        camY += dy/10;
+        camera.position.set(Math.round(camX), Math.round(camY), 400);
+    }
+    
+    var spriteCollection = new DOK.FlatCollection(
+        [
+            spriteCollection,
+            boy,
+        ],
+        {
+            dynamic: true,
+        }
+    );    
+    
+    scene.add(DOK.getMesh());
+    
+    DOK.fps = 45;
+    DOK.addLoop(function() {
+        boyLoop();
+        cameraFollow();
+        DOK.displaySprites(spriteCollection);
+        renderer.render(scene, camera);
+        document.getElementById("fps").textContent = DOK.fps;
+    });
+
+</script>

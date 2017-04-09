@@ -1,0 +1,116 @@
+<head>
+    <title>maze</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#d5f97a" />
+    <style>
+        html, body {
+          overflow: hidden;
+          margin: 0px;
+          padding: 0px;
+          background-color: black;
+        }
+        body {
+          position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        *.unselectable {
+           -moz-user-select: -moz-none;
+           -khtml-user-select: none;
+           -webkit-user-select: none;
+           -ms-user-select: none;
+           user-select: none;
+        }
+        @font-face {
+            font-family: '8-bit';
+            src: url('8-bit.ttf');
+        }
+    </style>
+    <script src="../lib/threejs/three.js"></script>
+    <script src="setup.js"></script>
+    <script src="spritesheet.js"></script>
+</head>
+<body>
+    <span id="fps" style="position:absolute; color:white; top:0px; left:0px">FPS</span>
+
+
+</body>
+
+
+<script>
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize( innerWidth, innerHeight );
+    renderer.setPixelRatio(devicePixelRatio);
+    document.body.appendChild( renderer.domElement );
+
+    var camera = new THREE.OrthographicCamera(-innerWidth/2, innerWidth/2, innerHeight/2, -innerHeight/2, 1, 1000 );
+    var scene = new THREE.Scene();
+    
+    camera.position.set(0,150,400);
+	camera.lookAt(scene.position);	
+
+    window.addEventListener("resize",function() {
+        var width = innerWidth;
+        var height = innerHeight;
+        renderer.setSize( width, height );
+        camera.left = -width/2;
+        camera.right = width/2;
+        camera.top = height/2;
+        camera.bottom = -height/2;
+        camera.updateProjectionMatrix();
+   });
+   
+   var canvas = document.createElement('canvas');
+   canvas.width = 32;
+   canvas.height = 32;
+
+   var maps = [
+        dok.getTexture("squid.png|0,0,32,32"),
+        dok.getTexture("squid.png|32,0,32,32"),
+        dok.getTexture("squid.png|0,32,32,32"),
+        dok.getTexture("squid.png|32,32,32,32"),
+   ];
+   
+   var sprites = [];
+   for(var i=0; i<1000;i++) {
+    var sprite = new THREE.Sprite( new THREE.SpriteMaterial());
+    sprite.position.set( (Math.random()-.5)*1000, (Math.random()-.5)*1000, 0 );
+    sprite.position.z = -sprite.position.y;
+	sprite.scale.set( 64, 64, 1.0 );
+	scene.add( sprite );
+	sprites.push(sprite);
+   }
+
+    var frameStart = 0, frames = 0;
+    
+    var lastTime = 0;
+    function loop(time) {
+        for(var i=0; i<sprites.length;i++) {
+            var sprite = sprites[i];
+            sprite.position.x += (Math.random()-.5)*5;
+            sprite.position.y += (Math.random()-.5)*5;
+            sprite.position.z = -sprite.position.y;
+            sprite.material.map = maps[Math.floor((time+i)/100) % maps.length]; //Math.random()<.5?map:map2;
+        }
+        renderer.render(scene, camera);
+        
+        frames++;
+        if(time - lastTime > 1000) {
+            lastTime = time;
+            document.getElementById("fps").textContent = frames;
+            frames = 0;
+        }
+        
+        requestAnimationFrame( loop );
+    }
+    loop(0);
+
+</script>

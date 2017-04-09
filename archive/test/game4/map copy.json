@@ -1,0 +1,1864 @@
+{
+  "-2_1": {
+    "creator": 3,
+    "dialog": "Test|Hello",
+    "message": "Hello Peng|How are you doing?|Careful in the cave, stay away from the wolves!"
+  },
+  "-2_2": {
+    "creator": 6
+  },
+  "-2_0": {
+    "creator": 1
+  },
+  "-3_0": {
+    "creator": 6
+  },
+  "-3_-1": {
+    "creator": 1
+  },
+  "-3_1": {
+    "creator": 6
+  },
+  "-3_2": {
+    "creator": 6,
+    "fish": true
+  },
+  "-2_-1": {
+    "creator": 1,
+    "fish": false
+  },
+  "-3_-2": {
+    "creator": 6
+  },
+  "-2_-2": {
+    "creator": 1
+  },
+  "-1_-1": {
+    "creator": 1
+  },
+  "0_-2": {
+    "creator": 1
+  },
+  "0_-1": {
+    "creator": 1
+  },
+  "1_-1": {
+    "creator": 1,
+    "fish": false
+  },
+  "2_-1": {
+    "creator": 1
+  },
+  "2_0": {
+    "creator": 1,
+    "fish": false,
+    "item": null
+  },
+  "2_1": {
+    "creator": 6
+  },
+  "1_1": {
+    "creator": 1,
+    "fish": true
+  },
+  "0_1": {
+    "creator": 1
+  },
+  "2_-2": {
+    "creator": 3,
+    "message": "I wish I knew how to swim|Then I could catch so many fish"
+  },
+  "1_-3": {
+    "creator": 6
+  },
+  "2_-3": {
+    "creator": 6
+  },
+  "0_-3": {
+    "creator": 1
+  },
+  "-1_-4": {
+    "creator": 1
+  },
+  "-4_-1": {
+    "creator": 6,
+    "fish": true
+  },
+  "-5_-1": {
+    "creator": 6
+  },
+  "-5_-2": {
+    "creator": 6
+  },
+  "-4_-2": {
+    "creator": 6
+  },
+  "-6_-1": {
+    "creator": 6
+  },
+  "-5_0": {
+    "creator": 6,
+    "fish": true
+  },
+  "-5_1": {
+    "creator": 6
+  },
+  "-6_1": {
+    "creator": 6
+  },
+  "-7_0": {
+    "creator": 4
+  },
+  "-7_2": {
+    "creator": 1
+  },
+  "-7_1": {
+    "creator": 1
+  },
+  "-6_0": {
+    "creator": 6,
+    "fish": false
+  },
+  "-4_0": {
+    "creator": 6
+  },
+  "-7_3": {
+    "creator": 4
+  },
+  "-6_3": {
+    "creator": 4,
+    "fish": true
+  },
+  "-6_2": {
+    "creator": 1
+  },
+  "-3_3": {
+    "creator": 6
+  },
+  "-3_4": {
+    "creator": 6
+  },
+  "-3_5": {
+    "creator": 1
+  },
+  "-4_5": {
+    "creator": 4
+  },
+  "-2_4": {
+    "creator": 6
+  },
+  "-1_5": {
+    "creator": 1
+  },
+  "-1_4": {
+    "creator": 6
+  },
+  "-1_3": {
+    "creator": 6
+  },
+  "1_2": {
+    "creator": 6
+  },
+  "0_2": {
+    "creator": 2
+  },
+  "-4_3": {
+    "creator": 4
+  },
+  "-5_4": {
+    "creator": 5
+  },
+  "-5_3": {
+    "creator": 5,
+    "fish": false
+  },
+  "-4_4": {
+    "creator": 4
+  },
+  "-5_5": {
+    "creator": 1
+  },
+  "-5_6": {
+    "creator": 5
+  },
+  "-4_6": {
+    "creator": 5
+  },
+  "-6_4": {
+    "creator": 4
+  },
+  "-6_5": {
+    "creator": 8
+  },
+  "-7_4": {
+    "creator": 4
+  },
+  "-7_5": {
+    "creator": 4
+  },
+  "-7_6": {
+    "creator": 4
+  },
+  "-5_2": {
+    "creator": 6
+  },
+  "-3_7": {
+    "creator": 4
+  },
+  "-3_6": {
+    "creator": 4
+  },
+  "-2_6": {
+    "creator": 4
+  },
+  "-2_5": {
+    "creator": 4
+  },
+  "-6_7": {
+    "creator": 8
+  },
+  "-6_6": {
+    "creator": 8
+  },
+  "-7_7": {
+    "creator": 4
+  },
+  "-5_7": {
+    "creator": 1
+  },
+  "-4_8": {
+    "creator": 8
+  },
+  "-4_9": {
+    "creator": 1
+  },
+  "-3_4|-5_5": {
+    "creator": 1
+  },
+  "-3_4|-2_3": {
+    "creator": 8
+  },
+  "-3_4|-2_4": {
+    "creator": 8
+  },
+  "-3_4|-2_5": {
+    "creator": 8
+  },
+  "-3_4|-2_6": {
+    "creator": 8
+  },
+  "-3_4|-4_3": {
+    "creator": 8
+  },
+  "-3_4|-4_4": {
+    "creator": 8
+  },
+  "-3_4|-4_5": {
+    "creator": 8
+  },
+  "-3_4|-4_6": {
+    "creator": 8
+  },
+  "-3_4|-4_7": {
+    "creator": 8
+  },
+  "-3_4|-4_9": {
+    "creator": 8
+  },
+  "-3_4|-3_9": {
+    "creator": 1
+  },
+  "-3_4|-4_8": {
+    "creator": 8
+  },
+  "-3_4|-2_9": {
+    "creator": 1
+  },
+  "-3_4|-1_9": {
+    "creator": 1
+  },
+  "-3_4|-1_7": {
+    "creator": 1
+  },
+  "-3_4|-1_6": {
+    "creator": 8
+  },
+  "-3_4|0_9": {
+    "creator": 1
+  },
+  "-3_4|1_9": {
+    "creator": 1
+  },
+  "-3_4|0_6": {
+    "creator": 8
+  },
+  "-3_4|1_6": {
+    "creator": 8
+  },
+  "-3_4|2_6": {
+    "creator": 8
+  },
+  "-3_4|2_9": {
+    "creator": 1
+  },
+  "-3_4|3_9": {
+    "creator": 1
+  },
+  "-3_4|4_9": {
+    "creator": 1
+  },
+  "-3_4|5_9": {
+    "creator": 3
+  },
+  "-3_4|6_9": {
+    "creator": 8
+  },
+  "-3_4|6_8": {
+    "creator": 8
+  },
+  "-3_4|6_7": {
+    "creator": 8
+  },
+  "-3_4|6_6": {
+    "creator": 8
+  },
+  "-3_4|5_6": {
+    "creator": 8
+  },
+  "-3_4|4_6": {
+    "creator": 8
+  },
+  "-3_4|3_6": {
+    "creator": 8
+  },
+  "-3_4|6_10": {
+    "creator": 8
+  },
+  "-3_4|5_10": {
+    "creator": 8
+  },
+  "-3_4|4_10": {
+    "creator": 8
+  },
+  "-3_4|3_10": {
+    "creator": 8
+  },
+  "-3_4|2_10": {
+    "creator": 8
+  },
+  "-3_4|1_10": {
+    "creator": 8
+  },
+  "-3_4|-1_10": {
+    "creator": 8
+  },
+  "-3_4|0_10": {
+    "creator": 8
+  },
+  "-3_4|-2_10": {
+    "creator": 1
+  },
+  "-3_4|-3_10": {
+    "creator": 1
+  },
+  "-3_4|-4_10": {
+    "creator": 8
+  },
+  "-5_10": {
+    "creator": 1
+  },
+  "-5_11": {
+    "creator": 1
+  },
+  "-3_10": {
+    "creator": 1
+  },
+  "-6_10": {
+    "creator": 1
+  },
+  "-7_9": {
+    "creator": 1
+  },
+  "-6_9": {
+    "creator": 1
+  },
+  "-6_8": {
+    "creator": 8
+  },
+  "-3_9": {
+    "creator": 1
+  },
+  "-2_8": {
+    "creator": 4
+  },
+  "-2_7": {
+    "creator": 4
+  },
+  "-1_8": {
+    "creator": 4
+  },
+  "-1_9": {
+    "creator": 4
+  },
+  "-2_10": {
+    "creator": 4
+  },
+  "-2_9": {
+    "creator": 4
+  },
+  "-8_7": {
+    "creator": 4
+  },
+  "-9_7": {
+    "creator": 4
+  },
+  "-9_8": {
+    "creator": 4
+  },
+  "-9_9": {
+    "creator": 4
+  },
+  "-9_10": {
+    "creator": 4
+  },
+  "-9_11": {
+    "creator": 4
+  },
+  "-8_11": {
+    "creator": 4
+  },
+  "-8_12": {
+    "creator": 4
+  },
+  "-9_12": {
+    "creator": 4
+  },
+  "-6_12": {
+    "creator": 4
+  },
+  "-6_11": {
+    "creator": 4
+  },
+  "-4_1": {
+    "creator": 6
+  },
+  "-3_4|-1_11": {
+    "creator": 8
+  },
+  "-3_4|-1_12": {
+    "creator": 8
+  },
+  "-3_4|-1_14": {
+    "creator": 8
+  },
+  "-3_4|-1_13": {
+    "creator": 8
+  },
+  "-3_4|-2_14": {
+    "creator": 8
+  },
+  "-3_4|-3_14": {
+    "creator": 8
+  },
+  "-3_4|-4_14": {
+    "creator": 8
+  },
+  "-3_4|-5_14": {
+    "creator": 8
+  },
+  "-3_4|-6_14": {
+    "creator": 8
+  },
+  "-3_4|-6_13": {
+    "creator": 8
+  },
+  "-3_4|-6_12": {
+    "creator": 8
+  },
+  "-3_4|-6_11": {
+    "creator": 8
+  },
+  "-3_4|-6_10": {
+    "creator": 8
+  },
+  "-3_4|-5_10": {
+    "creator": 2
+  },
+  "room|-4_3": {
+    "creator": 8
+  },
+  "room|-4_4": {
+    "creator": 1
+  },
+  "room|-4_5": {
+    "creator": 1
+  },
+  "room|-6_5": {
+    "creator": 1
+  },
+  "room|-5_5": {
+    "creator": 8
+  },
+  "room|-6_6": {
+    "creator": 1
+  },
+  "room|-6_8": {
+    "creator": 1
+  },
+  "room|-5_8": {
+    "creator": 8
+  },
+  "-5_8": {
+    "creator": 8
+  },
+  "room|-4_8": {
+    "creator": 8
+  },
+  "room|-3_8": {
+    "creator": 7
+  },
+  "-3_8": {
+    "creator": 8
+  },
+  "room|-2_8": {
+    "creator": 1
+  },
+  "room|-1_8": {
+    "creator": 1
+  },
+  "room|-1_6": {
+    "creator": 1
+  },
+  "-1_6": {
+    "creator": 1
+  },
+  "room|-1_5": {
+    "creator": 1
+  },
+  "room|-1_4": {
+    "creator": 1,
+    "fish": true
+  },
+  "room|-1_3": {
+    "creator": 1
+  },
+  "room|-2_3": {
+    "creator": 1
+  },
+  "-2_3": {
+    "creator": 6
+  },
+  "room|-1_7": {
+    "creator": 1
+  },
+  "-1_7": {
+    "creator": 4
+  },
+  "room|-6_7": {
+    "creator": 1
+  },
+  "room|-3_4": {
+    "creator": 1
+  },
+  "room|-3_3": {
+    "creator": 1
+  },
+  "0_5": {
+    "creator": 1
+  },
+  "-4_2": {
+    "creator": 6
+  },
+  "3_-2": {
+    "creator": 1
+  },
+  "-1_-3": {
+    "creator": 1
+  },
+  "-1_-2": {
+    "creator": 1
+  },
+  "-3_-3": {
+    "creator": 5
+  },
+  "-2_-4": {
+    "creator": 1
+  },
+  "-2_-3": {
+    "creator": 1
+  },
+  "-4_-4": {
+    "creator": 6
+  },
+  "-4_-3": {
+    "creator": 5
+  },
+  "-1_2": {
+    "creator": 6
+  },
+  "3_0": {
+    "creator": 1,
+    "item": null
+  },
+  "3_-1": {
+    "creator": 1
+  },
+  "3_1": {
+    "creator": 6
+  },
+  "3_-3": {
+    "creator": 6
+  },
+  "0_-4": {
+    "creator": 1,
+    "item": null
+  },
+  "1_-4": {
+    "creator": 6
+  },
+  "0_-5": {
+    "creator": 1
+  },
+  "-1_-5": {
+    "creator": 1
+  },
+  "4_-4": {
+    "creator": 6
+  },
+  "4_-3": {
+    "creator": 6
+  },
+  "4_-2": {
+    "creator": 1
+  },
+  "5_0": {
+    "creator": 5
+  },
+  "4_0": {
+    "creator": 6
+  },
+  "3_2": {
+    "creator": 6
+  },
+  "2_2": {
+    "creator": 6
+  },
+  "3_-6": {
+    "creator": 1
+  },
+  "2_-6": {
+    "creator": 1
+  },
+  "1_-6": {
+    "creator": 4
+  },
+  "1_-7": {
+    "creator": 1
+  },
+  "0_-8": {
+    "creator": 1
+  },
+  "-1_-6": {
+    "creator": 1
+  },
+  "0_-7": {
+    "creator": 1
+  },
+  "0_-6": {
+    "creator": 1
+  },
+  "-2_-6": {
+    "creator": 1
+  },
+  "-2_-5": {
+    "creator": 1
+  },
+  "-3_-5": {
+    "creator": 6
+  },
+  "-3_-6": {
+    "creator": 4
+  },
+  "-2_-7": {
+    "creator": 1
+  },
+  "-3_-8": {
+    "creator": 4
+  },
+  "0_-9": {
+    "creator": 1
+  },
+  "1_-9": {
+    "creator": 1
+  },
+  "2_-9": {
+    "creator": 1
+  },
+  "3_-8": {
+    "creator": 4
+  },
+  "4_-8": {
+    "creator": 4
+  },
+  "4_-7": {
+    "creator": 1
+  },
+  "3_-7": {
+    "creator": 1
+  },
+  "-5_-3": {
+    "creator": 1,
+    "item": "key"
+  },
+  "-5_-4": {
+    "creator": 6
+  },
+  "-3_-4": {
+    "creator": 6
+  },
+  "3_-4": {
+    "creator": 6,
+    "fish": true
+  },
+  "2_-4": {
+    "creator": 6
+  },
+  "5_-4": {
+    "creator": 6
+  },
+  "5_-3": {
+    "creator": 6
+  },
+  "6_-1": {
+    "creator": 4
+  },
+  "5_-1": {
+    "creator": 1
+  },
+  "5_-2": {
+    "creator": 1
+  },
+  "5_1": {
+    "creator": 5
+  },
+  "5_2": {
+    "creator": 5
+  },
+  "5_3": {
+    "creator": 6
+  },
+  "4_3": {
+    "creator": 6
+  },
+  "3_3": {
+    "creator": 6
+  },
+  "2_3": {
+    "creator": 6,
+    "fish": false
+  },
+  "1_3": {
+    "creator": 6
+  },
+  "1_-5": {
+    "creator": 4
+  },
+  "1_-8": {
+    "creator": 4
+  },
+  "-1_-8": {
+    "creator": 1
+  },
+  "-2_-8": {
+    "creator": 1
+  },
+  "-4_-8": {
+    "creator": 4
+  },
+  "-5_-8": {
+    "creator": 4
+  },
+  "-6_-8": {
+    "creator": 4
+  },
+  "-6_-7": {
+    "creator": 4
+  },
+  "-6_-6": {
+    "creator": 4
+  },
+  "-6_-5": {
+    "creator": 4
+  },
+  "-6_-4": {
+    "creator": 6
+  },
+  "-6_-3": {
+    "creator": 4
+  },
+  "4_2": {
+    "creator": 6
+  },
+  "4_1": {
+    "creator": 6
+  },
+  "4_-1": {
+    "creator": 1
+  },
+  "-4_-5": {
+    "creator": 6
+  },
+  "-5_-5": {
+    "creator": 6
+  },
+  "0_3": {
+    "creator": 1
+  },
+  "2_4": {
+    "creator": 6
+  },
+  "1_4": {
+    "creator": 6
+  },
+  "4_4": {
+    "creator": 6
+  },
+  "3_4": {
+    "creator": 6
+  },
+  "room|0_2": {
+    "creator": 2
+  },
+  "2_-5": {
+    "creator": 6
+  },
+  "3_-5": {
+    "creator": 6
+  },
+  "room|-2_7": {
+    "creator": 1
+  },
+  "0_0": {
+    "fish": false
+  },
+  "-5_-6": {
+    "fish": true
+  },
+  "1_0": {
+    "fish": false
+  },
+  "-10_-5": {
+    "creator": 1
+  },
+  "-10_-10": {
+    "creator": 1
+  },
+  "-5_-10": {
+    "creator": 1
+  },
+  "1_-10": {
+    "creator": 1
+  },
+  "0_-10": {
+    "creator": 1
+  },
+  "room|-1_2": {
+    "creator": 8
+  },
+  "room|-2_2": {
+    "creator": 8
+  },
+  "room|-3_2": {
+    "creator": 8
+  },
+  "room|-4_2": {
+    "creator": 8
+  },
+  "room|-5_3": {
+    "creator": 8
+  },
+  "room|-5_4": {
+    "creator": 8
+  },
+  "room|-5_6": {
+    "creator": 8
+  },
+  "room|-5_7": {
+    "creator": 8
+  },
+  "room|-4_7": {
+    "creator": 1
+  },
+  "room|-4_9": {
+    "creator": 8
+  },
+  "room|-3_9": {
+    "creator": 8
+  },
+  "room|-2_9": {
+    "creator": 8
+  },
+  "room|-1_9": {
+    "creator": 8
+  },
+  "room|0_9": {
+    "creator": 8
+  },
+  "room|1_9": {
+    "creator": 8
+  },
+  "room|2_9": {
+    "creator": 8
+  },
+  "room|3_9": {
+    "creator": 8
+  },
+  "room|4_9": {
+    "creator": 8
+  },
+  "room|1_2": {
+    "creator": 8
+  },
+  "room|2_2": {
+    "creator": 8
+  },
+  "room|3_2": {
+    "creator": 8
+  },
+  "room|4_2": {
+    "creator": 8
+  },
+  "room|5_9": {
+    "creator": 8
+  },
+  "room|6_9": {
+    "creator": 8
+  },
+  "room|7_9": {
+    "creator": 8
+  },
+  "room|5_3": {
+    "creator": 8
+  },
+  "room|6_3": {
+    "creator": 8
+  },
+  "room|7_3": {
+    "creator": 8
+  },
+  "room|4_3": {
+    "creator": 8
+  },
+  "room|8_3": {
+    "creator": 8
+  },
+  "room|9_3": {
+    "creator": 8
+  },
+  "room|10_3": {
+    "creator": 8
+  },
+  "room|8_9": {
+    "creator": 8
+  },
+  "room|9_9": {
+    "creator": 8
+  },
+  "room|10_9": {
+    "creator": 8
+  },
+  "room|11_3": {
+    "creator": 8
+  },
+  "room|12_3": {
+    "creator": 8
+  },
+  "room|13_3": {
+    "creator": 8
+  },
+  "room|14_3": {
+    "creator": 8
+  },
+  "room|14_4": {
+    "creator": 8
+  },
+  "room|14_5": {
+    "creator": 8
+  },
+  "room|14_6": {
+    "creator": 8
+  },
+  "room|14_7": {
+    "creator": 8
+  },
+  "room|14_8": {
+    "creator": 1
+  },
+  "room|14_9": {
+    "creator": 1
+  },
+  "room|14_10": {
+    "creator": 1
+  },
+  "room|14_11": {
+    "creator": 8
+  },
+  "room|14_12": {
+    "creator": 8
+  },
+  "room|13_12": {
+    "creator": 3,
+    "message": "Every door needs a key|Every door!"
+  },
+  "room|12_12": {
+    "creator": 1
+  },
+  "room|10_12": {
+    "creator": 1
+  },
+  "room|11_12": {
+    "creator": 1
+  },
+  "room|9_12": {
+    "creator": 1
+  },
+  "room|8_12": {
+    "creator": 1
+  },
+  "room|7_12": {
+    "creator": 1
+  },
+  "room|6_12": {
+    "creator": 1
+  },
+  "room|5_12": {
+    "creator": 1
+  },
+  "room|4_12": {
+    "creator": 1
+  },
+  "room|3_12": {
+    "creator": 8
+  },
+  "room|3_11": {
+    "creator": 8
+  },
+  "room|3_10": {
+    "creator": 8
+  },
+  "room|3_13": {
+    "creator": 8
+  },
+  "room|4_13": {
+    "creator": 8
+  },
+  "room|5_13": {
+    "creator": 8
+  },
+  "room|6_13": {
+    "creator": 8
+  },
+  "room|7_13": {
+    "creator": 8
+  },
+  "room|4_11": {
+    "creator": 2
+  },
+  "4_11": {
+    "creator": 2
+  },
+  "room|5_10": {
+    "creator": 8
+  },
+  "5_10": {
+    "creator": 1
+  },
+  "0_10": {
+    "creator": 1
+  },
+  "3_11": {
+    "creator": 1
+  },
+  "2_11": {
+    "creator": 1,
+    "item": "key"
+  },
+  "3_12": {
+    "creator": 1
+  },
+  "2_10": {
+    "creator": 1
+  },
+  "2_9": {
+    "creator": 1
+  },
+  "3_8": {
+    "creator": 1
+  },
+  "4_8": {
+    "creator": 1
+  },
+  "5_9": {
+    "creator": 4
+  },
+  "6_10": {
+    "creator": 1
+  },
+  "6_12": {
+    "creator": 1,
+    "item": null
+  },
+  "5_12": {
+    "creator": 1
+  },
+  "4_12": {
+    "creator": 1
+  },
+  "6_11": {
+    "creator": 1
+  },
+  "6_9": {
+    "creator": 4
+  },
+  "6_8": {
+    "creator": 6,
+    "fish": true
+  },
+  "3_7": {
+    "creator": 4
+  },
+  "1_9": {
+    "creator": 4
+  },
+  "2_8": {
+    "creator": 4
+  },
+  "5_7": {
+    "creator": 4
+  },
+  "6_7": {
+    "creator": 6,
+    "fish": true
+  },
+  "7_8": {
+    "creator": 6
+  },
+  "7_9": {
+    "creator": 4
+  },
+  "7_10": {
+    "creator": 4
+  },
+  "7_11": {
+    "creator": 4
+  },
+  "7_12": {
+    "creator": 4
+  },
+  "6_13": {
+    "creator": 4
+  },
+  "7_13": {
+    "creator": 4
+  },
+  "5_14": {
+    "creator": 4
+  },
+  "4_14": {
+    "creator": 4
+  },
+  "3_13": {
+    "creator": 4
+  },
+  "2_13": {
+    "creator": 4
+  },
+  "3_14": {
+    "creator": 4
+  },
+  "1_13": {
+    "creator": 4
+  },
+  "0_13": {
+    "creator": 4
+  },
+  "0_12": {
+    "creator": 4
+  },
+  "10_10": {
+    "creator": 4
+  },
+  "5_5": {
+    "creator": 1
+  },
+  "5_15": {
+    "creator": 1
+  },
+  "0_15": {
+    "creator": 1
+  },
+  "10_15": {
+    "creator": 1
+  },
+  "room|15_7": {
+    "creator": 8
+  },
+  "room|16_7": {
+    "creator": 8
+  },
+  "room|17_7": {
+    "creator": 8
+  },
+  "room|15_11": {
+    "creator": 8
+  },
+  "room|17_11": {
+    "creator": 8
+  },
+  "room|16_11": {
+    "creator": 8
+  },
+  "room|18_11": {
+    "creator": 8
+  },
+  "room|19_11": {
+    "creator": 8
+  },
+  "room|20_10": {
+    "creator": 1
+  },
+  "room|20_9": {
+    "creator": 8
+  },
+  "room|20_8": {
+    "creator": 1
+  },
+  "room|20_7": {
+    "creator": 8
+  },
+  "room|20_6": {
+    "creator": 8
+  },
+  "room|20_5": {
+    "creator": 8
+  },
+  "room|20_4": {
+    "creator": 8
+  },
+  "room|20_3": {
+    "creator": 8
+  },
+  "room|19_3": {
+    "creator": 8
+  },
+  "room|18_3": {
+    "creator": 8
+  },
+  "room|17_3": {
+    "creator": 8
+  },
+  "room|16_3": {
+    "creator": 8
+  },
+  "room|15_3": {
+    "creator": 2
+  },
+  "15_3": {
+    "creator": 2
+  },
+  "15_5": {
+    "creator": 1
+  },
+  "20_5": {
+    "creator": 1
+  },
+  "20_0": {
+    "creator": 1
+  },
+  "15_0": {
+    "creator": 1
+  },
+  "10_0": {
+    "creator": 5
+  },
+  "10_5": {
+    "creator": 1
+  },
+  "10_-5": {
+    "creator": 5
+  },
+  "15_-5": {
+    "creator": 1
+  },
+  "10_-9": {
+    "creator": 4
+  },
+  "10_-10": {
+    "creator": 1
+  },
+  "10_-8": {
+    "creator": 4
+  },
+  "15_-10": {
+    "creator": 1
+  },
+  "20_-5": {
+    "creator": 1
+  },
+  "15_4": {
+    "creator": 1
+  },
+  "-5_-7": {
+    "item": null
+  },
+  "-4_-6": {
+    "item": null
+  },
+  "room|6_5": {
+    "creator": 3,
+    "message": "Don't worry|There are no items hidden behind the walls|Or there might be 1 or 2, placed by accident"
+  },
+  "room|7_4": {
+    "fish": true
+  },
+  "5_-5": {
+    "creator": 3,
+    "message": "I heard some penguins are skating champions"
+  },
+  "2_-8": {
+    "creator": 4
+  },
+  "6_-8": {
+    "creator": 4
+  },
+  "6_-7": {
+    "creator": 1
+  },
+  "6_-6": {
+    "creator": 6
+  },
+  "6_-5": {
+    "creator": 6
+  },
+  "6_-4": {
+    "creator": 6
+  },
+  "6_-3": {
+    "creator": 6
+  },
+  "6_-2": {
+    "creator": 6
+  },
+  "6_0": {
+    "creator": 4
+  },
+  "6_2": {
+    "creator": 4
+  },
+  "6_1": {
+    "creator": 5,
+    "fish": true
+  },
+  "6_3": {
+    "creator": 4
+  },
+  "7_-5": {
+    "creator": 5
+  },
+  "room|8_-6": {
+    "creator": 2
+  },
+  "8_-6": {
+    "creator": 4
+  },
+  "8_-5": {
+    "creator": 5
+  },
+  "8_-4": {
+    "creator": 4
+  },
+  "8_-3": {
+    "creator": 4
+  },
+  "8_-2": {
+    "creator": 5,
+    "item": "candle"
+  },
+  "7_-2": {
+    "creator": 5
+  },
+  "8_-1": {
+    "creator": 5,
+    "item": null
+  },
+  "8_0": {
+    "creator": 4
+  },
+  "8_1": {
+    "creator": 5
+  },
+  "7_-4": {
+    "creator": 5
+  },
+  "room|7_-4": {
+    "creator": 2
+  },
+  "7_-3": {
+    "creator": 5
+  },
+  "7_-1": {
+    "creator": 5
+  },
+  "7_0": {
+    "creator": 5
+  },
+  "7_1": {
+    "creator": 5
+  },
+  "7_2": {
+    "creator": 5
+  },
+  "7_3": {
+    "creator": 4
+  },
+  "9_-1": {
+    "creator": 5
+  },
+  "9_1": {
+    "creator": 5
+  },
+  "9_2": {
+    "creator": 5
+  },
+  "9_-2": {
+    "creator": 5
+  },
+  "9_-3": {
+    "creator": 5
+  },
+  "10_-4": {
+    "creator": 4
+  },
+  "10_-3": {
+    "creator": 4
+  },
+  "10_-2": {
+    "creator": 5
+  },
+  "11_-1": {
+    "creator": 4
+  },
+  "11_0": {
+    "creator": 4
+  },
+  "11_1": {
+    "creator": 4
+  },
+  "11_2": {
+    "creator": 4
+  },
+  "10_2": {
+    "creator": 4
+  },
+  "10_3": {
+    "creator": 4
+  },
+  "9_3": {
+    "creator": 4
+  },
+  "9_0": {
+    "creator": 1
+  },
+  "8_2": {
+    "creator": 5
+  },
+  "10_-1": {
+    "creator": 5
+  },
+  "10_1": {
+    "creator": 5
+  },
+  "5_-7": {
+    "creator": 1
+  },
+  "7_-6": {
+    "creator": 9
+  },
+  "11_-5": {
+    "creator": 4
+  },
+  "9_-6": {
+    "creator": 4
+  },
+  "10_-7": {
+    "creator": 4
+  },
+  "11_-6": {
+    "creator": 4
+  },
+  "5_-10": {
+    "creator": 1
+  },
+  "6_-9": {
+    "creator": 4
+  },
+  "7_-9": {
+    "creator": 4
+  },
+  "8_-9": {
+    "creator": 4
+  },
+  "9_-9": {
+    "creator": 4
+  },
+  "-10_4": {
+    "creator": 4
+  },
+  "-10_5": {
+    "creator": 4
+  },
+  "-9_5": {
+    "creator": 4
+  },
+  "-10_1": {
+    "creator": 4
+  },
+  "-10_0": {
+    "creator": 4
+  },
+  "-10_-1": {
+    "creator": 4
+  },
+  "room|1_7": {},
+  "room|2_7": {},
+  "room|8_13": {
+    "creator": 8
+  },
+  "room|9_13": {
+    "creator": 8
+  },
+  "room|10_13": {
+    "creator": 8
+  },
+  "room|11_13": {
+    "creator": 8
+  },
+  "room|12_13": {
+    "creator": 8
+  },
+  "room|13_13": {
+    "creator": 8
+  },
+  "room|14_13": {
+    "creator": 8
+  },
+  "room|15_13": {
+    "creator": 8
+  },
+  "room|15_12": {
+    "creator": 8
+  },
+  "-1_-9": {
+    "creator": 3,
+    "message": "It gets dark in the dungeons"
+  },
+  "-2_-10": {
+    "creator": 1
+  },
+  "3_-9": {
+    "creator": 4
+  },
+  "3_-11": {
+    "creator": 4
+  },
+  "4_-10": {
+    "creator": 4
+  },
+  "4_-9": {
+    "creator": 4
+  },
+  "4_-11": {
+    "creator": 4
+  },
+  "2_-11": {
+    "creator": 4
+  },
+  "2_-10": {
+    "creator": 4
+  },
+  "1_-11": {
+    "creator": 4
+  },
+  "1_-12": {
+    "creator": 4
+  },
+  "0_-12": {
+    "creator": 4
+  },
+  "2_-12": {
+    "creator": 4
+  },
+  "-2_-12": {
+    "creator": 4
+  },
+  "-3_-12": {
+    "creator": 4
+  },
+  "-4_-11": {
+    "creator": 4
+  },
+  "-3_-11": {
+    "creator": 4
+  },
+  "-4_-10": {
+    "creator": 4
+  },
+  "-3_-9": {
+    "creator": 1
+  },
+  "room|8_4": {
+    "creator": 1
+  },
+  "room|9_5": {
+    "creator": 1
+  },
+  "room|9_4": {
+    "creator": 1
+  },
+  "room|10_4": {
+    "creator": 1
+  },
+  "room|11_4": {
+    "creator": 1
+  },
+  "room|12_4": {
+    "creator": 1
+  },
+  "room|13_4": {
+    "creator": 1,
+    "fish": true
+  },
+  "room|20_11": {
+    "creator": 8
+  },
+  "room|21_11": {
+    "creator": 8
+  },
+  "room|22_11": {
+    "creator": 8
+  },
+  "room|23_11": {
+    "creator": 8
+  },
+  "room|24_11": {
+    "creator": 8
+  },
+  "room|25_11": {
+    "creator": 8
+  },
+  "room|26_11": {
+    "creator": 8
+  },
+  "room|21_7": {
+    "creator": 8
+  },
+  "room|22_7": {
+    "creator": 8
+  },
+  "room|23_7": {
+    "creator": 8
+  },
+  "room|24_7": {
+    "creator": 8
+  },
+  "room|25_7": {
+    "creator": 8
+  },
+  "room|26_7": {
+    "creator": 8
+  },
+  "room|27_7": {
+    "creator": 8
+  },
+  "room|28_7": {
+    "creator": 8
+  },
+  "room|29_7": {
+    "creator": 8
+  },
+  "room|30_7": {
+    "creator": 8
+  },
+  "room|31_7": {
+    "creator": 8
+  },
+  "room|32_7": {
+    "creator": 8
+  },
+  "room|33_7": {
+    "creator": 8
+  },
+  "room|34_7": {
+    "creator": 8
+  },
+  "room|34_8": {
+    "creator": 8
+  },
+  "room|34_9": {
+    "creator": 8
+  },
+  "room|34_10": {
+    "creator": 8
+  },
+  "room|34_11": {
+    "creator": 8
+  },
+  "room|34_12": {
+    "creator": 8
+  },
+  "room|34_14": {
+    "creator": 8
+  },
+  "room|34_15": {
+    "creator": 8
+  },
+  "room|33_15": {
+    "creator": 8
+  },
+  "room|32_15": {
+    "creator": 8
+  },
+  "room|31_15": {
+    "creator": 8
+  },
+  "room|29_15": {
+    "creator": 8
+  },
+  "room|30_15": {
+    "creator": 1,
+    "item": "key"
+  },
+  "room|28_15": {
+    "creator": 8
+  },
+  "room|27_15": {
+    "creator": 8
+  },
+  "room|26_15": {
+    "creator": 8
+  },
+  "room|26_14": {
+    "creator": 8
+  },
+  "room|26_13": {
+    "creator": 8
+  },
+  "room|26_12": {
+    "creator": 8
+  },
+  "room|34_13": {
+    "creator": 8
+  },
+  "room|30_13": {
+    "creator": 1
+  },
+  "room|2_6": {},
+  "room|28_13": {
+    "creator": 3,
+    "message": "Doctor Lily can restore all your health|But careful! she'll also eat all your fish"
+  },
+  "room|32_13": {
+    "creator": 0,
+    "message": "Hi I'm Dr Lily.|Let me heal all your wounds.|Do you have fish?|Don't tell me you have fish|I looovve fish!"
+  },
+  "room|32_12": {},
+  "room|30_16": {
+    "creator": 8
+  },
+  "1_10": {
+    "creator": 1
+  },
+  "0_8": {
+    "creator": 1
+  },
+  "9_8": {
+    "creator": 6
+  },
+  "10_6": {
+    "creator": 1
+  },
+  "9_6": {
+    "creator": 6
+  },
+  "9_5": {
+    "creator": 1
+  },
+  "8_8": {
+    "creator": 6,
+    "fish": true
+  },
+  "8_10": {
+    "creator": 4
+  },
+  "5_8": {
+    "creator": 4
+  },
+  "7_7": {
+    "creator": 6
+  },
+  "7_6": {
+    "creator": 6
+  },
+  "7_5": {
+    "creator": 6
+  },
+  "8_5": {
+    "creator": 6,
+    "fish": true
+  },
+  "8_6": {
+    "creator": 6
+  },
+  "8_7": {
+    "creator": 1
+  },
+  "8_9": {
+    "creator": 6
+  },
+  "9_7": {
+    "creator": 1
+  },
+  "10_8": {
+    "creator": 6
+  },
+  "6_6": {
+    "creator": 6
+  },
+  "9_4": {
+    "creator": 6
+  },
+  "12_5": {
+    "creator": 1
+  },
+  "12_4": {
+    "creator": 1
+  },
+  "13_5": {
+    "creator": 1
+  },
+  "10_9": {
+    "creator": 6
+  },
+  "12_11": {
+    "creator": 4
+  },
+  "12_10": {
+    "creator": 4
+  },
+  "12_9": {
+    "creator": 4
+  },
+  "12_8": {
+    "creator": 4
+  }
+}

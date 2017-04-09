@@ -244,6 +244,19 @@
 
     var elements = [];
     var cam = {x:0,y:0};
+    var turtle = null;
+
+
+    elements.push(turtle = {
+        x:0,
+        y:0,
+        z:0,
+        dx:0,
+        dy:0,
+        dz:0,
+        block:true,
+        index:elements.length,
+    });
 
 
     var blank = "   ", turtleCell = "()o";
@@ -310,16 +323,18 @@
                 var cell = null;
                 if(tag) {
                     if(tag.charAt(1)==='8') {
-                        cam.x = turtleX = x;
-                        cam.y = turtleY = y;
+                        cam.x = turtle.x = x;
+                        cam.y = turtle.y = y;
                         map[y][x] = tag.charAt(0)+" "+tag.charAt(2);
                     }else if(tag.charAt(1)==='ô') {
                         elements.push({
                             type:'penguin',
                             x:x,
                             y:y,
+                            z:0,
                             dx:0,
                             dy:0,
+                            dz:0,
                             block:true,
                             index:elements.length,
                         });
@@ -329,8 +344,10 @@
                             type:'hamster',
                             x:x,
                             y:y,
+                            z:0,
                             dx:0,
                             dy:0,
+                            dz:0,
                             block:true,
                             index:elements.length,
                         });
@@ -443,6 +460,41 @@
             }
             return nullElem;
         };
+        var array = [];
+        collection.getElems = function(x,y) {
+            array.length = 0;
+            for(var i=0; i<elements.length; i++) {
+                var elem = elements[i];
+                if(x===Math.round(elem.x) && y===Math.round(elem.y) && !elem.destroyed) {
+                    array.push(elem);
+                }
+            }
+            return array;
+        }
+
+
+        collection.hasBreakable = function(x,y) {
+            var elems = this.getElems(x,y);
+            for(var i=0;i<elems.length;i++) {
+                if(elems[i].breakable && !elems[i].destroyed) {
+                    return elems[i];
+                }
+            }
+            return false;
+        }
+
+        collection.hasBlock = function(x,y) {
+            var elems = this.getElems(x,y);
+            for(var i=0;i<elems.length;i++) {
+                if(elems[i].block && !elems[i].destroyed) {
+                    return elems[i];
+                }
+            }
+            return false;
+        }
+
+
+
         collection.elements = elements;
         return collection;
     }
@@ -463,8 +515,7 @@
         ]
     );
 
-    var turtleX = 0, turtleY = 0, turtleZ = 0, ride;
-    var dZ = 0;
+    var ride;
     var goal = null, steps = 0, sliding = null, lockTurtle = false,
         riding = false,
         jumping = false,
@@ -497,8 +548,8 @@
 
     function updateTurtle() {
         mov = sliding || riding || jumping ? lockTemp : DOK.getMove();
-        var curX = Math.round(turtleX);
-        var curY = Math.round(turtleY);
+        var curX = Math.round(turtle.x);
+        var curY = Math.round(turtle.y);
         var inMotion;
 
         if(!goal) {
@@ -529,14 +580,14 @@
             goal[1] = curY + mov[1];
         }
 
-        var preX = turtleX, preY = turtleY;
+        var preX = turtle.x, preY = turtle.y;
         var destX, destY;
         if (!mov[0] && !mov[1]) {
-            destX = turtleX + (goal[0] - turtleX)/2;
-            destY = turtleY + (goal[1] - turtleY)/2;
-            if(Math.abs(turtleX-curX)<.2) destX = curX;
-            if(Math.abs(turtleY-curY)<.2) destY = curY;
-            if(destX===turtleX && destY===turtleY && (steps || waitRest)) {
+            destX = turtle.x + (goal[0] - turtle.x)/2;
+            destY = turtle.y + (goal[1] - turtle.y)/2;
+            if(Math.abs(turtle.x-curX)<.2) destX = curX;
+            if(Math.abs(turtle.y-curY)<.2) destY = curY;
+            if(destX===turtle.x && destY===turtle.y && (steps || waitRest)) {
                 steps = 0;
                 waitRest = false;
                 sliding = false;
@@ -544,8 +595,8 @@
             }
         } else {
             var speed = jumping ? 0.15 : riding ? .15 : sliding ? .2 : .1;
-            destX = turtleX + mov[0]*speed;
-            destY = turtleY + mov[1]*speed;
+            destX = turtle.x + mov[0]*speed;
+            destY = turtle.y + mov[1]*speed;
         }
 
         var inTheAir = jumping && steps<1;
@@ -555,18 +606,18 @@
                 waitRest = true;
                 mov[0] = 0;
                 mov[1] = 0;
-                destX = turtleX + (curX - turtleX)/2;
-                destY = turtleY + (curY - turtleY)/2;
+                destX = turtle.x + (curX - turtle.x)/2;
+                destY = turtle.y + (curY - turtle.y)/2;
                 newX = curX;
                 newY = curY;
             }
         }
 
-        if(turtleX !== destX || turtleY !== destY) {
-            turtleX = destX;
-            turtleY = destY;
+        if(turtle.x !== destX || turtle.y !== destY) {
+            turtle.x = destX;
+            turtle.y = destY;
         } else {
-            var tag = collection.getTag(turtleX,turtleY);
+            var tag = collection.getTag(turtle.x,turtle.y);
             if(landFrom[0] || landFrom[1]) {
                 if(tag.charAt(0)==='(' || tag.charAt(0)==='>') {
                     lockTemp[0] = landFrom[0];
@@ -576,7 +627,7 @@
                 landFrom[1] = 0;
             }
 
-            onRest(tag, turtleX, turtleY,
+            onRest(tag, turtle.x, turtle.y,
                 lockTemp[0], lockTemp[1]);
         }
 
@@ -586,36 +637,36 @@
         }
 
         if(jumping) {
-            var dx = turtleX - jumpOffPos[0];
-            var dy = turtleY - jumpOffPos[1];
+            var dx = turtle.x - jumpOffPos[0];
+            var dy = turtle.y - jumpOffPos[1];
             var dist = Math.sqrt(dx*dx + dy*dy);
             var v = (dist / jumpDist)*2 - 1;
-            turtleZ = Math.max(1 - v*v,0);
-            dZ = 0;
-        } else if(turtleZ > 0) {
-            dZ -=.01;
-            turtleZ += dZ;
-            if(turtleZ <= 0) {
-                turtleZ = 0;
+            turtle.z = Math.max(1 - v*v,0);
+            turtle.dz = 0;
+        } else if(turtle.z > 0) {
+            turtle.dz -=.01;
+            turtle.z += turtle.dz;
+            if(turtle.z <= 0) {
+                turtle.z = 0;
             }
         }
 
-        turtleSprite[0].position.x = turtleX * 64;
-        turtleSprite[0].position.y = turtleY * 64 + turtleZ*100;
-        turtleSprite[1].position.x = turtleX * 64;
-        turtleSprite[1].position.y = turtleY * 64-5;
-        turtleSprite[1].size[0] = 45 / (1+turtleZ);
-        turtleSprite[1].size[1] = 40 / (1+turtleZ);
+        turtleSprite[0].position.x = turtle.x * 64;
+        turtleSprite[0].position.y = turtle.y * 64 + turtle.z*100;
+        turtleSprite[1].position.x = turtle.x * 64;
+        turtleSprite[1].position.y = turtle.y * 64-5;
+        turtleSprite[1].size[0] = 45 / (1+turtle.z);
+        turtleSprite[1].size[1] = 40 / (1+turtle.z);
         if(ride.visible) {
-            ride.position.x = turtleX * 64;
-            ride.position.y = turtleY * 64;
+            ride.position.x = turtle.x * 64;
+            ride.position.y = turtle.y * 64;
         }
     }
 
     function updateCamera() {
         var camera = DOK.getCamera();
-        cam.x += ((turtleX+mov[0])*64 - cam.x)/20;
-        cam.y += (Math.min(collection.height-6,Math.max(1,turtleY+mov[1]))*64 - cam.y)/20;
+        cam.x += ((turtle.x+mov[0])*64 - cam.x)/20;
+        cam.y += (Math.min(collection.height-6,Math.max(1,turtle.y+mov[1]))*64 - cam.y)/20;
         camera.position.x = cam.x;
         camera.position.y = cam.y;
     }
@@ -682,8 +733,8 @@
                 break;
         }
         if(riding && collection.getTag(
-                Math.round(turtleX) + dx,
-                Math.round(turtleY) + dy).charAt(0) !==' ') {
+                Math.round(turtle.x) + dx,
+                Math.round(turtle.y) + dy).charAt(0) !==' ') {
             lockTemp[0] = 0;
             lockTemp[1] = 0;
         }
@@ -741,17 +792,17 @@
             return false;
         }
 
-        var elemTo = elementCollection.getElem(x,y);
-        if(elemTo.block) {
-            elemTo.dx = x-oldX;
-            elemTo.dy = y-oldY;
+        var elemBlock = elementCollection.hasBlock(x,y);
+        if(elemBlock) {
+            elemBlock.dx = x-oldX;
+            elemBlock.dy = y-oldY;
             return false;
         }
         //  destroy old cell
-        var elemFrom = elementCollection.getElem(oldX,oldY);
-        if(elemFrom.breakable) {
+        var elemBreakable = elementCollection.hasBreakable(oldX,oldY);
+        if(elemBreakable) {
             collection.setMap(oldX, oldY, blank);
-            elemFrom.destroyed = DOK.time;
+            elemBreakable.destroyed = DOK.time;
         }
         return true;
     }
@@ -761,14 +812,14 @@
         if (tag.charAt(0)===' ') {
             return false;
         }
-        var curX = Math.round(turtleX);
-        var curY = Math.round(turtleY);
+        var curX = Math.round(turtle.x);
+        var curY = Math.round(turtle.y);
         if(x!==curX && y!==curY) return false;
         if(x!==curX) {
-            return turtleY === curY;
+            return turtle.y === curY;
         }
         if(y!==curY) {
-            return turtleX === curX;
+            return turtle.x === curX;
         }
         return true;
     }
@@ -925,8 +976,8 @@
             cells[Math.round(element.y)][Math.round(element.x)] =
                 tag.charAt(0) + char + tag.charAt(2);
         }
-        var tag = cells[Math.round(turtleY)][Math.round(turtleX)];
-        cells[Math.round(turtleY)][Math.round(turtleX)] =
+        var tag = cells[Math.round(turtle.y)][Math.round(turtle.x)];
+        cells[Math.round(turtle.y)][Math.round(turtle.x)] =
             tag.charAt(0) + '8' + tag.charAt(2);
         for(var i=0;i<cells.length;i++) {
             cells[i] = cells[i].join("");
