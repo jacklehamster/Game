@@ -58,7 +58,6 @@
     renderer.setSize( innerWidth, innerHeight );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor (0xffffff, 1);
-    document.body.appendChild( renderer.domElement );
 
     DOK.addControlBall();
     DOK.addControlBox();
@@ -104,7 +103,6 @@
     );
 
     function initialize() {
-        DOK.getLoadingBar();
         DOK.setOnLoad(gameLoaded);
     }
 
@@ -112,6 +110,7 @@
         document.body.removeChild(DOK.getLoadingBar());
         renderer.setClearColor (0xffffff, 1);
         renderer.render(scene,DOK.getCamera());
+        document.body.appendChild( renderer.domElement );
         startGame();
     }
 

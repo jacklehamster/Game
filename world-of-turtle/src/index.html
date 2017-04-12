@@ -53,7 +53,7 @@
     <script src="lib/dobuki/menu.js"></script>
     <script src="lib/dobuki/loop.js"></script>
     <script src="lib/dobuki/triggerloop.js"></script>
-    <script src="lib/dobuki/imageloader.js"></script>
+    <script src="lib/dobuki/loader.js"></script>
     <script src="lib/dobuki/camera.js"></script>
     <script src="lib/dobuki/spritesheet.js"></script>
     <script src="lib/dobuki/spriterenderer.js"></script>
@@ -825,7 +825,6 @@
     }
 
     function initialize() {
-        DOK.getLoadingBar();
         DOK.setOnLoad(gameLoaded);
     }
 
@@ -882,7 +881,6 @@
     };
     
     function gameLoaded() {
-        document.body.removeChild(DOK.getLoadingBar());
         renderer.setClearColor (0xffffff, 1);
         renderer.render(scene,DOK.getCamera());
         startGame();
