@@ -38,7 +38,7 @@ window.onload = function() {
     var crowd = new THREE.Mesh(new THREE.PlaneGeometry(100,100),
         new THREE.MeshBasicMaterial(
             {
-                map: THREE.ImageUtils.loadTexture('ng.jpeg'),
+                map: THREE.ImageUtils.loadTexture('sleeproom.jpeg'),
             }
         )
     );

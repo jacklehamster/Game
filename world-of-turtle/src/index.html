@@ -256,6 +256,9 @@
         dz:0,
         block:true,
         index:elements.length,
+        lock: false,
+        lockTemp: [0,0],
+        landFrom: [0,0],
     });
 
 
@@ -516,11 +519,11 @@
     );
 
     var ride;
-    var goal = null, steps = 0, sliding = null, lockTurtle = false,
+    var goal = null, steps = 0, sliding = null,
         riding = false,
         jumping = false,
         waitRest = false,
-        mov = noMove;
+        mov = [0,0];
 
 
     var turtleSprite = [
@@ -547,7 +550,7 @@
 //    turtleSprite[1].visible = false;
 
     function updateTurtle() {
-        mov = sliding || riding || jumping ? lockTemp : DOK.getMove();
+        mov = sliding || riding || jumping ? turtle.lockTemp : DOK.getMove();
         var curX = Math.round(turtle.x);
         var curY = Math.round(turtle.y);
         var inMotion;
@@ -559,7 +562,7 @@
         if(sliding || riding || jumping) {
             inMotion = true;
         } else {
-            if(lockTurtle || waitRest) {
+            if(turtle.lock || waitRest) {
                 mov[0] = 0;
                 mov[1] = 0;
             }
@@ -591,7 +594,7 @@
                 steps = 0;
                 waitRest = false;
                 sliding = false;
-                lockTurtle = false;
+                turtle.lock = false;
             }
         } else {
             var speed = jumping ? 0.15 : riding ? .15 : sliding ? .2 : .1;
@@ -618,17 +621,17 @@
             turtle.y = destY;
         } else {
             var tag = collection.getTag(turtle.x,turtle.y);
-            if(landFrom[0] || landFrom[1]) {
+            if(turtle.landFrom[0] || turtle.landFrom[1]) {
                 if(tag.charAt(0)==='(' || tag.charAt(0)==='>') {
-                    lockTemp[0] = landFrom[0];
-                    lockTemp[1] = landFrom[1];
+                    turtle.lockTemp[0] = turtle.landFrom[0];
+                    turtle.lockTemp[1] = turtle.landFrom[1];
                 }
-                landFrom[0] = 0;
-                landFrom[1] = 0;
+                turtle.landFrom[0] = 0;
+                turtle.landFrom[1] = 0;
             }
 
             onRest(tag, turtle.x, turtle.y,
-                lockTemp[0], lockTemp[1]);
+                turtle.lockTemp[0], turtle.lockTemp[1]);
         }
 
         if(newX !== curX || newY !== curY) {
@@ -710,39 +713,36 @@
         }
     }
 
-    var noMove = [0,0];
-    var lockTemp = [0,0];
-    var landFrom = [0,0];
     function nextStep(tag, x, y, dx, dy) {
         steps++;
         switch(tag.charAt(0)) {
             case '/':
-                lockTemp[0] = dx;
-                lockTemp[1] = dy;
+                turtle.lockTemp[0] = dx;
+                turtle.lockTemp[1] = dy;
                 sliding = true;
                 break;
             case '(':
-                lockTemp[0] = dx;
-                lockTemp[1] = dy;
-                lockTurtle = true;
+                turtle.lockTemp[0] = dx;
+                turtle.lockTemp[1] = dy;
+                turtle.lock = true;
                 break;
             case '>':
-                lockTemp[0] = dx;
-                lockTemp[1] = dy;
-                lockTurtle = true;
+                turtle.lockTemp[0] = dx;
+                turtle.lockTemp[1] = dy;
+                turtle.lock = true;
                 break;
         }
         if(riding && collection.getTag(
                 Math.round(turtle.x) + dx,
                 Math.round(turtle.y) + dy).charAt(0) !==' ') {
-            lockTemp[0] = 0;
+            turtle.lockTemp[0] = 0;
             lockTemp[1] = 0;
         }
         if(jumping && steps===2) {
-            landFrom[0] = lockTemp[0];
-            landFrom[1] = lockTemp[1];
-            lockTemp[0] = 0;
-            lockTemp[1] = 0;
+            turtle.landFrom[0] = turtle.lockTemp[0];
+            turtle.landFrom[1] = turtle.lockTemp[1];
+            turtle.lockTemp[0] = 0;
+            turtle.lockTemp[1] = 0;
         }
     }
 
@@ -752,12 +752,12 @@
     function onRest(tag, x, y, dx, dy) {
         if(riding && dx===0 && dy===0) {
             riding = false;
-            lockTurtle = false;
+            turtle.lock = false;
             collection.setMap(x, y, turtleCell);
             ride.visible = false;
         }
         if(jumping && dx===0 && dy===0) {
-            lockTurtle = false;
+            turtle.lock = false;
             jumping = false;
         }
 

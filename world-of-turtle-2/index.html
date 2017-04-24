@@ -126,17 +126,17 @@
 
     var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
     var material = new THREE.MeshNormalMaterial();
-    var egg = new THREE.Mesh(geometry, material);
+/*    var egg = new THREE.Mesh(geometry, material);
     egg.position.set(0,0,0);
     egg.geometry.scale(8,10,8);
     scene.add(egg);
-
+*/
 
     function startGame() {
         DOK.fps = 45;
         var frame = 0;
         DOK.addLoop(function() {
-            egg.rotateX(.1);
+//            egg.rotateX(.1);
             frame++;
             var camera = DOK.getCamera();
             camera.position.z += mz;
