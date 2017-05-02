@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Longshot</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#000000" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div id="scoreTracker" style="column-count: 3;width:960px; height:144px; text-align: center; padding-top: 20px">
+    <span id="score" style="font-size: 20px; font-family: 'Courier New'; color: white; "></span>
+</div>
+
+<script>
+
+    var scores = localStorage.getItem('scores') || "[]";
+    scores = JSON.parse(scores);
+    scores.sort(function(a,b) {
+        return - parseInt(a.value) + parseInt(b.value);
+    });
+
+    var scoreText = "";
+    for(var i=0; i<scores.length;i++) {
+        if(Array.isArray(scores[i].name)) scores[i].name = scores[i].name.join("");
+        scoreText += scores[i].name + "\t" + scores[i].score + "\n";
+    }
+    document.getElementById("score").innerText = scoreText;
+
+    setTimeout(function() {
+        var changingScene = false;
+        document.addEventListener("keydown", function(e) {
+            if(!changingScene) {
+                new Audio('snd/ball.ogg').play();
+                changingScene = true;
+                location.replace("index.html");
+            }
+        });
+    },1000);
+
+</script>
+</body>
+</html>

@@ -61,7 +61,7 @@ window.onload = function() {
 
     var mats = getLycoMat();
     var hasFruits = localStorage.getItem("fruit") && parseInt(localStorage.getItem("fruit")) >0 ;
-    var count = hasFruits ? yellowCount+pinkCount : 0;
+    var count = 30;// hasFruits ? yellowCount+pinkCount : 0;
 
     var lycos = [];
     for(var i=0;i<count;i++) {
@@ -69,7 +69,7 @@ window.onload = function() {
             new THREE.PlaneGeometry( 1, 1), null
         );
         lyco.position.set(
-            (Math.random()-.5)*500+10,
+            (Math.random()-.5)*1000+10,
             (Math.random()-.5)*120+30,
             0
         );
@@ -78,7 +78,7 @@ window.onload = function() {
         var s = Math.random()<.5?-1:1;
         s += (Math.random()-.5)*.2;
         lyco.geometry.scale(150*s,120*Math.abs(s),1);
-        lyco.color = i<yellowCount ? 0 : 1;
+        lyco.color = i%2;// i<yellowCount ? 0 : 1;
         scene.add(lyco);
         lycos.push(lyco);
     }

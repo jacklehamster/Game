@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Longshot</title>
+    <meta name="google" content="notranslate"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no,width=device-width, initial-scale=1.0,minimum-scale=1.0"/>
+    <meta name="theme-color" content="#000000" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div id="scoreTracker" style="width:960px; height:144px; text-align: center; padding-top: 20px">
+        <span id="score" style="font-size: 30px; font-family: 'Courier New'; color: white; "></span>
+    </div>
+
+<script>
+
+    var scores = localStorage.getItem('scores') || "[]";
+    scores = JSON.parse(scores);
+
+    var theScore = location.hash.substr(1).split(",").map(function(a) {return parseInt(a)});
+    var scoreValue = (theScore[0] - theScore[1])*10000 + theScore[1];
+
+    if(scores.length >= 10 && scoreValue < scores[scores.length-1].value) {
+        location.replace('highscores.html');
+        //location.replace('./');
+        nextScene = true;
+        document.getElementById("scoreTracker").style.display = "";
+    } else {
+
+
+        function setText(value) {
+            document.getElementById('score').innerText = value;
+        }
+
+        var theName="A_______".split("");
+
+        function updateText(time) {
+            var blink = (coreTime/200|0)%4===0;
+
+            var name = theName.concat([]);
+            if(index<theName.length) {
+                name[index] = blink ? "_" : theName[index];
+                setText("SCORE: " + theScore.join(" - ") + "\nENTER YOUR NAME"+"\n"+name.join(" "));
+            } else {
+                setText("SCORE: " + theScore.join(" - ") + "\n"+"\n"+name.join(" "));
+            }
+
+        }
+        var index = 0;
+        var minCode = 'A'.charCodeAt(0);
+        var maxCode = 'Z'.charCodeAt(0);
+
+        var nextScene = false;
+        document.addEventListener('keydown',
+            function(e) {
+                e.preventDefault();
+                if(nextScene) return;
+                if(e.keyCode===37) {
+                    index = Math.max(index-1,0);
+                    new Audio('snd/ball.ogg').play();
+                }
+                if(e.keyCode===39) {
+                    index = index+1;
+                    new Audio('snd/ball.ogg').play();
+                    if (index>=theName.length) {
+
+                        scores.push({
+                            value: scoreValue,
+                            score: theScore.join(" - "),
+                            name: theName.join(""),
+                        });
+                        scores.sort(function(a,b) {
+                            return - parseInt(a.value) + parseInt(b.value);
+                        });
+                        scores = scores.slice(0,20);
+
+                        localStorage.setItem("scores", JSON.stringify(scores));
+
+
+                        location.replace('highscores.html');
+                        nextScene = true;
+                    } else if(theName[index]==='_') {
+                        theName[index]='A';
+                    }
+                }
+                if(e.keyCode===38) {
+                    var code = theName[index].charCodeAt(0)+1;
+                    if(code>maxCode) code = minCode;
+                    theName[index] = String.fromCharCode(code);
+                    new Audio('snd/goal.ogg').play();
+                }
+                if(e.keyCode===40) {
+                    var code = theName[index].charCodeAt(0)-1;
+                    if(code<minCode) code = maxCode;
+                    theName[index] = String.fromCharCode(code);
+                    new Audio('snd/goal.ogg').play();
+                }
+            }
+        );
+
+        function loop(time) {
+            coreTime = time;
+
+            updateText();
+
+
+            requestAnimationFrame( loop );
+        }
+        loop(0);
+    }
+
+
+</script>
+</body>
+</html>
