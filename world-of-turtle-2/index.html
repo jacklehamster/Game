@@ -91,6 +91,7 @@
         },
         function(x,y,c) {
             var frame = Math.floor(DOK.time/100);
+            if(c===0) return null;
 
             return DOK.create(DOK.SpriteObject).init(
                 x*64,y*64,c*-64,
