@@ -138,12 +138,7 @@
     }
 
     function picked(obj) {
-        for(var o in pickedItem) {
-            if(pickedItem[o]===obj) {
-                return true;
-            }
-        }
-        return false;
+        return obj.uid === pickedItem;
     }
 
 
@@ -283,7 +278,8 @@
                     var area = spriteMap[areaId];
                     if(area) {
                         var posId = Math.floor(this.x) + "_" + Math.floor(this.y);
-                        delete area[posId];
+                        if(area[posId])
+                            delete area[posId][this.uid];
                     }
 
                     this.x = x; this.y = y;
@@ -311,13 +307,7 @@
     }
 
     var spriteCount = 0;
-
     var spriteCollection = createSpriteCollection();
-
-
-
-
-
 
     function initialize() {
         DOK.getLoadingBar();
@@ -516,14 +506,12 @@
 
         if(pickedItem) {
             spritePos = null;
-            for(var s in pickedItem) {
-                var sprite = pickedItem[s];
-                sprite.move(pos.x/cellSize, pos.y/cellSize);
-            }
+            var sprite = spriteCollection.find(pickedItem);
+            sprite.move(pos.x/cellSize, pos.y/cellSize);
 //            console.log(pickedItem);
         } else {
             var sel = getSelected();
-            spritePos = getClosestSpritePosition(sel.x,sel.y,10);
+            spritePos = getClosestSpritePosition(sel.x,sel.y,20);
         }
 //        console.log(spritePos);
     }
@@ -546,13 +534,13 @@
 
     var pickedItem = null;
     document.addEventListener("mousedown", function(event) {
-        pickedItem = spriteSelection();
-
+        for(var uid in spriteSelection()) {
+            pickedItem = uid;
+        }
     });
 
     document.addEventListener("mouseup", function(event) {
         pickedItem = null;
-
     });
 
 
