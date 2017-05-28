@@ -18,8 +18,22 @@
 
 <span id="fps" style="display:block; position:absolute; color:silver; top:0; left:0"></span>
 
+    <script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyAaxX2V1Le0HEdo6C0ZWyy7QFlgjnkINjs",
+            authDomain: "dobuki.firebaseapp.com",
+            databaseURL: "https://dobuki.firebaseio.com",
+            projectId: "firebase-dobuki",
+            storageBucket: "firebase-dobuki.appspot.com",
+            messagingSenderId: "475686014208"
+        };
+        firebase.initializeApp(config);
+    </script>
 
-<script src="lib/dobuki/setup.js"></script>
+
+    <script src="lib/dobuki/setup.js"></script>
 <script src="lib/md5/md5.min.js"></script>
 <script src="lib/threejs/three.min.js"></script>
 <script src="lib/jsgif/gif.js"></script>
@@ -64,8 +78,8 @@
     renderer.setClearColor (0xffffff, 1);
     document.body.appendChild( renderer.domElement );
 
-    DOK.addControlBall();
-    DOK.addControlBox();
+//    DOK.addControlBall();
+  //  DOK.addControlBox();
 
     var images = {
         squid: [
@@ -109,7 +123,7 @@
     renderer.setClearColor (0xffffff, 1);
 
 
-    
+
 
     var roundabout = new DOK.Roundabout();
     var closestPoint = { x:0,y:0};
@@ -204,112 +218,96 @@
         return sel ? spriteCollection.get(sel.x,sel.y) : null;
     }
 
-    function createSpriteCollection() {
-        var spriteMap = [];
-        var areaSize = 50;
-        var spriteRegistry = {};
-
-        function getAreaId(x,y) {
-            var x = Math.floor(x/areaSize);
-            var y = Math.floor(y/areaSize);
-            return x+"_"+y;
+    var spriteCubes = [];
+    function spriteCube(spriteInfo) {
+        var x = spriteInfo.x;
+        var y = spriteInfo.y;
+        var index = spriteInfo.index;
+        var size = this.options.cellSize*3;
+        var pickedMe = picked(spriteInfo);
+        var light = pickedMe ? Math.random() : 1;
+        //spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y ? Math.random() : 1;
+        var selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
+        var img = DOK.spritesheet.sprite[index];
+        if(!pickedMe && selected && Math.floor(DOK.time/10)%4!==0) {
+            img = getBorderedImage(img);
         }
 
-        var spriteCollection = new DOK.Collection(
-            {
-            },
-            function(spriteInfo) {
-                var x = spriteInfo.x;
-                var y = spriteInfo.y;
-                var index = spriteInfo.index;
-                var size = cellSize*3;
-//                var sel = getSelected();
-                var pickedMe = picked(spriteInfo);
-                var light = pickedMe ? Math.random() : 1;
-                //spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y ? Math.random() : 1;
-                var selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
-                var img = DOK.spritesheet.sprite[index];
-                if(!pickedMe && selected && Math.floor(DOK.time/10)%4!==0) {
-                    img = getBorderedImage(img);
-                }
-
-                var spriteObj = DOK.create(DOK.SpriteObject).init(
-                    x*cellSize,y*cellSize,size/2,
-                    size,size,
-                    null,
-                    light,
-                    img
-                );
-                spriteObj.type = "face";
-                return spriteObj;
-            },
-            function(callback) {
-                var camPos = getCamPos();
-                var xArea = Math.floor(camPos.x / areaSize);
-                var yArea = Math.floor(camPos.y / areaSize);
-                var range = 1;
-                for(var y=yArea-range;y<=yArea+range;y++) {
-                    for(var x=xArea-range;x<=xArea+range;x++) {
-                        var area = spriteMap[x+"_"+y];
-                        if(area) {
-                            for(var a in area) {
-                                var sprites = area[a];
-                                for(var s in sprites) {
-                                    var obj = this.getSprite(sprites[s]);
-                                    callback(obj);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        );
-        spriteCollection.create = function(x,y,index) {
-            var areaId = getAreaId(x,y);
-            var area = spriteMap[areaId] || (spriteMap[areaId] = {});
-            var posId = Math.floor(x) + "_" + Math.floor(y);
-            area[posId] = area[posId] || (area[posId] = {});
-
-            var sprite = {
-                uid: 'uid'+(spriteCount++),
-                x: x,
-                y: y,
-                index: index,
-                move: function(x,y) {
-                    var areaId = getAreaId(this.x,this.y);
-                    var area = spriteMap[areaId];
-                    if(area) {
-                        var posId = Math.floor(this.x) + "_" + Math.floor(this.y);
-                        if(area[posId])
-                            delete area[posId][this.uid];
-                    }
-
-                    this.x = x; this.y = y;
-                    var area = spriteMap[areaId] || (spriteMap[areaId] = {});
-                    var posId = Math.floor(x) + "_" + Math.floor(y);
-                    area[posId] = area[posId] || (area[posId] = {});
-                    area[posId][this.uid] = this;
-                }
-            };
-
-            spriteRegistry[sprite.uid] = sprite;
-            area[posId][sprite.uid] = sprite;
-        };
-
-        spriteCollection.get = function(x,y) {
-            var areaId = getAreaId(x,y);
-            var area = spriteMap[areaId];
-            var posId = Math.floor(x) + "_" + Math.floor(y);
-            return area?area[posId]:null;
-        };
-        spriteCollection.find = function(uid) {
-            return spriteRegistry[uid];
-        }
-        return spriteCollection;
+        spriteCubes.push(DOK.create(DOK.SpriteObject).init(
+            x*cellSize,y*cellSize,size/2,
+            size,size,
+            DOK.southQuaternionArray,
+            light,
+            img
+        ));
+        spriteCubes.push(DOK.create(DOK.SpriteObject).init(
+            x*cellSize-10,y*cellSize,size/2,
+            size,size,
+            DOK.westQuaternionArray,
+            light,
+            img
+        ));
+        spriteCubes.push(DOK.create(DOK.SpriteObject).init(
+            x*cellSize+10,y*cellSize,size/2,
+            size,size,
+            DOK.eastQuaternionArray,
+            light,
+            img
+        ));
+        spriteCubes.push(DOK.create(DOK.SpriteObject).init(
+            x*cellSize,y*cellSize,size/2,
+            size,size,
+            DOK.eastQuaternionArray,
+            light,
+            img
+        ));
+        spriteCubes.forEach(setTypeCube)
+        return spriteCubes;
     }
 
-    var spriteCount = 0;
-    var spriteCollection = createSpriteCollection();
+    function setTypeCube(spriteObj) {
+        spriteObj.type = 'face';
+    }
+
+    function spriteFace(spriteInfo) {
+        var x = spriteInfo.x;
+        var y = spriteInfo.y;
+        var index = spriteInfo.index;
+        var size = this.options.cellSize*3;
+        var pickedMe = picked(spriteInfo);
+        var light = pickedMe ? Math.random() : 1;
+        //spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y ? Math.random() : 1;
+        var selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
+        var img = DOK.spritesheet.sprite[index];
+        if(!pickedMe && selected && Math.floor(DOK.time/10)%4!==0) {
+            img = getBorderedImage(img);
+        }
+
+        var spriteObj = DOK.create(DOK.SpriteObject).init(
+            x*cellSize,y*cellSize,size/2,
+            size,size,
+            null,
+            light,
+            img
+        );
+        spriteObj.type = "face";
+        return spriteObj;
+    }
+
+
+    var spriteCollection = DOK.createSpriteCollection({
+        cellSize: cellSize,
+        spriteFunction: function(spriteInfo) {
+            switch (spriteInfo.type) {
+                case 'face':
+                    return spriteFace.call(this,spriteInfo);
+                    break;
+                case 'cube':
+                    return spriteCube.call(this,spriteInfo);
+                    break;
+            }
+        },
+    });
 
     function initialize() {
         DOK.getLoadingBar();
@@ -324,13 +322,54 @@
     }
 
     var camera = DOK.getCamera();
-    var mz = 0, rot = 0;
+//    var mz = 0, rot = 0;
+    var camGoal = {
+        x:camera.position.x, y:camera.position.y,
+    };
     DOK.setOnTouch(
-        function(dx,dy) {
+        function(dx,dy,down,pageX,pageY) {
+            if(dx!==null && dy!==null) {
+                if(pickedItem) {
+                    mouseMoveTo(pageX, pageY);
+                } else if(down) {
+                    camGoal.x = camera.position.x - dx*20;
+                    camGoal.y = camera.position.y + dy*20;
+                } else {
+                    mouseMoveTo(pageX, pageY);
+                }
 //            mz -= dy/2;
-  //          rot += (dx/1000);
+//            rot += (dx/1000);
+            } else {
+                if(down) {
+                    camGoal.x = camera.position.x;
+                    camGoal.y = camera.position.y;
+                    for(var uid in spriteSelection()) {
+                        pickedItem = uid;
+                    }
+                } else {
+                    pickedItem = null;
+                }
+            }
         }
     );
+
+    var mousePos = new THREE.Vector3();
+/*    document.addEventListener("mousemove", function(event) {
+        mouseMoveTo(event.pageX, event.pageY);
+        event.preventDefault();
+    });
+*/
+    var pickedItem = null;
+/*    document.addEventListener("mousedown", function(event) {
+        for(var uid in spriteSelection()) {
+            pickedItem = uid;
+        }
+    });
+
+    document.addEventListener("mouseup", function(event) {
+        pickedItem = null;
+    });
+*/
 
 /*
     var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
@@ -353,8 +392,9 @@
     function createSprite(index) {
         var x = getSelected().x; //getCamPos().x,
         var y = getSelected().y; //getCamPos().y,
-        spriteCollection.create(x,y,index);
-        console.log("DROPPED",x,y);
+        var spriteInfo = spriteCollection.create(x,y,index);
+        spriteInfo.type = 'face';
+//        console.log("DROPPED",spriteInfo);
 
 /*        var geometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
         var material = new THREE.MeshNormalMaterial();
@@ -400,9 +440,8 @@
         var file = dt.files[0];
 //        console.log(e);
         reader.addEventListener( 'loadend', function(e) {
-            if((file.type!='image/gif'
-                &&file.type!='image/jpeg'
-                &&file.type!='image/png')) {
+            console.log(file.type);
+            if(['image/gif','image/jpeg','image/png'].indexOf(file.type)<0) {
                 return;
             } else if(file.size>10000000) {
                 return;
@@ -523,27 +562,16 @@
     DOK.setIndexProcessor(function (images, count) {
         for(var i=0; i<images.length;i++) {
             var image = images[i];
-            image.zIndex += image.spriteObject.type==="face"?10000:0;
+            image.zIndex += image.spriteObject.type==="face"
+                ?10000
+                :image.spriteObject.type==="cube"
+                ?10000
+                :0;
         }
     });
 
 
-    var mousePos = new THREE.Vector3();
-    document.addEventListener("mousemove", function(event) {
-        mouseMoveTo(event.pageX, event.pageY);
-        event.preventDefault();
-    });
 
-    var pickedItem = null;
-    document.addEventListener("mousedown", function(event) {
-        for(var uid in spriteSelection()) {
-            pickedItem = uid;
-        }
-    });
-
-    document.addEventListener("mouseup", function(event) {
-        pickedItem = null;
-    });
 
 
 
@@ -554,10 +582,16 @@
             //egg.rotateX(.1);
             frame++;
             var camera = DOK.getCamera();
-            camera.position.z += mz;
+            camera.position.x += (camGoal.x - camera.position.x) / 3;
+            camera.position.y += (camGoal.y - camera.position.y) / 3;
+//            camera.position.x -= ddx;
+  //          camera.position.y += ddy;
+    //        ddx *= .7;
+      //      ddy *= .7;
+/*            camera.position.z += mz;
             camera.rotateY(rot);
             mz *= .8;
-            rot *= .8;
+            rot *= .8;*/
             collection.forEach(spriteRenderer.display);
             spriteCollection.forEach(spriteRenderer.display);
             spriteRenderer.updateGraphics();
