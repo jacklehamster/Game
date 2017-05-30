@@ -1,6 +1,6 @@
 'use strict';
 
-define(['threejs', 'utils', 'spriteobject', 'spritesheet', 'objectpool', 'camera', 'turbosort'], function (THREE, Utils, SpriteObject, SpriteSheet, ObjectPool, Camera, turboSort) {
+define(['threejs', 'dok/utils', 'dok/spriteobject', 'dok/spritesheet', 'dok/objectpool', 'dok/camera', 'dok/turbosort'], function (THREE, Utils, SpriteObject, SpriteSheet, ObjectPool, Camera, turboSort) {
     'use strict';
 
     var planeGeometry = new THREE.PlaneBufferGeometry(1, 1);
@@ -138,7 +138,7 @@ define(['threejs', 'utils', 'spriteobject', 'spritesheet', 'objectpool', 'camera
         geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
         var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
 
-        Utils.loadAsync([require.toUrl("glsl/vertex-shader.glsl"), require.toUrl("glsl/fragment-shader.glsl"), require.toUrl("glsl/vertex-shader-common.glsl")], function (vertexShader, fragmentShader, vertexShaderCommon) {
+        Utils.loadAsync([require.toUrl("dok/glsl/vertex-shader.glsl"), require.toUrl("dok/glsl/fragment-shader.glsl"), require.toUrl("dok/glsl/vertex-shader-common.glsl")], function (vertexShader, fragmentShader, vertexShaderCommon) {
             mesh.material = new THREE.ShaderMaterial({
                 uniforms: uniforms = {
                     texture: {

@@ -1,6 +1,6 @@
 'use strict';
 
-define(['utils'], function (Utils) {
+define(['dok/utils'], function (Utils) {
 
     /**
      *  CLASS DEFINITIONS

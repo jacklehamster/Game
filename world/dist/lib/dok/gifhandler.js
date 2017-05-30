@@ -1,6 +1,6 @@
 'use strict';
 
-define(['Utils', 'jsgif', 'loop'], function (Utils, JSGif, Loop) {
+define(['dok/utils', 'jsgif', 'dok/loop'], function (Utils, JSGif, Loop) {
     'use strict';
 
     var gifWorker;

@@ -1,6 +1,6 @@
 'use strict';
 
-define(['threejs', 'objectpool'], function (THREE, ObjectPool) {
+define(['threejs', 'dok/objectpool'], function (THREE, ObjectPool) {
     'use strict';
 
     function SpriteObject() {

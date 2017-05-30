@@ -27,8 +27,8 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
     //  DOK.addControlBox();
 
     var images = {
-        squid: [require.toUrl("images/squid.png|0,0,32,32"), require.toUrl("images/squid.png|32,0,32,32"), require.toUrl("images/squid.png|0,32,32,32"), require.toUrl("images/squid.png|32,32,32,32")],
-        floor: require.toUrl("images/wood.png"),
+        squid: [require.toUrl("dok/images/squid.png|0,0,32,32"), require.toUrl("dok/images/squid.png|32,0,32,32"), require.toUrl("dok/images/squid.png|0,32,32,32"), require.toUrl("dok/images/squid.png|32,32,32,32")],
+        floor: require.toUrl("dok/images/wood.png"),
         sprite: [],
         border: []
     };

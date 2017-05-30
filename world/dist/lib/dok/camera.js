@@ -1,6 +1,6 @@
 'use strict';
 
-define(['threejs', 'loop'], function (THREE, Loop) {
+define(['threejs', 'dok/loop'], function (THREE, Loop) {
     'use strict';
 
     var camera;

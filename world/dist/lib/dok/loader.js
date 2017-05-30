@@ -1,6 +1,6 @@
 'use strict';
 
-define(['Utils', 'Loop'], function (Utils, Loop) {
+define(['dok/utils', 'dok/loop'], function (Utils, Loop) {
     'use strict';
 
     var index = 0;

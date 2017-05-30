@@ -1,6 +1,6 @@
 'use strict';
 
-define(['threejs', 'Utils', 'gifhandler', 'loader', 'packer'], function (THREE, Utils, GifHandler, Loader, Packer) {
+define(['threejs', 'dok/utils', 'dok/gifhandler', 'dok/loader', 'dok/packer'], function (THREE, Utils, GifHandler, Loader, Packer) {
     'use strict';
 
     var canvases = {};

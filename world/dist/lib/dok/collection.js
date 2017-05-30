@@ -1,6 +1,6 @@
 'use strict';
 
-define(['utils', 'spritesheet', 'spriteobject', 'camera'], function (Utils, SpriteSheet, SpriteObject, Camera) {
+define(['dok/utils', 'dok/spritesheet', 'dok/spriteobject', 'dok/camera'], function (Utils, SpriteSheet, SpriteObject, Camera) {
 
     'use strict';
 
