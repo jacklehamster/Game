@@ -6,7 +6,7 @@
   "keywords": [ "dobuki" ],
   "window": {
     "title": "Dobuki Game",
-    "icon": "lib/dobuki/images/logo.ico",
+    "icon": "lib/dok/images/logo.ico",
     "toolbar": true,
     "frame": true,
     "width": 800,
