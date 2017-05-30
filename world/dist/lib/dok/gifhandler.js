@@ -119,7 +119,7 @@ define(['dok/utils', 'jsgif', 'dok/loop'], function (Utils, JSGif, Loop) {
             }
         };
 
-        Loop.loadAsync(src, function (content) {
+        Utils.loadAsync(src, function (content) {
             JSGif.parseGIF(new JSGif.Stream(content), gifInfo);
         }, true);
 
