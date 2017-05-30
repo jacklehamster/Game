@@ -10,3 +10,6 @@
 [submodule "submodules/jsgif"]
 	path = submodules/jsgif
 	url = https://github.com/jacklehamster/jsgif
+[submodule "lib/dok"]
+	path = lib/dok
+	url = https://github.com/jacklehamster/dok
