@@ -1,6 +1,6 @@
 'use strict';
 
-define(['dok/utils', 'dok/loop', 'dok/gifHandler', 'dok/camera', 'dok/objectpool', 'dok/spriteobject', 'dok/packer', 'dok/spritesheet', 'dok/spriterenderer', 'dok/collection', 'dok/mouse', 'dok/loader'], function (Utils, Loop, GifHandler, Camera, ObjectPool, SpriteObject, Packer, SpriteSheet, SpriteRenderer, Collection, Mouse, Loader) {
+define(['dok/utils', 'dok/loop', 'dok/gifhandler', 'dok/camera', 'dok/objectpool', 'dok/spriteobject', 'dok/packer', 'dok/spritesheet', 'dok/spriterenderer', 'dok/collection', 'dok/mouse', 'dok/loader'], function (Utils, Loop, GifHandler, Camera, ObjectPool, SpriteObject, Packer, SpriteSheet, SpriteRenderer, Collection, Mouse, Loader) {
 
     return {
         Utils: Utils,

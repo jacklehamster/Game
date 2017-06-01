@@ -447,7 +447,8 @@ require([
 
     //    var raycaster = new THREE.Raycaster();
     ///  var mouse = new THREE.Vector2();
-    var spritePos = null;
+    var spritePos = null, mouseMoveToVector = new THREE.Vector3();
+    var mouseVector = new THREE.Vector3();
     function mouseMoveTo(x,y) {
         /*        mouse.x = x;
          mouse.y = y;
@@ -474,19 +475,19 @@ require([
          }
          */
 
-        var vector = new THREE.Vector3();
-        vector.set(
+        mouseMoveToVector.set(
             ( x / window.innerWidth ) * 2 - 1,
             - ( y / window.innerHeight ) * 2 + 1,
             0.5 );
 
-        vector.unproject( camera );
+        mouseMoveToVector.unproject( camera );
 
-        var dir = vector.sub( camera.position ).normalize();
+        var dir = mouseMoveToVector.sub( camera.position ).normalize();
 
         var distance = - camera.position.z / dir.z;
 
-        var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+        mouseVector.copy(camera.position);
+        var pos = mouseVector.add( dir.multiplyScalar( distance ) );
         mousePos.x = pos.x;
         mousePos.y = pos.y;
         mousePos.z = pos.z;

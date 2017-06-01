@@ -1,6 +1,6 @@
 'use strict';
 
-define(['dok/utils', 'jsgif', 'dok/loop'], function (Utils, JSGif, Loop) {
+define(['dok/utils', 'dok/loop'], function (Utils, Loop) {
     'use strict';
 
     var gifWorker;
@@ -120,8 +120,8 @@ define(['dok/utils', 'jsgif', 'dok/loop'], function (Utils, JSGif, Loop) {
         };
 
         Utils.loadAsync(src, function (content) {
-            require(['https://jacklehamster.github.io/jsgif/gif.js'], function () {
-                parseGIF(new Stream(content), gifInfo);
+            require(['https://jacklehamster.github.io/jsgif/gif.js'], function (JSGif) {
+                JSGif.parseGIF(new JSGif.Stream(content), gifInfo);
             });
         }, true);
 
@@ -129,7 +129,7 @@ define(['dok/utils', 'jsgif', 'dok/loop'], function (Utils, JSGif, Loop) {
     }
 
     function initializeGifWorker() {
-        gifWorker = new Worker(require.toUrl("dok/workers/gifworker.js"));
+        gifWorker = new Worker(require.toUrl("workers/gifworker.js"));
         gifWorker.onmessage = function (e) {
             gifWorkerCallbacks[e.data.id](e.data.cData, e.data.frameInfo);
             delete gifWorkerCallbacks[e.data.id];
