@@ -444,6 +444,8 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         }
     });
 
+    window.spriteRenderer = spriteRenderer;
+
     function startGame() {
         DOK.Loop.fps = 45;
         var frame = 0;

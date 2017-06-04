@@ -519,6 +519,7 @@ require([
     });
 
 
+    window.spriteRenderer = spriteRenderer;
 
 
 
