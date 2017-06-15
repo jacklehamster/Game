@@ -30,12 +30,12 @@ require([
 
     var images = {
         squid: [
-            require.toUrl("dok/images/squid.png|0,0,32,32"),
-            require.toUrl("dok/images/squid.png|32,0,32,32"),
-            require.toUrl("dok/images/squid.png|0,32,32,32"),
-            require.toUrl("dok/images/squid.png|32,32,32,32"),
+            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32"),
+            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,0,32,32"),
+            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,32,32,32"),
+            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32"),
         ],
-        floor: require.toUrl("dok/images/wood.png"),
+        floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
         sprite: [
         ],
         border: [
@@ -77,7 +77,6 @@ require([
     function getClosestSpritePosition(x,y,limit) {
         x = Math.round(x);
         y = Math.round(y);
-        if(!limit) limit = 10;
         roundabout.reset();
         //        console.log(x,y);
 
@@ -112,9 +111,10 @@ require([
 
         var xPos = mousePos.x;
         var yPos = mousePos.y;
-
-        selectedObj.x = Math.round(xPos/cellSize);
-        selectedObj.y = Math.round(yPos/cellSize);// + 6;
+        if(selectedObj.x !== Math.round(xPos/cellSize) || selectedObj.y !== Math.round(yPos/cellSize)) {
+            selectedObj.x = Math.round(xPos/cellSize);
+            selectedObj.y = Math.round(yPos/cellSize);// + 6;
+        }
         return selectedObj;
     }
 
@@ -138,22 +138,21 @@ require([
             },
             width: range,
             height: range,
-            count: 1,
         },
-        function(x,y,c) {
+        function(x,y) {
             var frame = Math.floor(DOK.Loop.time/100);
             var sel = getSelected();
-            var selected = !spritePos && !pickedItem && sel.x === x && sel.y === y;
+            var selected = !spritePos && pickedItem===null && sel.x === x && sel.y === y;
             var light = 1;
-            var img = c!==0 ? DOK.SpriteSheet.spritesheet.squid[frame%DOK.SpriteSheet.spritesheet.squid.length] : DOK.SpriteSheet.spritesheet.floor;
+            var img = DOK.SpriteSheet.spritesheet.floor;
             if(selected && Math.floor(DOK.Loop.time/10)%4!==0) {
                 img = getBorderedImage(img);
             }
 
-            return DOK.SpriteObject.create().init(
+            return DOK.SpriteObject.create(
                 x*cellSize,y*cellSize,0,//c!==0?0:-64,
                 cellSize,cellSize,
-                c!==0?null:DOK.Camera.quaternions.southQuaternionArray,
+                DOK.Camera.quaternions.southQuaternionArray,
                 light,//c!==0?1:1.5,
                 img
             );
@@ -180,28 +179,28 @@ require([
             img = getBorderedImage(img);
         }
 
-        spriteCubes.push(DOK.SpriteObject.create().init(
+        spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.southQuaternionArray,
             light,
             img
         ));
-        spriteCubes.push(DOK.SpriteObject.create().init(
+        spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize-10,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.westQuaternionArray,
             light,
             img
         ));
-        spriteCubes.push(DOK.SpriteObject.create().init(
+        spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize+10,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.eastQuaternionArray,
             light,
             img
         ));
-        spriteCubes.push(DOK.SpriteObject.create().init(
+        spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.eastQuaternionArray,
@@ -230,7 +229,7 @@ require([
             img = getBorderedImage(img);
         }
 
-        var spriteObj = DOK.SpriteObject.create().init(
+        var spriteObj = DOK.SpriteObject.create(
             x*cellSize,y*cellSize,size/2,
             size,size,
             null,
@@ -255,6 +254,7 @@ require([
             }
         },
     });
+    window.ss = spriteCollection;
 
     function initialize() {
         DOK.Loader.getLoadingBar();
@@ -276,7 +276,7 @@ require([
     DOK.Mouse.setOnTouch(
         function(dx,dy,down,pageX,pageY) {
             if(dx!==null && dy!==null) {
-                if(pickedItem) {
+                if(pickedItem!==null) {
                     mouseMoveTo(pageX, pageY);
                 } else if(down) {
                     camGoal.x = camera.position.x - dx*20;
@@ -290,8 +290,12 @@ require([
                 if(down) {
                     camGoal.x = camera.position.x;
                     camGoal.y = camera.position.y;
-                    for(var uid in spriteSelection()) {
-                        pickedItem = uid;
+                    var sel = spriteSelection();
+                    if(sel) {
+                        for(var i=0; i<sel.length; i++ ) {
+                            pickedItem = sel[i].uid;
+                            break;
+                        }
                     }
                 } else {
                     pickedItem = null;
@@ -394,11 +398,10 @@ require([
                 return;
             }
             var img = new Image();
-            img.style.maxWidth = "100px";
-            img.style.maxHeight = "100px";
             img.addEventListener("load", function(e) {
+                console.log(img);
                 //        images['floor'] = img.src;
-                var index = images.sprite.length;
+                const index = images.sprite.length;
                 images.sprite.push(img.src);
                 DOK.SpriteSheet.preLoad(images);
 
@@ -501,6 +504,7 @@ require([
         } else {
             var sel = getSelected();
             spritePos = getClosestSpritePosition(sel.x,sel.y,20);
+//            console.log(spritePos);
         }
         //        console.log(spritePos);
     }
@@ -508,8 +512,8 @@ require([
 
 
     DOK.SpriteRenderer.setIndexProcessor(function (images, count) {
-        for(var i=0; i<images.length;i++) {
-            var image = images[i];
+        for(let i=0; i<images.length;i++) {
+            const image = images[i];
             image.zIndex += image.spriteObject.type==="face"
                 ?10000
                 :image.spriteObject.type==="cube"
