@@ -36,6 +36,8 @@ require([
             require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32"),
         ],
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
+        lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
+        water: require.toUrl("https://jacklehamster.github.io/dok/images/water.gif"),
         sprite: [
         ],
         border: [
@@ -65,7 +67,7 @@ require([
      });
      */
 
-    var range = 100;
+    var range = 50;
     var cellSize = 64;
     renderer.setClearColor (0xffffff, 1);
 
@@ -144,7 +146,7 @@ require([
             var sel = getSelected();
             var selected = !spritePos && pickedItem===null && sel.x === x && sel.y === y;
             var light = 1;
-            var img = DOK.SpriteSheet.spritesheet.floor;
+            var img = DOK.SpriteSheet.spritesheet.water;
             if(selected && Math.floor(DOK.Loop.time/10)%4!==0) {
                 img = getBorderedImage(img);
             }
@@ -153,8 +155,9 @@ require([
                 x*cellSize,y*cellSize,0,//c!==0?0:-64,
                 cellSize,cellSize,
                 DOK.Camera.quaternions.southQuaternionArray,
+                img,
                 light,//c!==0?1:1.5,
-                img
+                15,
             );
         }
     );
@@ -183,29 +186,33 @@ require([
             x*cellSize,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.southQuaternionArray,
+            img,
             light,
-            img
+            0
         ));
         spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize-10,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.westQuaternionArray,
+            img,
             light,
-            img
+            0,
         ));
         spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize+10,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.eastQuaternionArray,
+            img,
             light,
-            img
+            0,
         ));
         spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize,y*cellSize,size/2,
             size,size,
             DOK.Camera.quaternions.eastQuaternionArray,
+            img,
             light,
-            img
+            0,
         ));
         spriteCubes.forEach(setTypeCube)
         return spriteCubes;
@@ -233,8 +240,9 @@ require([
             x*cellSize,y*cellSize,size/2,
             size,size,
             null,
+            img,
             light,
-            img
+            0,
         );
         spriteObj.type = "face";
         return spriteObj;
@@ -555,5 +563,7 @@ require([
     }
 
     initialize();
+
+    window.DOK = DOK;
 
 });

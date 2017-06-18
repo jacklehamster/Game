@@ -29,6 +29,8 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
     var images = {
         squid: [require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32"), require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,0,32,32"), require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,32,32,32"), require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32")],
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
+        lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
+        water: require.toUrl("https://jacklehamster.github.io/dok/images/water.gif"),
         sprite: [],
         border: []
     };
@@ -55,7 +57,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
      });
      */
 
-    var range = 100;
+    var range = 50;
     var cellSize = 64;
     renderer.setClearColor(0xffffff, 1);
 
@@ -128,14 +130,14 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         var sel = getSelected();
         var selected = !spritePos && pickedItem === null && sel.x === x && sel.y === y;
         var light = 1;
-        var img = DOK.SpriteSheet.spritesheet.floor;
+        var img = DOK.SpriteSheet.spritesheet.water;
         if (selected && Math.floor(DOK.Loop.time / 10) % 4 !== 0) {
             img = getBorderedImage(img);
         }
 
         return DOK.SpriteObject.create(x * cellSize, y * cellSize, 0, //c!==0?0:-64,
-        cellSize, cellSize, DOK.Camera.quaternions.southQuaternionArray, light, //c!==0?1:1.5,
-        img);
+        cellSize, cellSize, DOK.Camera.quaternions.southQuaternionArray, img, light, //c!==0?1:1.5,
+        15);
     });
 
     function spriteSelection() {
@@ -158,10 +160,10 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
             img = getBorderedImage(img);
         }
 
-        spriteCubes.push(DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.southQuaternionArray, light, img));
-        spriteCubes.push(DOK.SpriteObject.create(x * cellSize - 10, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.westQuaternionArray, light, img));
-        spriteCubes.push(DOK.SpriteObject.create(x * cellSize + 10, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.eastQuaternionArray, light, img));
-        spriteCubes.push(DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.eastQuaternionArray, light, img));
+        spriteCubes.push(DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.southQuaternionArray, img, light, 0));
+        spriteCubes.push(DOK.SpriteObject.create(x * cellSize - 10, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.westQuaternionArray, img, light, 0));
+        spriteCubes.push(DOK.SpriteObject.create(x * cellSize + 10, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.eastQuaternionArray, img, light, 0));
+        spriteCubes.push(DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, DOK.Camera.quaternions.eastQuaternionArray, img, light, 0));
         spriteCubes.forEach(setTypeCube);
         return spriteCubes;
     }
@@ -184,7 +186,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
             img = getBorderedImage(img);
         }
 
-        var spriteObj = DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, null, light, img);
+        var spriteObj = DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, null, img, light, 0);
         spriteObj.type = "face";
         return spriteObj;
     }
@@ -476,5 +478,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
     }
 
     initialize();
+
+    window.DOK = DOK;
 });
 //# sourceMappingURL=main.js.map
