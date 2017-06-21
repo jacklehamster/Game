@@ -2,6 +2,7 @@ require([
     'threejs',
     'dobuki',
 ], function(THREE, DOK) {
+    window.DOK = DOK;
 
     var debug = {
         fps: location.search.indexOf("fps")>=0,
@@ -9,24 +10,9 @@ require([
 
     document.getElementById("fps").style.display = debug.fps ? "" : "none";
 
-    var renderer = new THREE.WebGLRenderer();//{ antialias: true });
-    var scene = new THREE.Scene();
-    renderer.setClearColor (0, 1);
-
-
-    renderer.render(scene,DOK.Camera.getCamera());
-    window.addEventListener("resize",function() {
-        renderer.setSize( innerWidth, innerHeight );
+    var engine = new DOK.Engine({
+        canvas: document.getElementById('abc'),
     });
-    renderer.sortObjects = false;
-
-    renderer.setSize( innerWidth, innerHeight );
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor (0xffffff, 1);
-    document.body.appendChild( renderer.domElement );
-
-    //    DOK.addControlBall();
-    //  DOK.addControlBox();
 
     var images = {
         squid: [
@@ -37,7 +23,12 @@ require([
         ],
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
         lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
-        water: require.toUrl("https://jacklehamster.github.io/dok/images/water.gif"),
+        water: [
+            require.toUrl("http://localhost/~vincent/game/world/water.jpg"),
+            require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,1"),
+            require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:1,-1"),
+            require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,-1"),
+        ],
         sprite: [
         ],
         border: [
@@ -57,7 +48,7 @@ require([
 
 
     var spriteRenderer = new DOK.SpriteRenderer();
-    scene.add(spriteRenderer.mesh);
+    engine.scene.add(spriteRenderer.mesh);
 
     //    var mouse = {x:0,y:0};
     /*    document.addEventListener("mousemove", function(e) {
@@ -68,8 +59,8 @@ require([
      */
 
     var range = 50;
-    var cellSize = 64;
-    renderer.setClearColor (0xffffff, 1);
+    var cellSize = 256;
+    engine.renderer.setClearColor (0xffffff, 1);
 
 
 
@@ -146,7 +137,7 @@ require([
             var sel = getSelected();
             var selected = !spritePos && pickedItem===null && sel.x === x && sel.y === y;
             var light = 1;
-            var img = DOK.SpriteSheet.spritesheet.water;
+            var img = DOK.SpriteSheet.spritesheet.water[Math.abs(x*13^y*7)%4];
             if(selected && Math.floor(DOK.Loop.time/10)%4!==0) {
                 img = getBorderedImage(img);
             }
@@ -263,18 +254,6 @@ require([
         },
     });
     window.ss = spriteCollection;
-
-    function initialize() {
-        DOK.Loader.getLoadingBar();
-        DOK.Loader.setOnLoad(gameLoaded);
-    }
-
-    function gameLoaded() {
-        document.body.removeChild(DOK.Loader.getLoadingBar());
-        renderer.setClearColor (0xffffff, 1);
-        renderer.render(scene,DOK.Camera.getCamera());
-        startGame();
-    }
 
     var camera = DOK.Camera.getCamera();
     //    var mz = 0, rot = 0;
@@ -533,37 +512,35 @@ require([
 
     window.spriteRenderer = spriteRenderer;
 
+    spriteRenderer.curvature = .5;
 
 
 
-    function startGame() {
-        DOK.Loop.fps = 45;
-        var frame = 0;
-        DOK.Loop.addLoop(function() {
-            //egg.rotateX(.1);
-            frame++;
-            var camera = DOK.Camera.getCamera();
-            camera.position.x += (camGoal.x - camera.position.x) / 3;
-            camera.position.y += (camGoal.y - camera.position.y) / 3;
-            //            camera.position.x -= ddx;
-            //          camera.position.y += ddy;
-            //        ddx *= .7;
-            //      ddy *= .7;
-            /*            camera.position.z += mz;
-             camera.rotateY(rot);
-             mz *= .8;
-             rot *= .8;*/
-            collection.forEach(spriteRenderer.display);
-            spriteCollection.forEach(spriteRenderer.display);
-            spriteRenderer.updateGraphics();
-            if(debug.fps && frame%10===0)
-                document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
-            renderer.render(scene, camera);
-        });
-    }
+//    DOK.Loop.fps = 45;
+    var frame = 0;
+    DOK.Loop.addLoop(function() {
+        if(!engine.ready) {
+            return;
+        }
+        //egg.rotateX(.1);
+        frame++;
+        var camera = DOK.Camera.getCamera();
+        camera.position.x += (camGoal.x - camera.position.x) / 3;
+        camera.position.y += (camGoal.y - camera.position.y) / 3;
+        //            camera.position.x -= ddx;
+        //          camera.position.y += ddy;
+        //        ddx *= .7;
+        //      ddy *= .7;
+        /*            camera.position.z += mz;
+         camera.rotateY(rot);
+         mz *= .8;
+         rot *= .8;*/
+        collection.forEach(spriteRenderer.display);
+        spriteCollection.forEach(spriteRenderer.display);
+        spriteRenderer.updateGraphics();
+        if(debug.fps && frame%10===0)
+            document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
+    });
 
-    initialize();
-
-    window.DOK = DOK;
 
 });
