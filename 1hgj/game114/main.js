@@ -583,9 +583,15 @@ require([
     const hero = {x:0,y:0,type:'hero',speed:.1};
     var coin = 0;
 
+    var startTime = 0;
     function showCoin() {
-        document.getElementById('sidebar').textContent =
-            "$"+coin;
+        var time = (40-(DOK.Loop.time-startTime)/1000);
+        document.getElementById('sidebar').innerHTML =
+            "$"+coin + "<br><font color='snow'>" + Math.floor(time*100)/100 + "</font>";
+        if(time<0) {
+            alert("You made "+" $"+coin+" out of poop!\n\nPress [Ok] to replay");
+            location.reload();
+        }
     }
 
     DOK.Loop.addLoop(function() {
@@ -709,6 +715,9 @@ require([
         if(!engine.ready) {
             return;
         }
+        if(!startTime) {
+            startTime = DOK.Loop.time;
+        }
         updateCamera();
         //egg.rotateX(.1);
         frame++;
@@ -724,8 +733,11 @@ require([
         spriteCollection.forEach(spriteRenderer.display);
         actors.forEach(spriteRenderer.display);
         spriteRenderer.updateGraphics();
-        if(debug.fps && frame%10===0)
-            document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
+//        if(frame%10===0) {
+            showCoin();
+  //      }
+//            document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
+
     });
 
 //    setMouseControl();
