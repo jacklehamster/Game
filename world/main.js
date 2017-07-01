@@ -15,14 +15,28 @@ require([
     });
 
     var images = {
-        squid: [
-            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32"),
-            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,0,32,32"),
-            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,32,32,32"),
-            require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32"),
-        ],
+        squid: {
+            normal:[
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32"),
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,0,32,32"),
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,32,32,32"),
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32"),
+            ],
+            shadow:[
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32|shadow"),
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,0,32,32|shadow"),
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,32,32,32|shadow"),
+                require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32|shadow"),
+            ],
+        },
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
         lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
+        sand: [
+            require.toUrl('http://localhost/~vincent/game/world/sand.jpg'),
+            require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:-1,1'),
+            require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:1,-1'),
+            require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:-1,-1'),
+        ],
         water: [
             require.toUrl("http://localhost/~vincent/game/world/water.jpg"),
             require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,1"),
@@ -49,6 +63,11 @@ require([
 
     var spriteRenderer = new DOK.SpriteRenderer();
     engine.scene.add(spriteRenderer.mesh);
+    window.spriteRenderer = spriteRenderer;
+    spriteRenderer.curvature = .5;
+//    spriteRenderer.bigwave = 15;
+
+
 
     //    var mouse = {x:0,y:0};
     /*    document.addEventListener("mousemove", function(e) {
@@ -97,8 +116,12 @@ require([
     }
 
 
+    var mouseControl = false;
     var selectedObj = { x: 0, y: 0};
     function getSelected() {
+        if(!mouseControl) {
+            return null;
+        }
         //        var xPos = camera.position.x + mouse.x * 2;
         //        var yPos = camera.position.y - 2 * mouse.y;
 
@@ -135,9 +158,9 @@ require([
         function(x,y) {
             var frame = Math.floor(DOK.Loop.time/100);
             var sel = getSelected();
-            var selected = !spritePos && pickedItem===null && sel.x === x && sel.y === y;
+            var selected = sel && !spritePos && pickedItem===null && sel.x === x && sel.y === y;
             var light = 1;
-            var img = DOK.SpriteSheet.spritesheet.water[Math.abs(x*13^y*7)%4];
+            var img = DOK.SpriteSheet.spritesheet.sand[Math.abs(x*13^y*7)%4];
             if(selected && Math.floor(DOK.Loop.time/10)%4!==0) {
                 img = getBorderedImage(img);
             }
@@ -147,8 +170,8 @@ require([
                 cellSize,cellSize,
                 DOK.Camera.quaternions.southQuaternionArray,
                 img,
-                light,//c!==0?1:1.5,
-                15,
+                light*1.5,//c!==0?1:1.5,
+                0,//15,
             );
         }
     );
@@ -179,7 +202,7 @@ require([
             DOK.Camera.quaternions.southQuaternionArray,
             img,
             light,
-            0
+            15,
         ));
         spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize-10,y*cellSize,size/2,
@@ -187,7 +210,7 @@ require([
             DOK.Camera.quaternions.westQuaternionArray,
             img,
             light,
-            0,
+            15,
         ));
         spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize+10,y*cellSize,size/2,
@@ -195,7 +218,7 @@ require([
             DOK.Camera.quaternions.eastQuaternionArray,
             img,
             light,
-            0,
+            15,
         ));
         spriteCubes.push(DOK.SpriteObject.create(
             x*cellSize,y*cellSize,size/2,
@@ -203,7 +226,7 @@ require([
             DOK.Camera.quaternions.eastQuaternionArray,
             img,
             light,
-            0,
+            15,
         ));
         spriteCubes.forEach(setTypeCube)
         return spriteCubes;
@@ -233,7 +256,7 @@ require([
             null,
             img,
             light,
-            0,
+            15,
         );
         spriteObj.type = "face";
         return spriteObj;
@@ -260,36 +283,6 @@ require([
     var camGoal = {
         x:camera.position.x, y:camera.position.y,
     };
-    DOK.Mouse.setOnTouch(
-        function(dx,dy,down,pageX,pageY) {
-            if(dx!==null && dy!==null) {
-                if(pickedItem!==null) {
-                    mouseMoveTo(pageX, pageY);
-                } else if(down) {
-                    camGoal.x = camera.position.x - dx*20;
-                    camGoal.y = camera.position.y + dy*20;
-                } else {
-                    mouseMoveTo(pageX, pageY);
-                }
-                //            mz -= dy/2;
-                //            rot += (dx/1000);
-            } else {
-                if(down) {
-                    camGoal.x = camera.position.x;
-                    camGoal.y = camera.position.y;
-                    var sel = spriteSelection();
-                    if(sel) {
-                        for(var i=0; i<sel.length; i++ ) {
-                            pickedItem = sel[i].uid;
-                            break;
-                        }
-                    }
-                } else {
-                    pickedItem = null;
-                }
-            }
-        }
-    );
 
     var mousePos = new THREE.Vector3();
     /*    document.addEventListener("mousemove", function(event) {
@@ -328,6 +321,9 @@ require([
 
 
     function createSprite(index) {
+        if(!getSelected()) {
+            return;
+        }
         var x = getSelected().x; //getCamPos().x,
         var y = getSelected().y; //getCamPos().y,
         var spriteInfo = spriteCollection.create(x,y,index);
@@ -372,7 +368,6 @@ require([
 
     function drop(e) {
         e = e || event;
-        var pos = getSelected();
         var dt    = e.dataTransfer;
         var reader = new FileReader();
         var file = dt.files[0];
@@ -490,7 +485,9 @@ require([
             //            console.log(pickedItem);
         } else {
             var sel = getSelected();
-            spritePos = getClosestSpritePosition(sel.x,sel.y,20);
+            if(sel) {
+                spritePos = getClosestSpritePosition(sel.x,sel.y,20);
+            }
 //            console.log(spritePos);
         }
         //        console.log(spritePos);
@@ -510,9 +507,124 @@ require([
     });
 
 
-    window.spriteRenderer = spriteRenderer;
 
-    spriteRenderer.curvature = .5;
+    var zoombar = .7;
+    var zoomState = [
+        { distance: 200, angle: 1.3 },
+        { distance: 1000, angle: .3 },
+    ];
+
+    function setMouseControl() {
+        mouseControl = true;
+
+        DOK.Mouse.setOnWheel(
+            function(dx,dy) {
+                zoombar = Math.max(0,Math.min(1,zoombar - dy/300));
+            }
+        );
+
+        DOK.Mouse.setOnZoom(
+            function(pinchSize) {
+                zoombar = Math.max(0,Math.min(1,zoombar + pinchSize/200));
+            }
+        );
+        DOK.Mouse.setOnTouch(
+            function(dx,dy,down,pageX,pageY) {
+                if(dx!==null && dy!==null) {
+                    if(pickedItem!==null) {
+                        mouseMoveTo(pageX, pageY);
+                    } else if(down) {
+                        camGoal.x = camera.position.x - dx*20;
+                        camGoal.y = camera.position.y + dy*20;
+                    } else {
+                        mouseMoveTo(pageX, pageY);
+                    }
+                    //            mz -= dy/2;
+                    //            rot += (dx/1000);
+                } else {
+                    if(down) {
+                        camGoal.x = camera.position.x;
+                        camGoal.y = camera.position.y;
+                        var sel = spriteSelection();
+                        if(sel) {
+                            for(var i=0; i<sel.length; i++ ) {
+                                pickedItem = sel[i].uid;
+                                break;
+                            }
+                        }
+                    } else {
+                        pickedItem = null;
+                    }
+                }
+            }
+        );
+    }
+
+
+    function updateCamera() {
+        var camera = DOK.Camera.getCamera();
+        camera.position.x += (camGoal.x - camera.position.x) / 3;
+        camera.position.y += (camGoal.y - camera.position.y) / 3;
+        camera.position.z = zoombar*zoomState[0].distance + (1-zoombar)*zoomState[1].distance;
+        camera.rotation.x = zoombar*zoomState[0].angle + (1-zoombar)*zoomState[1].angle;
+    }
+
+    const hero = {x:0,y:0,img:'squid',speed:.1};
+
+    DOK.Loop.addLoop(function() {
+        const mov = DOK.Keyboard.getMove();
+        if(mov.x || mov.y) {
+            const dist = Math.sqrt(mov.x*mov.x + mov.y*mov.y);
+            hero.x += mov.x/dist * hero.speed;
+            hero.y += mov.y/dist * hero.speed;
+        }
+        camGoal.x += (hero.x*cellSize - camGoal.x)/5;
+        camGoal.y += (hero.y*cellSize - 1000 - camGoal.y)/5;
+    });
+
+
+
+    var actorsList = [
+        hero,
+    ];
+    var actors = new DOK.Collection(
+        {
+            array:[],
+        },
+        function(actor) {
+            var array = this.options.array;
+            array.length = 0;
+            var frame = Math.floor(DOK.Loop.time/100);
+            var light = 1;
+            var wave = 0;
+            var animation = DOK.SpriteSheet.spritesheet[actor.img].normal;
+            var shadow_animation = DOK.SpriteSheet.spritesheet[actor.img].shadow;
+            var img = animation[frame % animation.length];
+            var shadow_img = shadow_animation[frame % animation.length];
+
+            array[0] = DOK.SpriteObject.create(
+                actor.x*cellSize,actor.y*cellSize,0,//c!==0?0:-64,
+                cellSize,cellSize,
+                null,
+                img,
+                light,//c!==0?1:1.5,
+                wave,//15,
+            );
+            array[0].type = 'face';
+
+            return array;
+        },
+        function(callback) {
+            for(let i=0; i<actorsList.length; i++) {
+                const obj = this.getSprite(actorsList[i]);
+                if(Array.isArray(obj)) {
+                    obj.forEach(callback);
+                } else {
+                    callback(obj);
+                }
+            }
+        }
+    );
 
 
 
@@ -522,11 +634,9 @@ require([
         if(!engine.ready) {
             return;
         }
+        updateCamera();
         //egg.rotateX(.1);
         frame++;
-        var camera = DOK.Camera.getCamera();
-        camera.position.x += (camGoal.x - camera.position.x) / 3;
-        camera.position.y += (camGoal.y - camera.position.y) / 3;
         //            camera.position.x -= ddx;
         //          camera.position.y += ddy;
         //        ddx *= .7;
@@ -537,10 +647,12 @@ require([
          rot *= .8;*/
         collection.forEach(spriteRenderer.display);
         spriteCollection.forEach(spriteRenderer.display);
+        actors.forEach(spriteRenderer.display);
         spriteRenderer.updateGraphics();
         if(debug.fps && frame%10===0)
             document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
     });
 
+//    setMouseControl();
 
 });
