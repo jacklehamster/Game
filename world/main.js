@@ -4,17 +4,17 @@ require([
 ], function(THREE, DOK) {
     window.DOK = DOK;
 
-    var debug = {
+    const debug = {
         fps: location.search.indexOf("fps")>=0,
     };
 
     document.getElementById("fps").style.display = debug.fps ? "" : "none";
 
-    var engine = new DOK.Engine({
+    const engine = new DOK.Engine({
         canvas: document.getElementById('abc'),
     });
 
-    var images = {
+    const images = {
         squid: {
             normal:[
                 require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32"),
@@ -32,10 +32,10 @@ require([
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
         lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
         sand: [
-            require.toUrl('http://localhost/~vincent/game/world/sand.jpg'),
-            require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:-1,1'),
-            require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:1,-1'),
-            require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:-1,-1'),
+            require.toUrl('http://localhost/~vincent/game/world/gold.jpg'),
+            require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:-1,1'),
+            require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:1,-1'),
+            require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:-1,-1'),
         ],
         water: [
             require.toUrl("http://localhost/~vincent/game/world/water.jpg"),
@@ -54,14 +54,14 @@ require([
         if(index in DOK.SpriteSheet.spritesheet.border) {
             return DOK.SpriteSheet.spritesheet.border[index];
         }
-        var cut = DOK.SpriteSheet.getCut(index);
+        const cut = DOK.SpriteSheet.getCut(index);
         images.border[index] = cut.url + "|border:10%";
         DOK.SpriteSheet.preLoad(images);
         return DOK.SpriteSheet.spritesheet.border[index];
     }
 
 
-    var spriteRenderer = new DOK.SpriteRenderer();
+    const spriteRenderer = new DOK.SpriteRenderer();
     engine.scene.add(spriteRenderer.mesh);
     window.spriteRenderer = spriteRenderer;
     spriteRenderer.curvature = .5;
@@ -77,24 +77,22 @@ require([
      });
      */
 
-    var range = 50;
-    var cellSize = 256;
+    const range = 50;
+    const cellSize = 256;
     engine.renderer.setClearColor (0xffffff, 1);
 
 
-
-
-    var roundabout = new DOK.Utils.Roundabout();
-    var closestPoint = { x:0,y:0};
+    const roundabout = new DOK.Utils.Roundabout();
+    const closestPoint = { x:0,y:0};
     function getClosestSpritePosition(x,y,limit) {
         x = Math.round(x);
         y = Math.round(y);
         roundabout.reset();
         //        console.log(x,y);
 
-        for(var i=0; i<limit; i++) {
-            var pos = roundabout.next();
-            var sprites = spriteCollection.get(x+pos[0],y+pos[1]);
+        for(let i=0; i<limit; i++) {
+            const pos = roundabout.next();
+            const sprites = spriteCollection.get(x+pos[0],y+pos[1]);
             if(sprites && !empty(sprites)) {
                 closestPoint.x = x+pos[0];
                 closestPoint.y = y+pos[1];
@@ -105,7 +103,7 @@ require([
     }
 
     function empty(obj) {
-        for(var i in obj) {
+        for(let i in obj) {
             return false;
         }
         return true;
@@ -116,8 +114,8 @@ require([
     }
 
 
-    var mouseControl = false;
-    var selectedObj = { x: 0, y: 0};
+    let mouseControl = false;
+    const selectedObj = { x: 0, y: 0};
     function getSelected() {
         if(!mouseControl) {
             return null;
@@ -125,8 +123,8 @@ require([
         //        var xPos = camera.position.x + mouse.x * 2;
         //        var yPos = camera.position.y - 2 * mouse.y;
 
-        var xPos = mousePos.x;
-        var yPos = mousePos.y;
+        const xPos = mousePos.x;
+        const yPos = mousePos.y;
         if(selectedObj.x !== Math.round(xPos/cellSize) || selectedObj.y !== Math.round(yPos/cellSize)) {
             selectedObj.x = Math.round(xPos/cellSize);
             selectedObj.y = Math.round(yPos/cellSize);// + 6;
@@ -135,15 +133,15 @@ require([
     }
 
     function getCamPos() {
-        var xPos = camera.position.x;
-        var yPos = camera.position.y;
+        const xPos = camera.position.x;
+        const yPos = camera.position.y;
 
         selectedObj.x = Math.round(xPos/cellSize);
         selectedObj.y = Math.round(yPos/cellSize) + 6;
         return selectedObj;
     }
 
-    var collection = new DOK.Collection(
+    const collection = new DOK.Collection(
         {
             type: "grid",
             get x() {
@@ -156,11 +154,13 @@ require([
             height: range,
         },
         function(x,y) {
-            var frame = Math.floor(DOK.Loop.time/100);
-            var sel = getSelected();
-            var selected = sel && !spritePos && pickedItem===null && sel.x === x && sel.y === y;
-            var light = 1;
-            var img = DOK.SpriteSheet.spritesheet.sand[Math.abs(x*13^y*7)%4];
+            const frame = Math.floor(DOK.Loop.time/100);
+            const sel = getSelected();
+            const selected = sel && !spritePos && pickedItem===null && sel.x === x && sel.y === y;
+            const light = .7;
+            const wave = 0;
+            const anim = DOK.SpriteSheet.spritesheet.sand;
+            let img = anim[Math.abs(x*13^y*7)%anim.length];
             if(selected && Math.floor(DOK.Loop.time/10)%4!==0) {
                 img = getBorderedImage(img);
             }
@@ -170,28 +170,28 @@ require([
                 cellSize,cellSize,
                 DOK.Camera.quaternions.southQuaternionArray,
                 img,
-                light*1.5,//c!==0?1:1.5,
-                0,//15,
+                light,//c!==0?1:1.5,
+                wave,//15,
             );
         }
     );
 
     function spriteSelection() {
-        var sel = spritePos;
+        const sel = spritePos;
         return sel ? spriteCollection.get(sel.x,sel.y) : null;
     }
 
-    var spriteCubes = [];
+    const spriteCubes = [];
     function spriteCube(spriteInfo) {
-        var x = spriteInfo.x;
-        var y = spriteInfo.y;
-        var index = spriteInfo.index;
-        var size = this.options.cellSize*3;
-        var pickedMe = picked(spriteInfo);
-        var light = pickedMe ? Math.random() : 1;
+        const x = spriteInfo.x;
+        const y = spriteInfo.y;
+        const index = spriteInfo.index;
+        const size = this.options.cellSize*3;
+        const pickedMe = picked(spriteInfo);
+        const light = pickedMe ? Math.random() : 1;
         //spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y ? Math.random() : 1;
-        var selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
-        var img = DOK.SpriteSheet.spritesheet.sprite[index];
+        const selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
+        let img = DOK.SpriteSheet.spritesheet.sprite[index];
         if(!pickedMe && selected && Math.floor(DOK.Loop.time/10)%4!==0) {
             img = getBorderedImage(img);
         }
@@ -237,33 +237,34 @@ require([
     }
 
     function spriteFace(spriteInfo) {
-        var x = spriteInfo.x;
-        var y = spriteInfo.y;
-        var index = spriteInfo.index;
-        var size = this.options.cellSize*3;
-        var pickedMe = picked(spriteInfo);
-        var light = pickedMe ? Math.random() : 1;
+        const x = spriteInfo.x;
+        const y = spriteInfo.y;
+        const index = spriteInfo.index;
+        const size = this.options.cellSize*3;
+        const pickedMe = picked(spriteInfo);
+        const light = pickedMe ? Math.random() : 1;
+        const wave = 0;//15
         //spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y ? Math.random() : 1;
-        var selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
-        var img = DOK.SpriteSheet.spritesheet.sprite[index];
+        const selected = spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y;
+        let img = DOK.SpriteSheet.spritesheet.sprite[index];
         if(!pickedMe && selected && Math.floor(DOK.Loop.time/10)%4!==0) {
             img = getBorderedImage(img);
         }
 
-        var spriteObj = DOK.SpriteObject.create(
+        const spriteObj = DOK.SpriteObject.create(
             x*cellSize,y*cellSize,size/2,
             size,size,
             null,
             img,
             light,
-            15,
+            wave,
         );
         spriteObj.type = "face";
         return spriteObj;
     }
 
 
-    var spriteCollection = DOK.Collection.createSpriteCollection({
+    const spriteCollection = DOK.Collection.createSpriteCollection({
         cellSize: cellSize,
         spriteFunction: function(spriteInfo) {
             switch (spriteInfo.type) {
@@ -278,19 +279,19 @@ require([
     });
     window.ss = spriteCollection;
 
-    var camera = DOK.Camera.getCamera();
+    const camera = DOK.Camera.getCamera();
     //    var mz = 0, rot = 0;
-    var camGoal = {
+    const camGoal = {
         x:camera.position.x, y:camera.position.y,
     };
 
-    var mousePos = new THREE.Vector3();
+    const mousePos = new THREE.Vector3();
     /*    document.addEventListener("mousemove", function(event) {
      mouseMoveTo(event.pageX, event.pageY);
      event.preventDefault();
      });
      */
-    var pickedItem = null;
+    let pickedItem = null;
     /*    document.addEventListener("mousedown", function(event) {
      for(var uid in spriteSelection()) {
      pickedItem = uid;
@@ -311,22 +312,22 @@ require([
      scene.add(egg);
      */
 
-    var request = new XMLHttpRequest();
+/*    const request = new XMLHttpRequest();
     request.open("GET", "config.json", true);
     request.addEventListener("load", function() {
-        var config= JSON.parse(request.responseText);
+        const config= JSON.parse(request.responseText);
         DOK.Camera.setCameraPosition(config.camera);
     });
     request.send(null);
-
+*/
 
     function createSprite(index) {
         if(!getSelected()) {
             return;
         }
-        var x = getSelected().x; //getCamPos().x,
-        var y = getSelected().y; //getCamPos().y,
-        var spriteInfo = spriteCollection.create(x,y,index);
+        const x = getSelected().x; //getCamPos().x,
+        const y = getSelected().y; //getCamPos().y,
+        const spriteInfo = spriteCollection.create(x,y,index);
         spriteInfo.type = 'face';
         //        console.log("DROPPED",spriteInfo);
 
@@ -368,20 +369,20 @@ require([
 
     function drop(e) {
         e = e || event;
-        var dt    = e.dataTransfer;
-        var reader = new FileReader();
-        var file = dt.files[0];
+        const dt    = e.dataTransfer;
+        let reader = new FileReader();
+        const file = dt.files[0];
         //        console.log(e);
         reader.addEventListener( 'loadend', function(e) {
-            console.log(file.type);
+            //console.log(file.type);
             if(['image/gif','image/jpeg','image/png'].indexOf(file.type)<0) {
                 return;
             } else if(file.size>10000000) {
                 return;
             }
-            var img = new Image();
+            const img = new Image();
             img.addEventListener("load", function(e) {
-                console.log(img);
+                //console.log(img);
                 //        images['floor'] = img.src;
                 const index = images.sprite.length;
                 images.sprite.push(img.src);
@@ -432,8 +433,9 @@ require([
 
     //    var raycaster = new THREE.Raycaster();
     ///  var mouse = new THREE.Vector2();
-    var spritePos = null, mouseMoveToVector = new THREE.Vector3();
-    var mouseVector = new THREE.Vector3();
+    let spritePos = null;
+    const mouseMoveToVector = new THREE.Vector3();
+    const mouseVector = new THREE.Vector3();
     function mouseMoveTo(x,y) {
         /*        mouse.x = x;
          mouse.y = y;
@@ -467,12 +469,12 @@ require([
 
         mouseMoveToVector.unproject( camera );
 
-        var dir = mouseMoveToVector.sub( camera.position ).normalize();
+        const dir = mouseMoveToVector.sub( camera.position ).normalize();
 
-        var distance = - camera.position.z / dir.z;
+        const distance = - camera.position.z / dir.z;
 
         mouseVector.copy(camera.position);
-        var pos = mouseVector.add( dir.multiplyScalar( distance ) );
+        const pos = mouseVector.add( dir.multiplyScalar( distance ) );
         mousePos.x = pos.x;
         mousePos.y = pos.y;
         mousePos.z = pos.z;
@@ -480,11 +482,11 @@ require([
 
         if(pickedItem) {
             spritePos = null;
-            var sprite = spriteCollection.find(pickedItem);
+            const sprite = spriteCollection.find(pickedItem);
             sprite.move(pos.x/cellSize, pos.y/cellSize);
             //            console.log(pickedItem);
         } else {
-            var sel = getSelected();
+            const sel = getSelected();
             if(sel) {
                 spritePos = getClosestSpritePosition(sel.x,sel.y,20);
             }
@@ -508,8 +510,8 @@ require([
 
 
 
-    var zoombar = .7;
-    var zoomState = [
+    let zoombar = .7;
+    const zoomState = [
         { distance: 200, angle: 1.3 },
         { distance: 1000, angle: .3 },
     ];
@@ -545,9 +547,9 @@ require([
                     if(down) {
                         camGoal.x = camera.position.x;
                         camGoal.y = camera.position.y;
-                        var sel = spriteSelection();
+                        const sel = spriteSelection();
                         if(sel) {
-                            for(var i=0; i<sel.length; i++ ) {
+                            for(let i=0; i<sel.length; i++ ) {
                                 pickedItem = sel[i].uid;
                                 break;
                             }
@@ -562,45 +564,52 @@ require([
 
 
     function updateCamera() {
-        var camera = DOK.Camera.getCamera();
+        const camera = DOK.Camera.getCamera();
         camera.position.x += (camGoal.x - camera.position.x) / 3;
         camera.position.y += (camGoal.y - camera.position.y) / 3;
         camera.position.z = zoombar*zoomState[0].distance + (1-zoombar)*zoomState[1].distance;
         camera.rotation.x = zoombar*zoomState[0].angle + (1-zoombar)*zoomState[1].angle;
     }
 
-    const hero = {x:0,y:0,img:'squid',speed:.1};
+    const hero = {x:0,y:0,img:'squid',speed:.05};
 
+    let centerCam = true;
     DOK.Loop.addLoop(function() {
         const mov = DOK.Keyboard.getMove();
         if(mov.x || mov.y) {
             const dist = Math.sqrt(mov.x*mov.x + mov.y*mov.y);
             hero.x += mov.x/dist * hero.speed;
             hero.y += mov.y/dist * hero.speed;
+            centerCam = true;
         }
-        camGoal.x += (hero.x*cellSize - camGoal.x)/5;
-        camGoal.y += (hero.y*cellSize - 1000 - camGoal.y)/5;
+        if(centerCam) {
+            const dx = (hero.x*cellSize - camGoal.x)/5;
+            const dy = (hero.y*cellSize - 1000 - camGoal.y)/5;
+            camGoal.x += dx;
+            camGoal.y += dy;
+            if(Math.abs(dx)<.1 || Math.abs(dy)<.1) {
+                centerCam = false;
+            }
+        }
     });
 
 
 
-    var actorsList = [
+    const actorsList = [
         hero,
     ];
-    var actors = new DOK.Collection(
+    const actors = new DOK.Collection(
         {
             array:[],
         },
         function(actor) {
-            var array = this.options.array;
+            const array = this.options.array;
             array.length = 0;
-            var frame = Math.floor(DOK.Loop.time/100);
-            var light = 1;
-            var wave = 0;
-            var animation = DOK.SpriteSheet.spritesheet[actor.img].normal;
-            var shadow_animation = DOK.SpriteSheet.spritesheet[actor.img].shadow;
-            var img = animation[frame % animation.length];
-            var shadow_img = shadow_animation[frame % animation.length];
+            const frame = Math.floor(DOK.Loop.time/100);
+            const light = 1;
+            const wave = 0;
+            const animation = DOK.SpriteSheet.spritesheet[actor.img].normal;
+            let img = animation[frame % animation.length];
 
             array[0] = DOK.SpriteObject.create(
                 actor.x*cellSize,actor.y*cellSize,0,//c!==0?0:-64,
@@ -629,22 +638,13 @@ require([
 
 
 //    DOK.Loop.fps = 45;
-    var frame = 0;
+    let frame = 0;
     DOK.Loop.addLoop(function() {
         if(!engine.ready) {
             return;
         }
         updateCamera();
-        //egg.rotateX(.1);
         frame++;
-        //            camera.position.x -= ddx;
-        //          camera.position.y += ddy;
-        //        ddx *= .7;
-        //      ddy *= .7;
-        /*            camera.position.z += mz;
-         camera.rotateY(rot);
-         mz *= .8;
-         rot *= .8;*/
         collection.forEach(spriteRenderer.display);
         spriteCollection.forEach(spriteRenderer.display);
         actors.forEach(spriteRenderer.display);
@@ -653,6 +653,6 @@ require([
             document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
     });
 
-//    setMouseControl();
+    setMouseControl();
 
 });

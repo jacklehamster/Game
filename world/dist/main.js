@@ -20,7 +20,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         },
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
         lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
-        sand: [require.toUrl('http://localhost/~vincent/game/world/sand.jpg'), require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:-1,1'), require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:1,-1'), require.toUrl('http://localhost/~vincent/game/world/sand.jpg|scale:-1,-1')],
+        sand: [require.toUrl('http://localhost/~vincent/game/world/gold.jpg'), require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:-1,1'), require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:1,-1'), require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:-1,-1')],
         water: [require.toUrl("http://localhost/~vincent/game/world/water.jpg"), require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,1"), require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:1,-1"), require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,-1")],
         sprite: [],
         border: []
@@ -128,15 +128,17 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         var frame = Math.floor(DOK.Loop.time / 100);
         var sel = getSelected();
         var selected = sel && !spritePos && pickedItem === null && sel.x === x && sel.y === y;
-        var light = 1;
-        var img = DOK.SpriteSheet.spritesheet.sand[Math.abs(x * 13 ^ y * 7) % 4];
+        var light = .7;
+        var wave = 0;
+        var anim = DOK.SpriteSheet.spritesheet.sand;
+        var img = anim[Math.abs(x * 13 ^ y * 7) % anim.length];
         if (selected && Math.floor(DOK.Loop.time / 10) % 4 !== 0) {
             img = getBorderedImage(img);
         }
 
         return DOK.SpriteObject.create(x * cellSize, y * cellSize, 0, //c!==0?0:-64,
-        cellSize, cellSize, DOK.Camera.quaternions.southQuaternionArray, img, light * 1.5, //c!==0?1:1.5,
-        0);
+        cellSize, cellSize, DOK.Camera.quaternions.southQuaternionArray, img, light, //c!==0?1:1.5,
+        wave);
     });
 
     function spriteSelection() {
@@ -178,6 +180,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         var size = this.options.cellSize * 3;
         var pickedMe = picked(spriteInfo);
         var light = pickedMe ? Math.random() : 1;
+        var wave = 0; //15
         //spritePos && Math.floor(x)===spritePos.x&& Math.floor(y)===spritePos.y ? Math.random() : 1;
         var selected = spritePos && Math.floor(x) === spritePos.x && Math.floor(y) === spritePos.y;
         var img = DOK.SpriteSheet.spritesheet.sprite[index];
@@ -185,7 +188,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
             img = getBorderedImage(img);
         }
 
-        var spriteObj = DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, null, img, light, 15);
+        var spriteObj = DOK.SpriteObject.create(x * cellSize, y * cellSize, size / 2, size, size, null, img, light, wave);
         spriteObj.type = "face";
         return spriteObj;
     }
@@ -237,13 +240,14 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
      scene.add(egg);
      */
 
-    var request = new XMLHttpRequest();
-    request.open("GET", "config.json", true);
-    request.addEventListener("load", function () {
-        var config = JSON.parse(request.responseText);
-        DOK.Camera.setCameraPosition(config.camera);
-    });
-    request.send(null);
+    /*    const request = new XMLHttpRequest();
+        request.open("GET", "config.json", true);
+        request.addEventListener("load", function() {
+            const config= JSON.parse(request.responseText);
+            DOK.Camera.setCameraPosition(config.camera);
+        });
+        request.send(null);
+    */
 
     function createSprite(index) {
         if (!getSelected()) {
@@ -298,7 +302,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         var file = dt.files[0];
         //        console.log(e);
         reader.addEventListener('loadend', function (e) {
-            console.log(file.type);
+            //console.log(file.type);
             if (['image/gif', 'image/jpeg', 'image/png'].indexOf(file.type) < 0) {
                 return;
             } else if (file.size > 10000000) {
@@ -306,7 +310,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
             }
             var img = new Image();
             img.addEventListener("load", function (e) {
-                console.log(img);
+                //console.log(img);
                 //        images['floor'] = img.src;
                 var index = images.sprite.length;
                 images.sprite.push(img.src);
@@ -353,8 +357,8 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
 
     //    var raycaster = new THREE.Raycaster();
     ///  var mouse = new THREE.Vector2();
-    var spritePos = null,
-        mouseMoveToVector = new THREE.Vector3();
+    var spritePos = null;
+    var mouseMoveToVector = new THREE.Vector3();
     var mouseVector = new THREE.Vector3();
     function mouseMoveTo(x, y) {
         /*        mouse.x = x;
@@ -464,17 +468,26 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         camera.rotation.x = zoombar * zoomState[0].angle + (1 - zoombar) * zoomState[1].angle;
     }
 
-    var hero = { x: 0, y: 0, img: 'squid', speed: .1 };
+    var hero = { x: 0, y: 0, img: 'squid', speed: .05 };
 
+    var centerCam = true;
     DOK.Loop.addLoop(function () {
         var mov = DOK.Keyboard.getMove();
         if (mov.x || mov.y) {
             var dist = Math.sqrt(mov.x * mov.x + mov.y * mov.y);
             hero.x += mov.x / dist * hero.speed;
             hero.y += mov.y / dist * hero.speed;
+            centerCam = true;
         }
-        camGoal.x += (hero.x * cellSize - camGoal.x) / 5;
-        camGoal.y += (hero.y * cellSize - 1000 - camGoal.y) / 5;
+        if (centerCam) {
+            var dx = (hero.x * cellSize - camGoal.x) / 5;
+            var dy = (hero.y * cellSize - 1000 - camGoal.y) / 5;
+            camGoal.x += dx;
+            camGoal.y += dy;
+            if (Math.abs(dx) < .1 || Math.abs(dy) < .1) {
+                centerCam = false;
+            }
+        }
     });
 
     var actorsList = [hero];
@@ -487,9 +500,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         var light = 1;
         var wave = 0;
         var animation = DOK.SpriteSheet.spritesheet[actor.img].normal;
-        var shadow_animation = DOK.SpriteSheet.spritesheet[actor.img].shadow;
         var img = animation[frame % animation.length];
-        var shadow_img = shadow_animation[frame % animation.length];
 
         array[0] = DOK.SpriteObject.create(actor.x * cellSize, actor.y * cellSize, 0, //c!==0?0:-64,
         cellSize, cellSize, null, img, light, //c!==0?1:1.5,
@@ -515,16 +526,7 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
             return;
         }
         updateCamera();
-        //egg.rotateX(.1);
         frame++;
-        //            camera.position.x -= ddx;
-        //          camera.position.y += ddy;
-        //        ddx *= .7;
-        //      ddy *= .7;
-        /*            camera.position.z += mz;
-         camera.rotateY(rot);
-         mz *= .8;
-         rot *= .8;*/
         collection.forEach(spriteRenderer.display);
         spriteCollection.forEach(spriteRenderer.display);
         actors.forEach(spriteRenderer.display);
@@ -532,6 +534,6 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
         if (debug.fps && frame % 10 === 0) document.getElementById("fps").textContent = DOK.Loop.fps + " fps";
     });
 
-    //    setMouseControl();
+    setMouseControl();
 });
 //# sourceMappingURL=main.js.map
