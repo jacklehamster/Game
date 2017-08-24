@@ -1,9 +1,6 @@
 [submodule "jupi/g_generation/JavaScript-MD5"]
 	path = jupi/g_generation/JavaScript-MD5
 	url = https://github.com/blueimp/JavaScript-MD5
-[submodule "submodules/three.js"]
-	path = submodules/three.js
-	url = https://github.com/mrdoob/three.js/
 [submodule "submodules/gamelib"]
 	path = submodules/gamelib
 	url = https://github.com/jacklehamster/gamelib

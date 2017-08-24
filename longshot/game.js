@@ -37,7 +37,7 @@ window.onload = function() {
     );
     leftGoal.position.set(-460,-49,0);
     leftGoal.geometry.scale(20,46,1);
-    scene.add(leftGoal);
+    scene.add(leftGoal);f
 
     var rightGoal = new THREE.Mesh(new THREE.PlaneGeometry(1,1),
         new THREE.MeshBasicMaterial(
