@@ -1,8 +1,0 @@
-{
-  "name": "Demo",
-  "main": "demo/index.html",
-  "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.5.1"
-  }
-}
