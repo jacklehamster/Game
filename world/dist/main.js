@@ -19,9 +19,9 @@ require(['threejs', 'dobuki'], function (THREE, DOK) {
             shadow: [require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,0,32,32|shadow"), require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,0,32,32|shadow"), require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|0,32,32,32|shadow"), require.toUrl("https://jacklehamster.github.io/dok/images/squid.png|32,32,32,32|shadow")]
         },
         floor: require.toUrl("https://jacklehamster.github.io/dok/images/wood.png"),
-        lava: require.toUrl('http://localhost/~vincent/game/world/lava.png'),
-        sand: [require.toUrl('http://localhost/~vincent/game/world/gold.jpg'), require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:-1,1'), require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:1,-1'), require.toUrl('http://localhost/~vincent/game/world/gold.jpg|scale:-1,-1')],
-        water: [require.toUrl("http://localhost/~vincent/game/world/water.jpg"), require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,1"), require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:1,-1"), require.toUrl("http://localhost/~vincent/game/world/water.jpg|scale:-1,-1")],
+        lava: require.toUrl('lava.png'),
+        sand: [require.toUrl('gold.jpg'), require.toUrl('gold.jpg|scale:-1,1'), require.toUrl('gold.jpg|scale:1,-1'), require.toUrl('gold.jpg|scale:-1,-1')],
+        water: [require.toUrl("water.jpg"), require.toUrl("water.jpg|scale:-1,1"), require.toUrl("water.jpg|scale:1,-1"), require.toUrl("water.jpg|scale:-1,-1")],
         sprite: [],
         border: []
     };
