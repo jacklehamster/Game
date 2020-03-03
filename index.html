@@ -1,0 +1,81 @@
+<head>
+<script src='header.js'></script> 
+<script>
+	const OWNER = "jacklehamster";
+ 	const REPO = "game";
+
+  function compareFiles(file1, file2) {
+    const val1 = file1.type === "dir" ? 1 : 0;
+    const val2 = file2.type === "dir" ? 1 : 0;
+    return val1 - val2;
+  }
+  
+  function listContent(url) {
+  		return new Promise((resolve, reject) => {
+		      const xhr = new XMLHttpRequest();
+		      xhr.open("GET", url, true);
+		      xhr.onload = function (e) {
+		        if (xhr.readyState === 4) {
+		          if (xhr.status === 200) {
+		            const files = JSON.parse(xhr.responseText);
+		            files.sort(compareFiles);
+		            resolve(files);
+		          } else {
+		          	reject(xhr.statusText);
+		          }
+		        }
+		      };
+		      xhr.onerror = function (e) {
+		      	reject(xhr.statusText);
+		      };
+		      xhr.send(null);
+  		});
+  }
+
+  function loadJson(url) {
+  		return new Promise((resolve, reject) => {
+		      const xhr = new XMLHttpRequest();
+		      xhr.open("GET", url, true);
+		      xhr.onload = function (e) {
+		        if (xhr.readyState === 4) {
+		          if (xhr.status === 200) {
+		            const obj = JSON.parse(xhr.responseText);
+		            resolve(obj);
+		          } else {
+		          	reject(xhr.statusText);
+		          }
+		        }
+		      };
+		      xhr.onerror = function (e) {
+		      	reject(xhr.statusText);
+		      };
+		      xhr.send(null);
+  		});
+  }
+
+	function listLinks(links) {
+		console.log(links);
+		links.forEach(({name, html_url, homepage}) => {
+  		  	const div = document.body.appendChild(document.createElement("div"));
+		  	const a = document.body.appendChild(document.createElement("a"));
+			a.href = homepage || html_url;
+			a.innerText = `${homepage?'🌐':'📜'} ${name}`;
+		});
+	  document.body.appendChild(document.createElement("hr"));
+	}
+	
+	function dump(data) {
+		const div = document.body.appendChild(document.createElement("pre"));
+		div.innerText = JSON.stringify(data, null, "   ");
+	}
+  
+  document.addEventListener("DOMContentLoaded", e => {
+       listContent(`https://api.github.com/repos/${OWNER}/${REPO}/contents`).then(listLinks);
+       loadJson(`https://api.github.com/users/${OWNER}/repos`).then(listLinks);
+  });
+  
+</script>
+</head>
+<body>
+	
+</body>
